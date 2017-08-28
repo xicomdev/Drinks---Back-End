@@ -57,7 +57,7 @@ var $components = array('Common');
 			
 			if(!empty($resultset['User']['job_id'])){
 				$job = $this->JobList->find('first',array('conditions'=>array('_id' => $resultset['User']['job_id']),'fields'=>array("eng_name","jap_name")));
-				$resultset['User']['job'] = $job;	
+				$resultset['User']['job'] = $job['JobList'];	
 			}			
 			 
 			if(!empty($resultset)){
@@ -97,6 +97,7 @@ var $components = array('Common');
 			$this->User->create();
 			
 			if(!empty($_FILES['image'])){
+				//print_r($_FILES['image']);
 				$this->request->data['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
 				}
 			if($this->User->save($this->request->data)){
@@ -107,7 +108,7 @@ var $components = array('Common');
 				$resultset = $this->User->find('first', $params);
 				if(!empty($resultset['User']['job_id'])){
 					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $resultset['User']['job_id']),'fields'=>array("eng_name","jap_name")));
-			    	$resultset['User']['job'] = $job;
+			    	$resultset['User']['job'] = $job['JobList'];
 			    } 
 				$resultArray = array();
 				$resultArray['status'] = true;
@@ -230,11 +231,17 @@ var $components = array('Common');
 	 */
 	public function addGroup() {
 		$this->loadModel('Group');
+		$this->loadModel('User');
+		$this->loadModel('JobList');
 		if (!empty($this->request->data['user_id'])) {
 			$this->Group->create();
 			
 			if(!empty($_FILES['image'])){
-				$this->request->data['image'] = BASE_URL."uploads/groups/original/".$this->Common->upload("group_image",$_FILES['image']);	
+				//echo "1";
+				//print_r($_FILES['image']);
+				$this->request->data['image'] = BASE_URL."uploads/groups/original/".$this->Common->upload("group_image",$_FILES['image']);
+				//echo "3";	
+				//print_r($this->request->data['image']);
 				}
 			if($this->Group->save($this->request->data)){
 				$last_inserted_id = $this->Group->getLastInsertID();
@@ -242,6 +249,16 @@ var $components = array('Common');
 					'conditions' => array('Group._id' => $last_inserted_id),
 				);
 				$resultset = $this->Group->find('first', $params);
+
+				// Binding
+				if(!empty($resultset['Group']['user_id'])){
+					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
+					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+			    	$user_array['User']['job'] = $job['JobList'];
+			    	$resultset['Group']['user'] = $user_array['User'];
+			    } 
+
+
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = $resultset;
@@ -271,6 +288,8 @@ var $components = array('Common');
 	 */
 	public function editGroup() {
 		$this->loadModel('Group');
+		$this->loadModel('User');
+		$this->loadModel('JobList');
 		if (!empty($this->request->data['id'])) {
 			$group = $this->Group->find('first',array('conditions'=>array('_id' => $this->request->data['id'])));
 			if(!empty($group)){
@@ -285,6 +304,14 @@ var $components = array('Common');
 				}
 
 				if($this->Group->save($group)){
+
+					//Binding
+					if(!empty($group['Group']['user_id'])){
+						$user_array = $this->User->find('first',array('conditions'=>array('_id' => $group['Group']['user_id'])));
+						$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+				    	$user_array['User']['job'] = $job['JobList'];
+				    	$group['Group']['user'] = $user_array['User'];
+				    } 
 					$resultArray = array();
 					$resultArray['status'] = true;
 					$resultArray['data'] = $group;
@@ -322,6 +349,8 @@ var $components = array('Common');
 	 */
 	public function deleteGroup() {
 		$this->loadModel('Group');
+		$this->loadModel('User');
+		$this->loadModel('JobList');
 		if (!empty($this->request->data['id'])) {
 
 			$group = $this->Group->find('first',array('conditions'=>array('_id' => $this->request->data['id'])));	
@@ -330,6 +359,14 @@ var $components = array('Common');
 				$old_image = str_replace(BASE_URL."uploads/groups/original/", "", $group['Group']['image']); 
 				unlink(WWW_ROOT.'uploads/groups/original/'.$old_image);	
 				unlink(WWW_ROOT.'uploads/groups/resized/'.$old_image);	
+
+				//Binding
+				if(!empty($resultset['Group']['user_id'])){
+					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
+					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+			    	$user_array['User']['job'] = $job['JobList'];
+			    	$resultset['Group']['user'] = $user_array['User'];
+			    } 
 			
 				$resultArray = array();
 				$resultArray['status'] = true;
@@ -355,31 +392,49 @@ var $components = array('Common');
 
 	public function getGroups() {
 		$this->loadModel('Group');
-		$params = array(
-					'conditions' => array('Group.user_id' => $this->request->data['user_id']),
-				);
-		$resultset = $this->Group->find('all',$params);
+		$this->loadModel('User');
+		$this->loadModel('JobList');
+		if(isset($this->request->data['user_id'])){
+			$params = array('Group.user_id' => $this->request->data['user_id']);	
+		}
+		if(isset($this->request->data['number_people'])){
+			$params = array('Group.count(json_decode(group_conditions))' => $this->request->data['number_people']);	
+		}
+		
+		$resultset = $this->Group->find('all',array(
+					'conditions' => $params,
+				));
 		
 		if(!empty($resultset)){
 			
-			/*$updated_Array = array();
-			foreach ($resultset as $resultset) {
-				$updated_Array[] = $resultset['Group']; 
-			}*/
+			$new_arr = array();
+			foreach ($resultset as $key => $resultset) {
+				/*if(!empty($resultset['Group']['group_conditions'])){
+					$resultset['Group']['group_conditions'] = json_decode($resultset['Group']['group_conditions'],true);
+				}*/
+				//Binding
+				if(!empty($resultset['Group']['user_id'])){
+					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
+					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+			    	$user_array['User']['job'] = $job['JobList'];
+			    	$resultset['Group']['user'] = $user_array['User'];
+			    } 
+			    $new_arr[] = $resultset;
+			}
 			$resultArray = array();
 			$resultArray['status'] = true;
-			$resultArray['data'] = $resultset;
+			$resultArray['data'] = $new_arr;
 			$resultArray['message'] = "success";
 			
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
-			$resultArray['message'] = "no jobs found";
+			$resultArray['message'] = "no groups found";
 		}
 		 
-		echo json_encode($resultArray);
-		header("Content-type:application/json"); die;
+		header("Content-type:application/json"); 
+		echo json_encode($resultArray); die;
 	}
 
 
