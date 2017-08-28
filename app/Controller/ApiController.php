@@ -394,37 +394,153 @@ var $components = array('Common');
 		$this->loadModel('Group');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
+		$params = array();
 		if(isset($this->request->data['user_id'])){
 			$params = array('Group.user_id' => $this->request->data['user_id']);	
 		}
-		if(isset($this->request->data['number_people'])){
-			$params = array('Group.count(json_decode(group_conditions))' => $this->request->data['number_people']);	
-		}
 		
-		$resultset = $this->Group->find('all',array(
+		$resultsets = $this->Group->find('all',array(
 					'conditions' => $params,
 				));
-		
-		if(!empty($resultset)){
+		if(!empty($resultsets)){
 			
 			$new_arr = array();
-			foreach ($resultset as $key => $resultset) {
-				/*if(!empty($resultset['Group']['group_conditions'])){
-					$resultset['Group']['group_conditions'] = json_decode($resultset['Group']['group_conditions'],true);
-				}*/
-				//Binding
-				if(!empty($resultset['Group']['user_id'])){
-					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
-					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
-			    	$user_array['User']['job'] = $job['JobList'];
-			    	$resultset['Group']['user'] = $user_array['User'];
-			    } 
-			    $new_arr[] = $resultset;
+			$i = 0;
+			foreach ($resultsets as $key => $resultset) {
+				
+				$followed_conditions = false;
+
+
+				if(isset($this->request->data['place']) && $this->request->data['place'] != 0 ){
+
+					$lat1 = $resultset['Group']['group_latitude'];
+					$lon1 = $resultset['Group']['group_longitude'];
+					$lat2 = $this->request->data['current_latitude'];
+					$lon2 = $this->request->data['current_longitude'];
+
+					$resultset['Group']['distance'] = $this->distance($lat1, $lon1, $lat2, $lon2);
+
+					if($resultset['Group']['distance'] <= $this->request->data['place']){
+						$followed_conditions = true;
+					}else{
+						$followed_conditions = false;
+						continue;
+					}
+				}else{
+					$followed_conditions = true;
+				}
+
+				if(isset($this->request->data['relationship'])){
+
+					$relation_arr = explode(",", $this->request->data['relationship']);
+					
+					if(in_array($resultset['Group']['relationship'], $relation_arr)){
+						$followed_conditions = true;
+					}else{
+						$followed_conditions = false;
+						continue;
+					}
+				}else{
+					$followed_conditions = true;
+				}
+
+				if(isset($this->request->data['number_people'])){
+					$number_people_arr =  explode(",", $this->request->data['number_people']);
+					if(in_array(count(json_decode($resultset['Group']['group_conditions'],true)), $number_people_arr)){
+						$followed_conditions = true;
+					}else{
+						$followed_conditions = false;
+						continue;
+					}
+				}else{
+					$followed_conditions = true;
+				}
+
+				if(isset($this->request->data['age'])){
+					$age_arr =  explode(",", $this->request->data['age']);
+					
+					if(!empty($resultset['Group']['group_conditions'])){
+						$group_conditions_arr = json_decode($resultset['Group']['group_conditions'],true);
+						foreach ($group_conditions_arr as $key => $value) {
+							foreach ($age_arr as $key => $age_valueset) {
+								$age_values_arr = explode("-", $age_valueset);
+								if($value['Age'] >= $age_values_arr[0] && $value['Age'] <= $age_values_arr[1]){
+									$followed_conditions = true;
+								}	
+							}							
+						}
+						if(!$followed_conditions){
+							continue;
+						}
+					}				
+
+				}else{
+					$followed_conditions = true;
+				}
+
+				if(isset($this->request->data['job_id'])){
+					$job_arr =  explode(",", $this->request->data['job_id']);
+					
+					if(!empty($resultset['Group']['group_conditions'])){
+						$group_conditions_arr = json_decode($resultset['Group']['group_conditions'],true);
+						foreach ($group_conditions_arr as $key => $value) {
+							if(in_array($value['id'], $job_arr) ){
+								$followed_conditions = true;
+							}	
+						}
+						if(!$followed_conditions){
+							continue;
+						}
+					}
+				}else{
+					$followed_conditions = true;
+				}
+
+				if(!empty($resultset['Group']['group_conditions'])){
+					
+					$resultset['Group']['group_count'] = count(json_decode($resultset['Group']['group_conditions'],true));
+				}
+				if($followed_conditions){
+					//Binding
+					if(!empty($resultset['Group']['user_id'])){
+						$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
+						$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+				    	$user_array['User']['job'] = $job['JobList'];
+				    	$resultset['Group']['user'] = $user_array['User'];
+				    } 
+				    $new_arr[] = $resultset;
+				}
+				
+			    $i++;
 			}
-			$resultArray = array();
-			$resultArray['status'] = true;
-			$resultArray['data'] = $new_arr;
-			$resultArray['message'] = "success";
+			if(!empty($new_arr)){
+
+				if(isset($this->request->data['sort_value'])){
+					$sorted_arr = array();
+					foreach ($new_arr as $key => $row) {
+					    $sorted_arr[$key] = date_diff(date_create($row['Group']['user']['dob']), date_create('today'))->y;
+					}
+					switch ($this->request->data['sort_value']) {
+						case 'age_L_H':
+							array_multisort($sorted_arr, SORT_ASC, $new_arr);	
+							break;
+						case 'age_H_L':
+							array_multisort($sorted_arr, SORT_DESC, $new_arr);
+							break;
+					}
+				} 
+				
+				$resultArray = array();
+				$resultArray['status'] = true;
+				$resultArray['data'] = $new_arr;
+				$resultArray['message'] = "success";
+			}else{
+				$resultArray = array();
+				$resultArray['status'] = true;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = "no groups found";
+			}
+			
 			
 		}else{
 			$resultArray = array();
@@ -435,6 +551,25 @@ var $components = array('Common');
 		 
 		header("Content-type:application/json"); 
 		echo json_encode($resultArray); die;
+	}
+
+
+	function distance($lat1, $lon1, $lat2, $lon2, $unit="K") {
+
+	  $theta = $lon1 - $lon2;
+	  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+	  $dist = acos($dist);
+	  $dist = rad2deg($dist);
+	  $miles = $dist * 60 * 1.1515;
+	  $unit = strtoupper($unit);
+
+	  if ($unit == "K") {
+	    return ($miles * 1.609344);
+	  } else if ($unit == "N") {
+	      return ($miles * 0.8684);
+	    } else {
+	        return $miles;
+	      }
 	}
 
 
