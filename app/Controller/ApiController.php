@@ -79,8 +79,9 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no parameter found";
 		}
+		header("Content-type:application/json");
 		echo json_encode($resultArray); 
-		header("Content-type:application/json"); die;
+		 die;
 	}
 
 
@@ -127,21 +128,121 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no fb_id found";
 		}
+		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
-		header("Content-type:application/json"); die;
+		die;
 	}
 
 
 	public function memberJob() {
 		$this->loadModel('JobList');
-		$resultset = $this->JobList->find('all',array('fields'=>array("eng_name","jap_name")));
+		$this->loadModel('Place');
+		$this->loadModel('Education');
+		$this->loadModel('MarriageType');
+		$this->loadModel('Tobacco');
+		$this->loadModel('Drinking');
+		$this->loadModel('Salary');
+		$this->loadModel('Relationship');
+
+		$jobset = $this->JobList->find('all',array('fields'=>array("eng_name","jap_name")));
 		
-		if(!empty($resultset)){
+		if(!empty($jobset)){
 			
-			$updated_Array = array();
-			foreach ($resultset as $resultset) {
-				$updated_Array[] = $resultset['JobList']; 
+			$joblist_Array = array();
+			foreach ($jobset as $jobset) {
+				$joblist_Array[] = $jobset['JobList']; 
 			}
+			
+			$updated_Array['job_list'] = $joblist_Array;
+		}
+
+		$placeset = $this->Place->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude")));
+		
+		if(!empty($placeset)){
+			
+			$places_Array = array();
+			foreach ($placeset as $placeset) {
+				$places_Array[] = $placeset['Place']; 
+			}
+			
+			$updated_Array['places'] = $places_Array;
+		}
+
+		$educationset = $this->Education->find('all',array('fields'=>array("eng_name","jap_name")));
+		
+		if(!empty($educationset)){
+			
+			$education_Array = array();
+			foreach ($educationset as $educationset) {
+				$education_Array[] = $educationset['Education']; 
+			}
+			
+			$updated_Array['education_types'] = $education_Array;
+		}
+
+		$marriageset = $this->MarriageType->find('all',array('fields'=>array("eng_name","jap_name")));
+		
+		if(!empty($marriageset)){
+			
+			$marriage_Array = array();
+			foreach ($marriageset as $marriageset) {
+				$marriage_Array[] = $marriageset['MarriageType']; 
+			}
+			
+			$updated_Array['marriage_types'] = $marriage_Array;
+		}
+
+
+		$tobaccoset = $this->Tobacco->find('all',array('fields'=>array("eng_name","jap_name")));
+		
+		if(!empty($tobaccoset)){
+			
+			$tobacco_Array = array();
+			foreach ($tobaccoset as $tobaccoset) {
+				$tobacco_Array[] = $tobaccoset['Tobacco']; 
+			}
+			
+			$updated_Array['tobacco_types'] = $tobacco_Array;
+		}
+
+		$drinkingset = $this->Drinking->find('all',array('fields'=>array("eng_name","jap_name")));
+		
+		if(!empty($drinkingset)){
+			
+			$drinking_Array = array();
+			foreach ($drinkingset as $drinkingset) {
+				$drinking_Array[] = $drinkingset['Drinking']; 
+			}
+			
+			$updated_Array['drinking_types'] = $drinking_Array;
+		}
+
+		$salaryset = $this->Salary->find('all',array('fields'=>array("eng_name","jap_name")));
+		
+		if(!empty($salaryset)){
+			
+			$salary_Array = array();
+			foreach ($salaryset as $salaryset) {
+				$salary_Array[] = $salaryset['Salary']; 
+			}
+			
+			$updated_Array['salary_types'] = $salary_Array;
+		}
+		
+		$relationshipset = $this->Relationship->find('all',array('fields'=>array("eng_name","jap_name")));
+		
+		if(!empty($relationshipset)){
+			
+			$relationship_Array = array();
+			foreach ($relationshipset as $relationshipset) {
+				$relationship_Array[] = $relationshipset['Relationship']; 
+			}
+			
+			$updated_Array['relationship_types'] = $relationship_Array;
+		}
+
+		if(!empty($updated_Array)){
+
 			$resultArray = array();
 			$resultArray['status'] = true;
 			$resultArray['data'] = $updated_Array;
@@ -151,11 +252,12 @@ var $components = array('Common');
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
-			$resultArray['message'] = "no jobs found";
+			$resultArray['message'] = "no data found";
 		}
-		 
+		
+		header("Content-type:application/json");
 		echo json_encode($resultArray);
-		header("Content-type:application/json"); die;
+		 die;
 	}
 
 	/**
@@ -186,8 +288,9 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no user_id found";
 		}
+		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
-		header("Content-type:application/json"); die;
+		die;
 	}
 
 	/**
@@ -218,8 +321,9 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no user_id found";
 		}
+		header("Content-type:application/json");
 		echo json_encode($resultArray); 
-		header("Content-type:application/json"); die;
+		 die;
 	}
 
 
@@ -276,8 +380,9 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no user_id found";
 		}
+		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
-		header("Content-type:application/json"); die;
+		die;
 	}
 
 	/**
@@ -336,8 +441,9 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no group_id found";
 		}
+		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
-		header("Content-type:application/json"); die;
+		die;
 	}
 
 
@@ -385,8 +491,9 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no group_id found";
 		}
+		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
-		header("Content-type:application/json"); die;
+		die;
 	}
 
 
@@ -394,6 +501,7 @@ var $components = array('Common');
 		$this->loadModel('Group');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
+		$this->loadModel('DrinkedGroup');
 		$params = array();
 		if(isset($this->request->data['user_id'])){
 			$params = array('Group.user_id' => $this->request->data['user_id']);	
@@ -505,6 +613,17 @@ var $components = array('Common');
 					if(!empty($resultset['Group']['user_id'])){
 						$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
 						$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+						if(!empty($this->request->data['loggedInUser_id'])){
+							$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['loggedInUser_id'],'group_id'=>$resultset['Group']['id'])));
+							if(!empty($drinked_group)){
+								$resultset['Group']['drinked_status'] = true;
+							}else{
+								$resultset['Group']['drinked_status'] = false;
+							}
+						}else{
+							$resultset['Group']['drinked_status'] = false;
+						}
+						
 				    	$user_array['User']['job'] = $job['JobList'];
 				    	$resultset['Group']['user'] = $user_array['User'];
 				    } 
@@ -571,6 +690,73 @@ var $components = array('Common');
 	        return $miles;
 	      }
 	}
+
+	/**
+	 * add method
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function showInterest() {
+		$this->loadModel('DrinkedGroup');
+		if (!empty($this->request->data['user_id']) && !empty($this->request->data['group_id'])) {
+
+			$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'group_id' => $this->request->data['group_id'])));	
+			if(!empty($exists)){
+				if($this->request->data['drinked_status'] == "true"){
+					$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['drinked_status'] = true;
+					$resultArray['message'] = "group already drinked";
+				}else{
+					if($this->DrinkedGroup->delete($exists['DrinkedGroup']['id'])){
+						$resultArray = array();
+						$resultArray['status'] = true;
+						$resultArray['drinked_status'] = false;
+						$resultArray['message'] = "group undrinked successfully";
+					}else{
+						$resultArray = array();
+						$resultArray['status'] = false;
+						$resultArray['drinked_status'] = "";
+						$resultArray['message'] = "something went wrong. please try again.";
+					}
+				}
+			}else{
+				if($this->request->data['drinked_status'] == "true"){
+					$this->DrinkedGroup->create();
+					unset($this->request->data['drinked_status']);
+					if($this->DrinkedGroup->save($this->request->data)){
+						$resultArray = array();
+						$resultArray['status'] = true;
+						$resultArray['drinked_status'] = true;
+						$resultArray['message'] = "group drinked successfully";	
+					}else{
+						$resultArray = array();
+						$resultArray['status'] = false;
+						$resultArray['drinked_status'] = "";
+						$resultArray['message'] = "something went wrong. please try again.";
+					}
+					
+				}else{
+					$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['drinked_status'] = false;
+					$resultArray['message'] = "group already undrinked";
+					
+				}
+			}
+		}else{
+			$resultArray = array();
+			$resultArray['status'] = true;
+			$resultArray['data'] = new stdClass();
+			$resultArray['message'] = "incomplete data";
+		}
+
+		header("Content-type:application/json"); 
+		echo json_encode($resultArray); 
+		die;
+	}
+
 
 
 
