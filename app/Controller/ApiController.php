@@ -74,6 +74,7 @@ var $components = array('Common');
 			if(!empty($resultset['User']['id'])){
 				$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
 				$resultset['User']['account'] = $account_array['UserAccount'];	
+				$resultset['User']['reported_status'] = false;
 			}		
 			 
 			if(!empty($resultset)){
@@ -117,7 +118,7 @@ var $components = array('Common');
 			if(!empty($_FILES['image'])){
 				//print_r($_FILES['image']);
 				$this->request->data['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
-				}
+			}
 			$this->request->data['last_login'] = ""; 
 			if($this->User->save($this->request->data)){
 
@@ -140,6 +141,7 @@ var $components = array('Common');
 			    if(!empty($resultset['User']['id'])){
 			    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
 					$resultset['User']['account'] = $account_array['UserAccount'];
+					$resultset['User']['reported_status'] = false;
 				}
 
 				$resultArray = array();
@@ -297,7 +299,7 @@ var $components = array('Common');
 	 * @return void
 	 * @access public
 	 */
-	public function login() {
+/*	public function login() {
 		$this->loadModel('History');
 
 		if (!empty($this->request->data['user_id'])) {
@@ -322,7 +324,7 @@ var $components = array('Common');
 		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
 		die;
-	}
+	}*/
 
 	/**
 	 * add method
@@ -330,7 +332,7 @@ var $components = array('Common');
 	 * @return void
 	 * @access public
 	 */
-	public function logout() {
+/*	public function logout() {
 		$this->loadModel('History');
 
 		if (!empty($this->request->data['user_id'])) {
@@ -355,7 +357,7 @@ var $components = array('Common');
 		header("Content-type:application/json");
 		echo json_encode($resultArray); 
 		 die;
-	}
+	}*/
 
 
 	/**
@@ -393,7 +395,7 @@ var $components = array('Common');
 			    	$user_array['User']['job'] = $job['JobList'];
 			    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
 					$user_array['User']['account'] = $account_array['UserAccount'];
-
+					$user_array['User']['reported_status'] = false;
 			    	$resultset['Group']['user'] = $user_array['User'];
 			    	
 			    } 
@@ -454,6 +456,7 @@ var $components = array('Common');
 				    	$user_array['User']['job'] = $job['JobList'];
 				    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
 					    $user_array['User']['account'] = $account_array['UserAccount'];
+					    $user_array['User']['reported_status'] = false;
 				    	$group['Group']['user'] = $user_array['User'];
 				    } 
 					$resultArray = array();
@@ -513,6 +516,7 @@ var $components = array('Common');
 			    	$user_array['User']['job'] = $job['JobList'];
 			    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
 					$user_array['User']['account'] = $account_array['UserAccount'];
+			    	$user_array['User']['reported_status'] = false;
 			    	$resultset['Group']['user'] = $user_array['User'];
 			    } 
 			
@@ -544,6 +548,7 @@ var $components = array('Common');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
 		$this->loadModel('DrinkedGroup');
+		$this->loadModel('ReportedUser');
 		$this->loadModel('UserAccount');
 		$params = array();
 		if(isset($this->request->data['user_id'])){
@@ -663,8 +668,16 @@ var $components = array('Common');
 							}else{
 								$resultset['Group']['drinked_status'] = false;
 							}
+
+							$reported_user = $this->ReportedUser->find('first',array('conditions'=>array('user_id' => $this->userId,'reported_user_id'=>$resultset['Group']['user_id'])));
+							if(!empty($reported_user)){
+								$user_array['User']['reported_status'] = true;
+							}else{
+								$user_array['User']['reported_status'] = false;
+							}
 						}else{
 							$resultset['Group']['drinked_status'] = false;
+							$user_array['User']['reported_status'] = false;
 						}
 						
 				    	$user_array['User']['job'] = $job['JobList'];
@@ -726,7 +739,7 @@ var $components = array('Common');
 			
 		}else{
 			$resultArray = array();
-			$resultArray['status'] = false;
+			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no groups found";
 		}
@@ -768,7 +781,7 @@ var $components = array('Common');
 
 			$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'group_id' => $this->request->data['group_id'])));	
 			if(!empty($exists)){
-				if($this->request->data['drinked_status'] == "true"){
+				if($this->request->data['drinked_status'] == true){
 					$resultArray = array();
 					$resultArray['status'] = true;
 					$resultArray['drinked_status'] = true;
@@ -787,7 +800,7 @@ var $components = array('Common');
 					}
 				}
 			}else{
-				if($this->request->data['drinked_status'] == "true"){
+				if($this->request->data['drinked_status'] == true){
 					$this->DrinkedGroup->create();
 					unset($this->request->data['drinked_status']);
 					$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'])));
@@ -853,13 +866,13 @@ var $components = array('Common');
 					);
 			$resultset = $this->User->find('first', $params);
 			// User account entry
-			if(!empty($resultset['User']['id'])){
+			/*if(!empty($resultset['User']['id'])){
 				$this->UserAccount->create();
 				$new_arr = array();
 				$new_arr['user_id'] = $resultset['User']['id'];
 				$new_arr['balance'] = 10;
 				$this->UserAccount->save($new_arr);
-			}
+			}*/
 			if(!empty($resultset['User']['job_id'])){
 				$job = $this->JobList->find('first',array('conditions'=>array('_id' => $resultset['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 		    	$resultset['User']['job'] = $job['JobList'];
@@ -867,6 +880,7 @@ var $components = array('Common');
 		    if(!empty($resultset['User']['id'])){
 		    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
 				$resultset['User']['account'] = $account_array['UserAccount'];
+				$resultset['User']['reported_status'] = false;
 			}
 
 			$resultArray = array();
@@ -889,6 +903,7 @@ var $components = array('Common');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
 		$this->loadModel('DrinkedGroup');
+		$this->loadModel('ReportedUser');
 		$this->loadModel('UserAccount');
 		$params = array();
 		if(isset($this->userId)){
@@ -919,8 +934,16 @@ var $components = array('Common');
 						}else{
 							$resultset['Group']['drinked_status'] = false;
 						}
+
+						$reported_user = $this->ReportedUser->find('first',array('conditions'=>array('user_id' => $this->userId,'reported_user_id'=>$resultset['Group']['user_id'])));
+							if(!empty($reported_user)){
+								$user_array['User']['reported_status'] = true;
+							}else{
+								$user_array['User']['reported_status'] = false;
+							}
 					}else{
 						$resultset['Group']['drinked_status'] = false;
+						$user_array['User']['reported_status'] = false;
 					}
 					
 			    	$user_array['User']['job'] = $job['JobList'];
@@ -947,7 +970,7 @@ var $components = array('Common');
 			
 		}else{
 			$resultArray = array();
-			$resultArray['status'] = false;
+			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no groups found";
 		}
@@ -961,6 +984,7 @@ var $components = array('Common');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
 		$this->loadModel('DrinkedGroup');
+		$this->loadModel('ReportedUser');
 		$this->loadModel('UserAccount');
 		$params = array();
 		if(isset($this->userId)){
@@ -991,8 +1015,15 @@ var $components = array('Common');
 						}else{
 							$resultset['Group']['drinked_status'] = false;
 						}
+						$reported_user = $this->ReportedUser->find('first',array('conditions'=>array('user_id' => $this->userId,'reported_user_id'=>$resultset['Group']['user_id'])));
+							if(!empty($reported_user)){
+								$user_array['User']['reported_status'] = true;
+							}else{
+								$user_array['User']['reported_status'] = false;
+							}
 					}else{
 						$resultset['Group']['drinked_status'] = false;
+						$user_array['User']['reported_status'] = false;
 					}
 					
 			    	$user_array['User']['job'] = $job['JobList'];
@@ -1019,7 +1050,7 @@ var $components = array('Common');
 			
 		}else{
 			$resultArray = array();
-			$resultArray['status'] = false;
+			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no groups found";
 		}
@@ -1057,6 +1088,146 @@ var $components = array('Common');
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "header missing";
 		}
+		echo json_encode($resultArray); 
+		die;
+	}
+
+
+	/**
+	 * add method
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function reportUser() {
+		$this->loadModel('ReportedUser');
+		$this->loadModel('UserAccount');
+		$this->request->data['user_id'] = $this->userId;
+		if (!empty($this->request->data['user_id']) && !empty($this->request->data['reported_user_id'])) {
+
+			$exists = $this->ReportedUser->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'reported_user_id' => $this->request->data['reported_user_id'])));	
+			if(!empty($exists)){
+				if($this->request->data['reported_status'] == "true"){
+					$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['reported_status'] = true;
+					$resultArray['message'] = "user already reported";
+				}else{
+					if($this->ReportedUser->delete($exists['ReportedUser']['id'])){
+						$resultArray = array();
+						$resultArray['status'] = true;
+						$resultArray['reported_status'] = false;
+						$resultArray['message'] = "user unreported successfully";
+					}else{
+						$resultArray = array();
+						$resultArray['status'] = false;
+						$resultArray['reported_status'] = "";
+						$resultArray['message'] = "something went wrong. please try again.";
+					}
+				}
+			}else{
+				if($this->request->data['reported_status'] == "true"){
+					$this->ReportedUser->create();
+					unset($this->request->data['reported_status']);
+					if($this->ReportedUser->save($this->request->data)){
+
+						$resultArray = array();
+						$resultArray['status'] = true;
+						$resultArray['reported_status'] = true;
+						$resultArray['message'] = "user reported successfully";	
+					}else{
+						$resultArray = array();
+						$resultArray['status'] = false;
+						$resultArray['reported_status'] = "";
+						$resultArray['message'] = "something went wrong. please try again.";
+					}			
+				}else{
+					$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['reported_status'] = false;
+					$resultArray['message'] = "user already unreported";
+					
+				}
+			}
+		}else{
+			$resultArray = array();
+			$resultArray['status'] = true;
+			$resultArray['data'] = new stdClass();
+			$resultArray['message'] = "incomplete data";
+		}
+
+		echo json_encode($resultArray); 
+		die;
+	}
+
+
+	/**
+	 * add method
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function editProfile() {
+		$this->loadModel('User');
+		$this->loadModel('JobList');
+		$this->loadModel('UserAccount');
+		$data = $this->request->data;
+		if(!empty($data)){
+			if (!empty($this->userId)) {
+				$user_array = $this->User->find('first',array('conditions'=>array('_id' => $this->userId)));
+				
+				foreach ($data as $key => $value) {
+
+					$user_array['User'][$key] = $value;	
+						
+				}
+				if(!empty($_FILES['image'])){
+					if(!empty($user_array['User']['image'])){
+						$this->Common->deleteFile("profile_image",str_replace(BASE_URL."uploads/users/original/", "", $user_array['User']['image']));	
+					}
+					$user_array['User']['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
+				}
+
+				if($this->User->save($user_array)){
+
+					$params = array(
+						'conditions' => array('User._id' => $this->userId),
+					);
+					$resultset = $this->User->find('first', $params);
+					
+					if(!empty($resultset['User']['job_id'])){
+						$job = $this->JobList->find('first',array('conditions'=>array('_id' => $resultset['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+				    	$resultset['User']['job'] = $job['JobList'];
+				    } 
+				    if(!empty($resultset['User']['id'])){
+				    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
+						$resultset['User']['account'] = $account_array['UserAccount'];
+						$resultset['User']['reported_status'] = false;
+					}
+					
+					$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['data'] = $resultset;
+					$resultArray['message'] = "Profile updated successfully ";
+				}else{
+					$resultArray = array();
+					$resultArray['status'] = false;
+					$resultArray['data'] = new stdClass();
+					$resultArray['message'] = "Profile not updated";
+				}	
+			}else{
+				$resultArray = array();
+				$resultArray['status'] = false;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = "header missing";
+			}	
+		}else{
+				$resultArray = array();
+				$resultArray['status'] = false;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = "no data found";
+		}
+		
 		echo json_encode($resultArray); 
 		die;
 	}
