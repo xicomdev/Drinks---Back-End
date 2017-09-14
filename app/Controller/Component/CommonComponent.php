@@ -107,11 +107,11 @@ App::uses('CakeEmail', 'Network/Email');
             switch ($type) {
                 case 'profile_image':
                 unlink(WWW_ROOT.'uploads/users/original/'.$file);
-                //unlink(WWW_ROOT.'uploads/users/resized/'.$file);
+                unlink(WWW_ROOT.'uploads/users/resized/'.$file);
                 break;
                 case 'gear_image':
                 unlink(WWW_ROOT.'uploads/gears/original/'.$file);
-                //unlink(WWW_ROOT.'uploads/gears/resized/'.$file);
+                unlink(WWW_ROOT.'uploads/gears/resized/'.$file);
                 return true;
                 break;
             }   
