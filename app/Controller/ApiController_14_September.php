@@ -1833,11 +1833,11 @@ var $components = array('Common');
 		$this->loadModel('Message');
 		$this->request->data['sender_id'] = $this->userId;
 		$this->request->data['read_status'] = "0";
+		//print_r($this->request->data); die;
 		if (!empty($this->request->data['sender_id']) && !empty($this->request->data['thread_id']) && !empty($this->request->data['receiver_id']) && !empty($this->request->data['message'])) {
 
 			$this->Message->create();
 			if($result = $this->Message->save($this->request->data)){
-				
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = $result['Message'];
