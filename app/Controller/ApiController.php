@@ -91,7 +91,7 @@ var $components = array('Common');
 			}
 
 			$exists['ApiSession']['session_id'] = $sessionId;	
-			$exists['ApiSession']['loginStatus'] = $loginStatus;
+			$exists['ApiSession']['login_status'] = $loginStatus;
 			$this->ApiSession->save($exists);
 		}else{
 			$data = array();
@@ -164,6 +164,71 @@ var $components = array('Common');
     	
     }
 
+    /*
+    * 
+    * Author: Lakhvinder Singh
+    * Method: getUserInfoById
+    * Description: return user detail 
+    */
+    public function getUserInfoById($user_id)
+    {
+    	$this->loadModel("User");
+    	$params = array(
+				'conditions' => array('User._id' => $user_id),
+			);
+    	$result = $this->User->find('first', $params);
+		return $result['User'];
+    }
+
+    /*
+    * 
+    * Author: Lakhvinder Singh
+    * Method: getThreadInfoById
+    * Description: return user detail 
+    */
+    public function getThreadInfoById($thread_id)
+    {
+    	$this->loadModel("Thread");
+    	$params = array(
+				'conditions' => array('Thread._id' => $thread_id),
+			);
+    	$result = $this->Thread->find('first', $params);
+		return $result['Thread'];
+    }
+
+    /*
+    * 
+    * Author: Lakhvinder Singh
+    * Method: getGroupInfoById
+    * Description: return user detail 
+    */
+    public function getGroupInfoById($group_id)
+    {
+    	$this->loadModel("Group");
+    	$params = array(
+				'conditions' => array('Group._id' => $group_id),
+			);
+    	$result = $this->Group->find('first', $params);
+		return $result['Group'];
+		//return $this->Group->find('first', $params);
+    }
+
+
+    /*
+    * 
+    * Author: Lakhvinder Singh
+    * Method: getSessionInfoById
+    * Description: return user session detail 
+    */
+    public function getSessionInfoById($user_id)
+    {
+    	$this->loadModel("ApiSession");
+    	$params = array(
+				'conditions' => array('ApiSession.user_id' => $user_id,'ApiSession.login_status' => 1),
+			);
+    	//print_r($this->ApiSession->find('all', $params)); exit;
+		return $this->ApiSession->find('all', $params);
+    }
 
     public function createThread($exists)
     {
@@ -208,7 +273,7 @@ var $components = array('Common');
 	                    array('DrinkedGroup.owner_user_id'=>$user_id,'DrinkedGroup.user_id'=>$owner_user_id),		
 	         		)		
 	            );		
-			$exists = $this->DrinkedGroup->find('first', $params);		
+			$exists = $this->DrinkedGroup->find('first', array('conditions'=>$params));		
 					
 			if(!empty($exists)){		
 				return true;  // one user already drinked another users group		
@@ -1884,17 +1949,47 @@ var $components = array('Common');
 	 */
 	public function sendMessage() {
 		$this->loadModel('Message');
+		$this->loadModel('User');
 		$this->request->data['sender_id'] = $this->userId;
 		$this->request->data['read_status'] = "0";
+		$this->request->data['notification_status'] = 1;
 		//print_r($this->request->data); die;
 		if (!empty($this->request->data['sender_id']) && !empty($this->request->data['thread_id']) && !empty($this->request->data['receiver_id']) && !empty($this->request->data['message'])) {
 
 			$this->Message->create();
 			if($result = $this->Message->save($this->request->data)){
+				//print_R($result); exit;
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = $result['Message'];
 				$resultArray['message'] = "message sent successfully";	
+				/*************** PUSH NOTICATION CODE**************************/
+				
+				$pushData =array();
+				$pushData['sender_info'] 	= $this->getUserInfoById($this->userId);
+				$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['receiver_id']);
+				$pushData['thread_id'] 		= $this->request->data['thread_id'];
+				$thread_info  				= $this->getThreadInfoById($this->request->data['thread_id']);
+				$pushdata['group_info']		= $this->getGroupInfoById($thread_info['group_id']);
+				$pushData['message'] 		= $result['Message'];
+				$pushData['push_type'] 		= 'Message'; 
+				$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['receiver_id']);
+				$push_notification_message  = $pushData['sender_info']['User']['full_name'].' sent you a message.';
+				$notification_count = 0;
+				foreach ($pushNotificationTokens as $token) {
+					//print_r($token['ApiSession']); exit;
+					if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
+						$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
+						$notification_count++;
+					}
+				}
+				if($notification_count == 0){
+					$message_array = $this->Message->find('first',array('conditions'=>array('_id' => $result['Message']['id'])));
+					$message_array['Message']['notification_status'] = 0;
+					$this->Message->save($message_array);
+
+				}
+				/*************** END: PUSH NOTICATION CODE **********************/
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
@@ -1908,6 +2003,28 @@ var $components = array('Common');
 			$resultArray['message'] = "incomplete data";
 		}	
 
+		echo json_encode($resultArray); 
+		die;
+	} 
+
+	/**
+	 * add method (testapi)
+	 *
+	 * @return testapi
+	 * @access public
+	 */
+	public function testapi(){
+		$this->loadModel('Message');
+		$data['sender_info'] = $this->getUserInfoById('59b8d52aa642bee00bb2d545');
+		print_r($data['sender_info']['User']['full_name']); exit;
+		$pushdata = array();
+		$token = '5a80591a9d39df47362209056e6e30f6edaba52736914dc9e7f215e83479286f';
+		$push_notification_message = 'Push notification working';
+		$this->sendPushNotificationOnIOS($token,$push_notification_message,'@testapi',json_encode($pushdata));
+		$resultArray = array();
+		$resultArray['status'] = true;
+		$resultArray['data'] = false;
+		$resultArray['message'] = "REsponse";
 		echo json_encode($resultArray); 
 		die;
 	}
