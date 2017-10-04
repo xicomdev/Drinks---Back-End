@@ -45,34 +45,21 @@ var $components = array('Common');
     public $userId='';
 
 
-    var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndPoints');
+    var $allowedActions = array('newCheck','registerFacebook','memberJob');
 
-	public function beforeFilter() {		
+	public function beforeFilter() {
 		header("Content-type:application/json");
         parent::beforeFilter();
         $headers = apache_request_headers();
-        //print_r($headers); exit;
-		//$txt = $this->request->action.'--------------'.json_encode($headers).' -----------------';
- 		//$myfile = file_put_contents('debug.txt', $txt.PHP_EOL , FILE_APPEND | LOCK_EX);
-        $this->deviceToken 	= isset($headers['Token']) ? $headers['Token'] : "";
-        $this->deviceId 	= isset($headers['Device-Id']) ? $headers['Device-Id'] : "";
-		$this->timeStamp 	= isset($headers['Timestamp']) ? $headers['Timestamp'] : "" ;
-		$this->userId 		= isset($headers['User-Id']) ? $headers['User-Id'] : "";
-		$this->sessionId 	= isset($headers['Session-Id']) ? $headers['Session-Id'] : "";
+        $this->deviceToken = isset($headers['token']) ? $headers['token'] : "";
+        $this->deviceId = isset($headers['device_id']) ? $headers['device_id'] : "";
+		$this->timeStamp = isset($headers['timeStamp']) ? $headers['timeStamp'] : "" ;
+		$this->userId = isset($headers['user_id']) ? $headers['user_id'] : "";
+		$this->sessionId = isset($headers['session_id']) ? $headers['session_id'] : "";
         $this->Auth->allow();
         if(!in_array($this->request->action,$this->allowedActions)){
-        		$session_info = $this->checkApiSession($this->sessionId);
-	        	if(!empty($session_info)){
-		        	$this->userId = $session_info['ApiSession']['user_id'];
-			        if(!$this->checkApiSession($this->sessionId)){
-		        		$resultArray = array();
-						$resultArray['status'] = false;
-						$resultArray['status_code'] = 203;
-						$resultArray['data'] = new stdClass();
-						$resultArray['message'] = "session expired. please login again";
-						echo json_encode($resultArray); die;
-		        	}
-	        	}else{
+        	if($this->checkUserExists($this->userId)){
+	        	if(!$this->checkApiSession(null,$this->sessionId,$this->userId,$this->deviceId)){
 	        		$resultArray = array();
 					$resultArray['status'] = false;
 					$resultArray['status_code'] = 203;
@@ -80,7 +67,14 @@ var $components = array('Common');
 					$resultArray['message'] = "session expired. please login again";
 					echo json_encode($resultArray); die;
 	        	}
-	        
+	        }else{
+	        	$resultArray = array();
+				$resultArray['status'] = false;
+				$resultArray['status_code'] = 203;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = "user deleted by admin. please register again";
+				echo json_encode($resultArray); die;
+	        }
         }
     }
 
@@ -148,16 +142,25 @@ var $components = array('Common');
 
 
 
-    public function checkApiSession($sessionId)
+    public function checkApiSession($loginStatus,$sessionId,$userId,$deviceId)
     {
+    	if($this->checkUserExists($userId)){
 
-		$this->loadModel("ApiSession");
-    	$params = array(
-				'conditions' => array('ApiSession.login_status' => 1,'ApiSession.session_id'=>$sessionId),
-			);
-		$exists = $this->ApiSession->find('first', $params);	
-		//print_r($exists); exit;		
-		return $exists;
+    		$this->loadModel("ApiSession");
+	    	$params = array(
+					'conditions' => array('ApiSession.user_id' => $userId,'ApiSession.device_id'=>$deviceId,'ApiSession.login_status' => 1,'ApiSession.session_id'=>$sessionId),
+				);
+			$exists = $this->ApiSession->find('first', $params);
+			
+			if(!empty($exists)){
+				return true;
+			}else{
+				return false;
+			}
+
+    	}else{
+    		return false;
+    	}
     	
     }
 
@@ -283,7 +286,7 @@ var $components = array('Common');
 	public function newCheck() {
 		$this->loadModel('User');
 		$this->loadModel('JobList');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		//echo json_encode("fb_id :".$this->request->data['fb_id']);
 		if (!empty($this->request->data['fb_id'])) {
 	
@@ -296,12 +299,9 @@ var $components = array('Common');
 				$job = $this->JobList->find('first',array('conditions'=>array('_id' => $resultset['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 				$resultset['User']['job'] = $job['JobList'];	
 			}
-
-			
-
 			if(!empty($resultset['User']['id'])){
-				//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
-				//$resultset['User']['account'] = $account_array['UserAccount'];	
+				$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
+				$resultset['User']['account'] = $account_array['UserAccount'];	
 				$resultset['User']['reported_status'] = false;
 				
 				$session_key = sha1($resultset['User']['id'].strtotime(date('m/d/Y h:i:s a', time())));
@@ -310,10 +310,6 @@ var $components = array('Common');
 			}		
 			 
 			if(!empty($resultset)){
-
-				$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['User']['id'])));
-				$user_array['User']['last_login'] = $this->timeStamp;
-				$this->User->save($user_array);
 
 				$resultArray = array();
 				$resultArray['status'] = true;
@@ -341,18 +337,11 @@ var $components = array('Common');
 	public function logout()
 	{
 		$this->updateApiSession(0,$this->deviceToken,"",$this->userId,$this->deviceId);
-		$resultArray = array();
-		$resultArray['status'] = true;
-		$resultArray['data'] = new stdClass();
-		$resultArray['message'] = "Logout successfully";
-		header("Content-type:application/json");
-		echo json_encode($resultArray); 
-		die;
 	}
 
 
 	/**
-	 * add method 
+	 * add method
 	 *
 	 * @return void
 	 * @access public
@@ -360,7 +349,7 @@ var $components = array('Common');
 	public function registerFacebook() {
 		$this->loadModel('User');
 		$this->loadModel('JobList');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		if (!empty($this->request->data['fb_id'])) {
 			$this->User->create();
 			
@@ -368,10 +357,7 @@ var $components = array('Common');
 				//print_r($_FILES['image']);
 				$this->request->data['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
 			}
-			$this->request->data['last_login'] = $this->timeStamp; 
-			$this->request->data['account'] = 100; 
-
-
+			$this->request->data['last_login'] = ""; 
 			if($this->User->save($this->request->data)){
 
 				$params = array(
@@ -379,20 +365,20 @@ var $components = array('Common');
 				);
 				$resultset = $this->User->find('first', $params);
 				// User account entry
-				/*if(!empty($resultset['User']['id'])){
+				if(!empty($resultset['User']['id'])){
 					$this->UserAccount->create();
 					$new_arr = array();
 					$new_arr['user_id'] = $resultset['User']['id'];
 					$new_arr['balance'] = 100;
 					$this->UserAccount->save($new_arr);
-				}*/
+				}
 				if(!empty($resultset['User']['job_id'])){
 					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $resultset['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 			    	$resultset['User']['job'] = $job['JobList'];
 			    } 
 			    if(!empty($resultset['User']['id'])){
-			    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
-					//$resultset['User']['account'] = $account_array['UserAccount'];
+			    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
+					$resultset['User']['account'] = $account_array['UserAccount'];
 					$resultset['User']['reported_status'] = false;
 					
 					$session_key = sha1($resultset['User']['id'].strtotime(date('m/d/Y h:i:s a', time())));
@@ -424,12 +410,13 @@ var $components = array('Common');
 
 	public function memberJob() {
 		$this->loadModel('JobList');
-		//$this->loadModel('Place');
-		//$this->loadModel('MarriageType');
-		//$this->loadModel('Tobacco');
-		//$this->loadModel('Drinking');
-		$this->loadModel('Option');
-		//$this->loadModel('Relationship');
+		$this->loadModel('Place');
+		$this->loadModel('Education');
+		$this->loadModel('MarriageType');
+		$this->loadModel('Tobacco');
+		$this->loadModel('Drinking');
+		$this->loadModel('Salary');
+		$this->loadModel('Relationship');
 
 		$jobset = $this->JobList->find('all',array('fields'=>array("eng_name","jap_name")));
 		
@@ -443,90 +430,86 @@ var $components = array('Common');
 			$updated_Array['job_list'] = $joblist_Array;
 		}
 
-		//$placeset = $this->Place->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude")));
-		$placeset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude","type"),'conditions' => array('Option.type' => 'place')));
+		$placeset = $this->Place->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude")));
 		
 		if(!empty($placeset)){
 			
 			$places_Array = array();
 			foreach ($placeset as $placeset) {
-				$places_Array[] = $placeset['Option']; 
+				$places_Array[] = $placeset['Place']; 
 			}
 			
 			$updated_Array['places'] = $places_Array;
 		}
 
-		$educationset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'education')));
+		$educationset = $this->Education->find('all',array('fields'=>array("eng_name","jap_name")));
 		
 		if(!empty($educationset)){
 			
 			$education_Array = array();
 			foreach ($educationset as $educationset) {
-				$education_Array[] = $educationset['Option']; 
+				$education_Array[] = $educationset['Education']; 
 			}
 			
 			$updated_Array['education_types'] = $education_Array;
 		}
 
-		//$marriageset = $this->MarriageType->find('all',array('fields'=>array("eng_name","jap_name")));
-		$marriageset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'marriage_type')));
+		$marriageset = $this->MarriageType->find('all',array('fields'=>array("eng_name","jap_name")));
 		
 		if(!empty($marriageset)){
 			
 			$marriage_Array = array();
 			foreach ($marriageset as $marriageset) {
-				$marriage_Array[] = $marriageset['Option']; 
+				$marriage_Array[] = $marriageset['MarriageType']; 
 			}
 			
 			$updated_Array['marriage_types'] = $marriage_Array;
 		}
 
 
-		//$tobaccoset = $this->Tobacco->find('all',array('fields'=>array("eng_name","jap_name")));
-		$tobaccoset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'tobacco')));
+		$tobaccoset = $this->Tobacco->find('all',array('fields'=>array("eng_name","jap_name")));
 		
 		if(!empty($tobaccoset)){
 			
 			$tobacco_Array = array();
 			foreach ($tobaccoset as $tobaccoset) {
-				$tobacco_Array[] = $tobaccoset['Option']; 
+				$tobacco_Array[] = $tobaccoset['Tobacco']; 
 			}
 			
 			$updated_Array['tobacco_types'] = $tobacco_Array;
 		}
 
-		//$drinkingset = $this->Drinking->find('all',array('fields'=>array("eng_name","jap_name")));
-		$drinkingset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'drinking')));
+		$drinkingset = $this->Drinking->find('all',array('fields'=>array("eng_name","jap_name")));
+		
 		if(!empty($drinkingset)){
 			
 			$drinking_Array = array();
 			foreach ($drinkingset as $drinkingset) {
-				$drinking_Array[] = $drinkingset['Option']; 
+				$drinking_Array[] = $drinkingset['Drinking']; 
 			}
 			
 			$updated_Array['drinking_types'] = $drinking_Array;
 		}
 
-		$salaryset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'salary')));
+		$salaryset = $this->Salary->find('all',array('fields'=>array("eng_name","jap_name")));
 		
 		if(!empty($salaryset)){
 			
 			$salary_Array = array();
 			foreach ($salaryset as $salaryset) {
-				$salary_Array[] = $salaryset['Option']; 
+				$salary_Array[] = $salaryset['Salary']; 
 			}
 			
 			$updated_Array['salary_types'] = $salary_Array;
 		}
 		
-		//$relationshipset = $this->Relationship->find('all',array('fields'=>array("eng_name","jap_name")));
-		$relationshipset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'relationship')));
+		$relationshipset = $this->Relationship->find('all',array('fields'=>array("eng_name","jap_name")));
 		
 		if(!empty($relationshipset)){
 			
 			$relationship_Array = array();
 			foreach ($relationshipset as $relationshipset) {
-				$relationship_Array[] = $relationshipset['Option']; 
+				$relationship_Array[] = $relationshipset['Relationship']; 
 			}
 			
 			$updated_Array['relationship_types'] = $relationship_Array;
@@ -628,7 +611,7 @@ var $components = array('Common');
 		$this->loadModel('Group');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		$this->request->data['user_id'] = $this->userId;
 		if (!empty($this->request->data['user_id'])) {
 			$check_group = $this->checkGroupExists($this->request->data['user_id']);
@@ -654,8 +637,8 @@ var $components = array('Common');
 						$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
 						$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 				    	$user_array['User']['job'] = $job['JobList'];
-				    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
-						//$user_array['User']['account'] = $account_array['UserAccount'];
+				    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+						$user_array['User']['account'] = $account_array['UserAccount'];
 						$user_array['User']['reported_status'] = false;
 				    	$resultset['Group']['user'] = $user_array['User'];
 				    	
@@ -708,7 +691,7 @@ var $components = array('Common');
 		$this->loadModel('Group');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		if (!empty($this->request->data['id'])) {
 			$group = $this->Group->find('first',array('conditions'=>array('_id' => $this->request->data['id'])));	
 			if(!empty($group)){
@@ -729,8 +712,8 @@ var $components = array('Common');
 						$user_array = $this->User->find('first',array('conditions'=>array('_id' => $group['Group']['user_id'])));
 						$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 				    	$user_array['User']['job'] = $job['JobList'];
-				    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
-					    //$user_array['User']['account'] = $account_array['UserAccount'];
+				    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+					    $user_array['User']['account'] = $account_array['UserAccount'];
 					    $user_array['User']['reported_status'] = false;
 				    	$group['Group']['user'] = $user_array['User'];
 				    } 
@@ -774,7 +757,7 @@ var $components = array('Common');
 		$this->loadModel('Group');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		if (!empty($this->request->data['id'])) {
 
 			$group = $this->Group->find('first',array('conditions'=>array('_id' => $this->request->data['id'])));	
@@ -789,8 +772,8 @@ var $components = array('Common');
 					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
 					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 			    	$user_array['User']['job'] = $job['JobList'];
-			    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
-					//$user_array['User']['account'] = $account_array['UserAccount'];
+			    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+					$user_array['User']['account'] = $account_array['UserAccount'];
 			    	$user_array['User']['reported_status'] = false;
 			    	$resultset['Group']['user'] = $user_array['User'];
 			    } 
@@ -825,7 +808,7 @@ var $components = array('Common');
 		$this->loadModel('DrinkedGroup');
 		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		$params = array();
 		$new_arr = array();
 		$myGroups = array();
@@ -836,7 +819,6 @@ var $components = array('Common');
 		$resultsets = $this->Group->find('all',array(
 					'conditions' => $params,
 				));
-		//print_r($resultsets); exit;
 		if(!empty($resultsets)){
 
 			if(!empty($this->userId)){
@@ -871,19 +853,7 @@ var $components = array('Common');
 						continue;
 					}
 				}else{
-					$lat1 = $resultset['Group']['group_latitude'];
-					$lon1 = $resultset['Group']['group_longitude'];
-					$lat2 = $this->request->data['current_latitude'];
-					$lon2 = $this->request->data['current_longitude'];
-
-					$resultset['Group']['distance'] = $this->distance($lat1, $lon1, $lat2, $lon2);
-
-					if($resultset['Group']['distance'] <= 100){
-						$followed_conditions = true;
-					}else{
-						$followed_conditions = false;
-						continue;
-					}
+					$followed_conditions = true;
 				}
 
 				if(isset($this->request->data['relationship'])){
@@ -997,18 +967,11 @@ var $components = array('Common');
 						}
 						
 				    	$user_array['User']['job'] = $job['JobList'];
-				    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
-					    //$user_array['User']['account'] = $account_array['UserAccount'];
+				    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+					    $user_array['User']['account'] = $account_array['UserAccount'];
 				    	$resultset['Group']['user'] = $user_array['User'];
 				    } 
-				    $owner_info = $this->getUserInfoById($resultset['Group']['user_id']);
-				    $login_user_info = $this->getUserInfoById($this->userId);
-				    //print_r($owner_info);
-				    //print_r($login_user_info);
-				    //exit;
-				    if($owner_info['gender'] !=  $login_user_info['gender']){
-				    	$new_arr[] = $resultset; 
-				    }
+				    $new_arr[] = $resultset;
 				}
 				
 			    $i++;
@@ -1073,16 +1036,10 @@ var $components = array('Common');
 		$myGroups = $this->Group->find('all',array(
 							'conditions' => array('Group.user_id' => $this->userId),
 						));
-		$login_user_array = $this->User->find('first',array('conditions'=>array('_id' => $this->userId)));
-		$myGroups_new = array();
-		foreach ($myGroups as $key => $myGroup) {
-			$myGroup['Group']['user'] = $login_user_array;
-			//print_r($myGroup); exit;
-			$myGroups_new[] = $myGroup;
-		}
-		$resultArray = array(); 
+				
+		$resultArray = array();
 		$resultArray['status'] = true;
-		$resultArray['data'] = array('myGroups'=>$myGroups_new , 'groups'=>$new_arr);
+		$resultArray['data'] = array('myGroups'=>$myGroups , 'groups'=>$new_arr);
 		$resultArray['message'] = "success";
 		 
 		header("Content-type:application/json"); 
@@ -1110,7 +1067,7 @@ var $components = array('Common');
 
 	public function showInterest() {
 		$this->loadModel('DrinkedGroup');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		if(!isset($this->request->data['user_id']) && empty($this->request->data['user_id'])){
 			$this->request->data['user_id'] = $this->userId;	
 		}
@@ -1176,20 +1133,20 @@ var $components = array('Common');
 						
 						if(!$this->checkIfDrinked($this->request->data['user_id'],$this->request->data['owner_user_id'])){
 							$this->DrinkedGroup->create();
-							$this->request->data['drinked_status'] = "confirmed"; // direct interest confirrmed - removed "waiting"
-							$account_array = $this->User->find('first',array('conditions'=>array('id' => $this->request->data['user_id'])));
+							$this->request->data['drinked_status'] = "waiting";
+							$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'])));
 							
-							if($account_array['User']['account'] > 0){
+							if($account_array['UserAccount']['balance'] > 0){
 								if($this->DrinkedGroup->save($this->request->data)){
 									
 									$new_arr = array();
-									$new_arr['id'] = $account_array['User']['id'];
-									$new_arr['balance'] = $account_array['User']['account']-1;
-									$this->User->save($new_arr);
+									$new_arr['id'] = $account_array['UserAccount']['id'];
+									$new_arr['balance'] = $account_array['UserAccount']['balance']-1;
+									$this->UserAccount->save($new_arr);
 
 									$resultArray = array();
 									$resultArray['status'] = true;
-									$resultArray['drinked_status'] = "confirmed"; // direct interest confirmed - removed "waiting"
+									$resultArray['drinked_status'] = "waiting";
 									$resultArray['message'] = "group drinked successfully";	
 								}else{
 									$resultArray = array();
@@ -1318,7 +1275,7 @@ var $components = array('Common');
 		if(!empty($this->userId)){
 			$this->loadModel('User');
 			$this->loadModel('JobList');
-			//$this->loadModel('UserAccount');
+			$this->loadModel('UserAccount');
 			$params = array(
 						'conditions' => array('User._id' => $this->userId),
 					);
@@ -1336,8 +1293,8 @@ var $components = array('Common');
 		    	$resultset['User']['job'] = $job['JobList'];
 		    } 
 		    if(!empty($resultset['User']['id'])){
-		    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
-				//$resultset['User']['account'] = $account_array['UserAccount'];
+		    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
+				$resultset['User']['account'] = $account_array['UserAccount'];
 				$resultset['User']['reported_status'] = false;
 			}
 
@@ -1363,7 +1320,7 @@ var $components = array('Common');
 		$this->loadModel('DrinkedGroup');
 		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		$params = array();
 		if(isset($this->userId)){
 			$params = array('DrinkedGroup.owner_user_id' => $this->userId);	
@@ -1421,8 +1378,8 @@ var $components = array('Common');
 					}
 					
 			    	$user_array['User']['job'] = $job['JobList'];
-			    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
-				    //$user_array['User']['account'] = $account_array['UserAccount'];
+			    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+				    $user_array['User']['account'] = $account_array['UserAccount'];
 			    	$resultset['Group']['user'] = $user_array['User'];
 			    }
 			    $resultGroup["Group"] = $resultset["Group"];
@@ -1461,7 +1418,7 @@ var $components = array('Common');
 		$this->loadModel('DrinkedGroup');
 		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		$params = array();
 		if(isset($this->userId)){
 			$params = array('DrinkedGroup.user_id' => $this->userId);	
@@ -1511,8 +1468,8 @@ var $components = array('Common');
 					}
 					
 			    	$user_array['User']['job'] = $job['JobList'];
-			    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
-				    //$user_array['User']['account'] = $account_array['UserAccount'];
+			    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+				    $user_array['User']['account'] = $account_array['UserAccount'];
 			    	$resultset['Group']['user'] = $user_array['User'];
 			    } 
 			    $resultGroup["Group"] = $resultset["Group"];
@@ -1586,7 +1543,7 @@ var $components = array('Common');
 	 */
 	public function reportUser() {
 		$this->loadModel('ReportedUser');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		$this->request->data['user_id'] = $this->userId;
 		if (!empty($this->request->data['user_id']) && !empty($this->request->data['reported_user_id'])) {
 
@@ -1655,7 +1612,7 @@ var $components = array('Common');
 	public function editProfile() {
 		$this->loadModel('User');
 		$this->loadModel('JobList');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		$data = $this->request->data;
 		if(!empty($data)){
 			if (!empty($this->userId)) {
@@ -1685,8 +1642,8 @@ var $components = array('Common');
 				    	$resultset['User']['job'] = $job['JobList'];
 				    } 
 				    if(!empty($resultset['User']['id'])){
-				    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
-						//$resultset['User']['account'] = $account_array['UserAccount'];
+				    	$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
+						$resultset['User']['account'] = $account_array['UserAccount'];
 						$resultset['User']['reported_status'] = false;
 					}
 					
@@ -1804,7 +1761,7 @@ var $components = array('Common');
 		$this->loadModel('DrinkedGroup');
 		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
-		//$this->loadModel('UserAccount');
+		$this->loadModel('UserAccount');
 		$params = array();
 		if(isset($this->userId)){
 			$params = array('$or'=>array(
@@ -2049,61 +2006,6 @@ var $components = array('Common');
 		echo json_encode($resultArray); 
 		die;
 	} 
-
-		/*
-	*
-	* Method: 
-	* Description:
-	*
-	*/
-
-	public function getMembershipPlanAndPoints(){
-		$this->loadModel('Option');
-
-		$points = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","type"),'conditions' => array('Option.type' => 'point')));
-		/*$this->set(array(
-            'options' => Hash::extract($points, '{n}.Option'),
-            '_serialize' => 'options'
-        )); */
-		if(!empty($points)){
-			
-			$points_Array = array();
-			foreach ($points as $point) {
-				$points_Array[] = $point['Option']; 
-			}
-			
-			$updated_Array['points'] = $points_Array;
-		}
-
-		$membership_plans = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","discount","description","type"),'conditions' => array('Option.type' => 'membership_plan')));
-		if(!empty($points)){
-			$membership_plans_Array = array();
-			foreach ($membership_plans as $membership_plan) {
-				$membership_plans_Array[] = $membership_plan['Option']; 
-			}
-			$updated_Array['membership_plans'] = $membership_plans_Array;
-		}
-
-
-		if(!empty($updated_Array)){
-
-			$resultArray = array();
-			$resultArray['status'] = true;
-			$resultArray['data'] = $updated_Array;
-			$resultArray['message'] = "success";
-			
-		}else{
-			$resultArray = array();
-			$resultArray['status'] = false;
-			$resultArray['data'] = new stdClass();
-			$resultArray['message'] = "no data found";
-		}
-		
-		header("Content-type:application/json");
-		echo json_encode($resultArray);
-		 die;
-	
-	}
 
 	/**
 	 * add method (testapi)
