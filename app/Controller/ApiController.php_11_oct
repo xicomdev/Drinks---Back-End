@@ -45,7 +45,7 @@ var $components = array('Common');
     public $userId='';
 
 
-    var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndTickets');
+    var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndPoints');
 
 	public function beforeFilter() {		
 		header("Content-type:application/json");
@@ -132,7 +132,8 @@ var $components = array('Common');
 	    	$params = array(
 					'conditions' => array('Group.user_id' => $user_id,'Group.is_deleted' => false),
 				);
-			$exists = $this->Group->find('first', $params);			
+			$exists = $this->Group->find('first', $params);
+			
 			if(!empty($exists)){
 				return "1";  // one group already there
 			}else{
@@ -233,7 +234,6 @@ var $components = array('Common');
 	    $new_thread['group_id'] = $exists['DrinkedGroup']['group_id'];
 	    $new_thread['sender_id'] = $exists['DrinkedGroup']['user_id'];
 	    $new_thread['receiver_id'] = $exists['DrinkedGroup']['owner_user_id'];
-	    $new_thread['is_deleted'] = false;
 	    if($this->Thread->save($new_thread)){
 	    	return true;
 	    }else{
@@ -265,12 +265,10 @@ var $components = array('Common');
 	public function checkIfDrinked($user_id,$owner_user_id)		
 	    {		
 			$this->loadModel("DrinkedGroup");		
-	    	$params = array(
-	    				'DrinkedGroup.is_deleted'=>false,
-	    				'$or'=>array(		
-	                    				array('DrinkedGroup.user_id'=>$user_id,'DrinkedGroup.owner_user_id'=>$owner_user_id),		
-                    					array('DrinkedGroup.owner_user_id'=>$user_id,'DrinkedGroup.user_id'=>$owner_user_id),		
-	         						)		
+	    	$params = array('$or'=>array(		
+	                    array('DrinkedGroup.user_id'=>$user_id,'DrinkedGroup.owner_user_id'=>$owner_user_id),		
+	                    array('DrinkedGroup.owner_user_id'=>$user_id,'DrinkedGroup.user_id'=>$owner_user_id),		
+	         		)		
 	            );		
 			$exists = $this->DrinkedGroup->find('first', array('conditions'=>$params));		
 					
@@ -446,7 +444,7 @@ var $components = array('Common');
 		}
 
 		//$placeset = $this->Place->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude")));
-		$placeset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude","type"),'conditions' => array('Option.type' => 'place'),'order'=>array('order'=>'asc')));
+		$placeset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude","type"),'conditions' => array('Option.type' => 'place')));
 		
 		if(!empty($placeset)){
 			
@@ -458,7 +456,7 @@ var $components = array('Common');
 			$updated_Array['places'] = $places_Array;
 		}
 
-		$educationset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'education'),'order'=>array('order'=>'asc')));
+		$educationset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'education')));
 		
 		if(!empty($educationset)){
 			
@@ -471,7 +469,7 @@ var $components = array('Common');
 		}
 
 		//$marriageset = $this->MarriageType->find('all',array('fields'=>array("eng_name","jap_name")));
-		$marriageset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'marriage_type'),'order'=>array('order'=>'asc')));
+		$marriageset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'marriage_type')));
 		
 		if(!empty($marriageset)){
 			
@@ -485,7 +483,7 @@ var $components = array('Common');
 
 
 		//$tobaccoset = $this->Tobacco->find('all',array('fields'=>array("eng_name","jap_name")));
-		$tobaccoset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'tobacco'),'order'=>array('order'=>'asc')));
+		$tobaccoset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'tobacco')));
 		
 		if(!empty($tobaccoset)){
 			
@@ -498,7 +496,7 @@ var $components = array('Common');
 		}
 
 		//$drinkingset = $this->Drinking->find('all',array('fields'=>array("eng_name","jap_name")));
-		$drinkingset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'drinking'),'order'=>array('order'=>'asc')));
+		$drinkingset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'drinking')));
 		if(!empty($drinkingset)){
 			
 			$drinking_Array = array();
@@ -509,7 +507,7 @@ var $components = array('Common');
 			$updated_Array['drinking_types'] = $drinking_Array;
 		}
 
-		$salaryset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'salary'),'order'=>array('order'=>'asc')));
+		$salaryset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'salary')));
 		
 		if(!empty($salaryset)){
 			
@@ -522,7 +520,7 @@ var $components = array('Common');
 		}
 		
 		//$relationshipset = $this->Relationship->find('all',array('fields'=>array("eng_name","jap_name")));
-		$relationshipset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'relationship'),'order'=>array('order'=>'asc')));
+		$relationshipset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'relationship')));
 		
 		if(!empty($relationshipset)){
 			
@@ -973,8 +971,8 @@ var $components = array('Common');
 							//}
 							$drinked_group = $this->checkIfDrinked($this->userId,$resultset['Group']['user_id']);	
 							if($drinked_group){
-								unset($resultsets[$key]);
-								continue;
+								//unset($resultsets[$key]);
+								//continue;
 							}else{
 								$resultset['Group']['drinked_status'] = "undrinked";
 							}
@@ -1120,14 +1118,20 @@ var $components = array('Common');
 
 	public function showInterest() {
 		$this->loadModel('DrinkedGroup');
-		if($this->checkGroupExists($this->userId) != "1"){ 
+		//$this->loadModel('UserAccount');
+		if(!isset($this->request->data['user_id']) && empty($this->request->data['user_id'])){
+			$this->request->data['user_id'] = $this->userId;	
+		}
+		if($this->checkGroupExists($this->userId) != "1"){
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['drinked_status'] = "undrinked";
 			$resultArray['message'] = "you must have your own group to drink another group";
+			
 		}else{
-			//$this->request->data['user_id'] = $this->userId;
+
 			if (!empty($this->request->data['user_id']) && !empty($this->request->data['group_id'])) {
+
 				$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'group_id' => $this->request->data['group_id'])));
 				if(!empty($exists)){
 					// We already drinked group and now sending the drinked fr the same group
@@ -1140,8 +1144,10 @@ var $components = array('Common');
 					// offer is in waiting or confirmed and we are undrinked
 					if($this->request->data['drinked_status'] == "undrinked"){
 						if($this->DrinkedGroup->delete($exists['DrinkedGroup']['id'])){
+							
 							//Delete Thread on undrinked
 							$this->deleteThreadIfHave($exists);
+							
 							$resultArray = array();
 							$resultArray['status'] = true;
 							$resultArray['drinked_status'] = "undrinked";
@@ -1154,38 +1160,39 @@ var $components = array('Common');
 						}
 					}
 					// offer is in waiting list and we confirmed
-					if($this->request->data['drinked_status'] == "confirmed"){
-						$exists['DrinkedGroup']['drinked_status'] = "confirmed";
+					if($this->request->data['drinked_status'] == "drinked"){
+						$exists['DrinkedGroup']['drinked_status'] = "drinked";
 						$exists['DrinkedGroup']['is_deleted'] = false;
 						if($this->DrinkedGroup->save($exists)){
-						    //Create Thread on accepted
-						    $this->createThread($exists);
-							$resultArray = array();
-							$resultArray['status'] = true;
-							$resultArray['drinked_status'] = "confirmed";
-							$resultArray['message'] = "offer accepted successfully";	
-						}else{
-							$resultArray = array();
-							$resultArray['status'] = false;
-							$resultArray['drinked_status'] = "undrinked";
-							$resultArray['message'] = "something went wrong. please try again.";
-						}	
+							    
+							    //Create Thread on accepted
+							    $this->createThread($exists);
+
+								$resultArray = array();
+								$resultArray['status'] = true;
+								$resultArray['drinked_status'] = "drinked";
+								$resultArray['message'] = "offer accepted successfully";	
+							}else{
+								$resultArray = array();
+								$resultArray['status'] = false;
+								$resultArray['drinked_status'] = "undrinked";
+								$resultArray['message'] = "something went wrong. please try again.";
+							}	
 					}
 
 				}else{
 					if($this->request->data['drinked_status'] == "drinked"){
 						
-						if(!$this->checkIfDrinked($this->userId,$this->request->data['owner_user_id'])){
+						if(!$this->checkIfDrinked($this->request->data['user_id'],$this->request->data['owner_user_id'])){
 							$this->DrinkedGroup->create();
 							$this->request->data['drinked_status'] = "drinked"; // direct interest confirrmed - removed "waiting"
 							$this->request->data['is_deleted'] = false; // direct interest confirrmed - removed "waiting"
-							
 							$account_array = $this->User->find('first',array('conditions'=>array('id' => $this->request->data['user_id'])));
 							
 							if($account_array['User']['account'] > 0){
 								if($this->DrinkedGroup->save($this->request->data)){
-									//$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id' => $this->request->data['group_id'])));
-									//$this->createThread($exists);
+									$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'group_id' => $this->request->data['group_id'])));
+									$this->createThread($exists);
 									$new_arr = array();
 									$new_arr['id'] = $account_array['User']['id'];
 									$new_arr['balance'] = $account_array['User']['account']-1;
@@ -1370,10 +1377,14 @@ var $components = array('Common');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
 		$this->loadModel('DrinkedGroup');
-		$this->loadModel('ReportedUser'); 
+		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
-
-		$params = array('DrinkedGroup.owner_user_id' => $this->userId,'DrinkedGroup.is_deleted'=>false,'DrinkedGroup.drinked_status'=> 'drinked');	
+		//$this->loadModel('UserAccount');
+		$params = array('DrinkedGroup.is_deleted'=>false);
+		if(isset($this->userId)){
+			$params = array('DrinkedGroup.owner_user_id' => $this->userId,'DrinkedGroup.is_deleted'=>false);	
+		}
+		
 		$resultsets = $this->DrinkedGroup->find('all',array(
 					'conditions' => $params,
 					'order'=>array('_id'=>'DESC'),
@@ -1470,7 +1481,7 @@ var $components = array('Common');
 
 	/*
 	*
-	* Method NAme: sentOffers
+	* Method NAme: receivedOffers
 	* Decription: offered for sentOffers
 	*
 	*/
@@ -1484,7 +1495,7 @@ var $components = array('Common');
 		//$this->loadModel('UserAccount');
 		$params = array('DrinkedGroup.is_deleted'=>false);
 		if(isset($this->userId)){
-			$params = array('DrinkedGroup.user_id' => $this->userId,'DrinkedGroup.is_deleted'=>false,'DrinkedGroup.drinked_status'=> 'drinked');	
+			$params = array('DrinkedGroup.user_id' => $this->userId,'DrinkedGroup.is_deleted'=>false);	
 		}
 		
 		$resultsets = $this->DrinkedGroup->find('all',array(
@@ -2115,10 +2126,10 @@ var $components = array('Common');
 	*
 	*/
 
-	public function getMembershipPlanAndTickets(){
+	public function getMembershipPlanAndPoints(){
 		$this->loadModel('Option');
 
-		$points = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","type"),'conditions' => array('Option.type' => 'ticket'),'order'=>array('order'=>'asc')));
+		$points = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","type"),'conditions' => array('Option.type' => 'point')));
 		/*$this->set(array(
             'options' => Hash::extract($points, '{n}.Option'),
             '_serialize' => 'options'
@@ -2130,10 +2141,10 @@ var $components = array('Common');
 				$points_Array[] = $point['Option']; 
 			}
 			
-			$updated_Array['tickets'] = $points_Array;
+			$updated_Array['points'] = $points_Array;
 		}
 
-		$membership_plans = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","discount","description","type"),'conditions' => array('Option.type' => 'membership_plan'),'order'=>array('order'=>'asc')));
+		$membership_plans = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","discount","description","type"),'conditions' => array('Option.type' => 'membership_plan')));
 		if(!empty($points)){
 			$membership_plans_Array = array();
 			foreach ($membership_plans as $membership_plan) {

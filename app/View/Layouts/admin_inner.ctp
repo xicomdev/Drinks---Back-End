@@ -20,6 +20,7 @@
     <!-- font icon -->
     <?= $this->Html->css('admin/elegant-icons-style') ?>
     <?= $this->Html->css('admin/font-awesome') ?>   
+    <?= $this->Html->css('admin/sweetalert') ?>   
     <!-- full calendar css-->
     <!-- <link href="assets/fullcalendar/fullcalendar/bootstrap-fullcalendar.css" rel="stylesheet" />
     <link href="assets/fullcalendar/fullcalendar/fullcalendar.css" rel="stylesheet" /> -->
@@ -35,13 +36,14 @@
     <?= $this->Html->css('admin/style-responsive') ?>
     <!-- <link href="css/xcharts.min.css" rel=" stylesheet"> 
     <link href="css/jquery-ui-1.10.4.min.css" rel="stylesheet"> -->
-    <?php echo $this->Html->script(array('admin/jquery.js','admin/jquery-ui-1.10.4.min.js','admin/jquery-1.8.3.min.js','admin/jquery-ui-1.9.2.custom.min.js','admin/bootstrap.min.js','admin/jquery.scrollTo.min.js','admin/jquery.nicescroll.js','admin/jquery.sparkline.js','admin/jquery.customSelect.min.js','admin/scripts.js','admin/jquery.validate.min.js')); ?>
+    <?php echo $this->Html->script(array('admin/jquery.js','admin/jquery-ui-1.10.4.min.js','admin/jquery-1.8.3.min.js','admin/jquery-ui-1.9.2.custom.min.js','admin/bootstrap.min.js','admin/jquery.scrollTo.min.js','admin/jquery.nicescroll.js','admin/jquery.sparkline.js','admin/custom.js','admin/jquery.customSelect.min.js','admin/scripts.js','admin/jquery.validate.min.js','admin/sweetalert.min.js','admin/jquery.form.js')); ?>
     <?= $this->fetch('meta'); ?>
     <?= $this->fetch('css'); ?>
     <?= $this->fetch('script'); ?>
   </head>
 
   <body>
+  <div id="wait-div"></div>
         <?php echo $this->Flash->render(); ?>
 
         <?php echo $this->Element('admin/header'); ?>

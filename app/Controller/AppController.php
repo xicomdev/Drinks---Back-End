@@ -32,31 +32,114 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller {
 
-	  public $components = array(
-            'Session',
-            'Cookie',
-            'Common',
-            'Auth' => array(
-                'loginRedirect' => array(
-                    'controller' => 'admin',
-                    'action' => 'dashboard',
-                    'webadmin' =>true
-                ),
-                'loginAction' => array(
-                    'controller' => 'admin',
-                    'action' => 'index',
-                    'webadmin' =>true
-                ),
-                'logoutRedirect' => array(
-                    'controller' => 'admin',
-                    'action' => 'index',
-                    'webadmin' =>true
-                ),
-        ));
-	   public $uses = array("AppModel");
-	   public function beforeFilter() {        
-            if (@$this->Session->read('AdminUser')) {
-                $this->set("AdminUser", $this->Session->read('AdminUser'));
-            }
+    public $components = array(
+        'Session',
+        'Cookie',
+        'Common',
+        'Auth' => array(
+            'loginRedirect' => array(
+                'controller' => 'admin',
+                'action' => 'dashboard',
+                'webadmin' =>true
+            ),
+            'loginAction' => array(
+                'controller' => 'admin',
+                'action' => 'index',
+                'webadmin' =>true
+            ),
+            'logoutRedirect' => array(
+                'controller' => 'admin',
+                'action' => 'index',
+                'webadmin' =>true
+            ),
+    ));
+    public $uses = array("AppModel");
+    public function beforeFilter() {        
+        if (@$this->Session->read('AdminUser')) {
+            $this->set("AdminUser", $this->Session->read('AdminUser'));
         }
+    }
+
+        /** 
+     * Purpose : This method is use to send push notification to the android device
+     *
+     * @author Xicom
+     * @param  $device, msg and badge
+     * @access public
+     * @return successfull message
+     */
+    public function sendPushNotificationOnIOS($device,$msg,$badges,$data)
+    {    
+    
+        //$device='21cae7e1f71b82b9ce62f6bb4ad4a61291add61b45fc4fda2f86b2ef3bd9198f';       
+        //$device = '907271e744d14bdeecac73680cfb598040c399d6817d493cc4c76b33d5850e21';
+        $env = 'developement';
+        $devices = array($device);
+        if(!empty($devices))
+        {       
+            foreach($devices as $deviceToken)
+            {
+                if(!$deviceToken)
+                {
+                    continue;
+                }   
+                if($env =='developement')
+                {           
+                 $user_key = WWW_ROOT . 'pem/CertificatesPushP12Drinks.pem';
+                 $url = DEVELOPMENT_PUSH_URL;
+                }
+                elseif($env=='production')
+                {
+                 $user_key = WWW_ROOT . 'pem/CertificatesPushP12Drinks.pem';
+                 $url = PRODUCTION_PUSH_URL;
+                }
+                $ctx = stream_context_create();
+                stream_context_set_option($ctx, 'ssl', 'local_cert', $user_key);
+                stream_context_set_option($ctx, 'ssl', 'passphrase', 'Lunchserved');                
+                $fp = stream_socket_client(
+                    $url, $err,
+                    $errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx
+                );
+                $message = $msg;
+            
+                $body['aps'] = array(
+                    'alert' =>$message,
+                    'badge' =>intval($badges),
+                    'sound' => 'default',                   
+                    'data'  => json_decode($data)
+                 );
+            
+                $payload = json_encode($body);              
+                $deviceToken = str_replace(' ', '', $deviceToken);
+                try
+                {
+                    $msg = chr(0) . pack('n', 32) . pack('H*', $deviceToken) . pack('n', strlen($payload)) . $payload . chr(3) . pack('n', 4) . pack('N', $deviceToken) . chr(4) . pack('n', 4). pack('N', time() + 86400) . chr(5) . pack('n', 1). chr(10);;           
+                    $result = fwrite($fp, $msg, strlen($msg));                  
+                    
+                    if (!$result)
+                    {
+                        $res=0;                    
+                    } 
+                    else
+                    {
+                        $res=1;                 
+                    }
+                    $retmsg = $res;             
+                } 
+                catch(Exception $eee)
+                {               
+                    $this->log('Message Push - ' . $eee);
+                }
+                fclose($fp);
+                $retmsg =  '<br>'.date("Y-m-d H:i:s").' Connection closed to APNS' . PHP_EOL;   
+                
+            }           
+        } 
+        else
+        {
+            $retmsg = '<br>'.date("Y-m-d H:i:s").' Queue is empty!';
+        }
+        return $retmsg; 
+        exit;
+    }
 }

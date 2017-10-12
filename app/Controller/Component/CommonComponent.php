@@ -51,6 +51,8 @@ App::uses('CakeEmail', 'Network/Email');
                 break;
 
                 case 'group_image':
+                //echo "2";
+                //print_r($file_array);
                 $temp = explode(".", $file_array['name']);
                 $filename = "User_" . date("Y") . "_" . round(microtime(true)) . '.' . end($temp);
                 move_uploaded_file($file_array['tmp_name'], "uploads/groups/original/" . $filename);
@@ -107,11 +109,11 @@ App::uses('CakeEmail', 'Network/Email');
             switch ($type) {
                 case 'profile_image':
                 unlink(WWW_ROOT.'uploads/users/original/'.$file);
-                unlink(WWW_ROOT.'uploads/users/resized/'.$file);
+                //unlink(WWW_ROOT.'uploads/users/resized/'.$file);
                 break;
                 case 'gear_image':
                 unlink(WWW_ROOT.'uploads/gears/original/'.$file);
-                unlink(WWW_ROOT.'uploads/gears/resized/'.$file);
+                //unlink(WWW_ROOT.'uploads/gears/resized/'.$file);
                 return true;
                 break;
             }   

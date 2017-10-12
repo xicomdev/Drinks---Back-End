@@ -45,7 +45,7 @@ var $components = array('Common');
     public $userId='';
 
 
-    var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndTickets');
+    var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndPoints');
 
 	public function beforeFilter() {		
 		header("Content-type:application/json");
@@ -130,9 +130,10 @@ var $components = array('Common');
     	if($this->checkUserExists($user_id)){
     		$this->loadModel("Group");
 	    	$params = array(
-					'conditions' => array('Group.user_id' => $user_id,'Group.is_deleted' => false),
+					'conditions' => array('Group.user_id' => $user_id),
 				);
-			$exists = $this->Group->find('first', $params);			
+			$exists = $this->Group->find('first', $params);
+			
 			if(!empty($exists)){
 				return "1";  // one group already there
 			}else{
@@ -202,7 +203,7 @@ var $components = array('Common');
     {
     	$this->loadModel("Group");
     	$params = array(
-				'conditions' => array('Group._id' => $group_id,'Group.is_deleted'=>false),
+				'conditions' => array('Group._id' => $group_id),
 			);
     	$result = $this->Group->find('first', $params);
 		return $result['Group'];
@@ -233,7 +234,6 @@ var $components = array('Common');
 	    $new_thread['group_id'] = $exists['DrinkedGroup']['group_id'];
 	    $new_thread['sender_id'] = $exists['DrinkedGroup']['user_id'];
 	    $new_thread['receiver_id'] = $exists['DrinkedGroup']['owner_user_id'];
-	    $new_thread['is_deleted'] = false;
 	    if($this->Thread->save($new_thread)){
 	    	return true;
 	    }else{
@@ -265,12 +265,10 @@ var $components = array('Common');
 	public function checkIfDrinked($user_id,$owner_user_id)		
 	    {		
 			$this->loadModel("DrinkedGroup");		
-	    	$params = array(
-	    				'DrinkedGroup.is_deleted'=>false,
-	    				'$or'=>array(		
-	                    				array('DrinkedGroup.user_id'=>$user_id,'DrinkedGroup.owner_user_id'=>$owner_user_id),		
-                    					array('DrinkedGroup.owner_user_id'=>$user_id,'DrinkedGroup.user_id'=>$owner_user_id),		
-	         						)		
+	    	$params = array('$or'=>array(		
+	                    array('DrinkedGroup.user_id'=>$user_id,'DrinkedGroup.owner_user_id'=>$owner_user_id),		
+	                    array('DrinkedGroup.owner_user_id'=>$user_id,'DrinkedGroup.user_id'=>$owner_user_id),		
+	         		)		
 	            );		
 			$exists = $this->DrinkedGroup->find('first', array('conditions'=>$params));		
 					
@@ -314,7 +312,7 @@ var $components = array('Common');
 			if(!empty($resultset)){
 
 				$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['User']['id'])));
-				$user_array['User']['last_login'] = date('Y-m-d H:i:s');
+				$user_array['User']['last_login'] = $this->timeStamp;
 				$this->User->save($user_array);
 
 				$resultArray = array();
@@ -370,7 +368,7 @@ var $components = array('Common');
 				//print_r($_FILES['image']);
 				$this->request->data['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
 			}
-			$this->request->data['last_login'] = date('Y-m-d H:i:s'); 
+			$this->request->data['last_login'] = $this->timeStamp; 
 			$this->request->data['account'] = 100; 
 
 
@@ -446,7 +444,7 @@ var $components = array('Common');
 		}
 
 		//$placeset = $this->Place->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude")));
-		$placeset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude","type"),'conditions' => array('Option.type' => 'place'),'order'=>array('order'=>'asc')));
+		$placeset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","latitude","longitude","type"),'conditions' => array('Option.type' => 'place')));
 		
 		if(!empty($placeset)){
 			
@@ -458,7 +456,7 @@ var $components = array('Common');
 			$updated_Array['places'] = $places_Array;
 		}
 
-		$educationset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'education'),'order'=>array('order'=>'asc')));
+		$educationset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'education')));
 		
 		if(!empty($educationset)){
 			
@@ -471,7 +469,7 @@ var $components = array('Common');
 		}
 
 		//$marriageset = $this->MarriageType->find('all',array('fields'=>array("eng_name","jap_name")));
-		$marriageset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'marriage_type'),'order'=>array('order'=>'asc')));
+		$marriageset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'marriage_type')));
 		
 		if(!empty($marriageset)){
 			
@@ -485,7 +483,7 @@ var $components = array('Common');
 
 
 		//$tobaccoset = $this->Tobacco->find('all',array('fields'=>array("eng_name","jap_name")));
-		$tobaccoset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'tobacco'),'order'=>array('order'=>'asc')));
+		$tobaccoset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'tobacco')));
 		
 		if(!empty($tobaccoset)){
 			
@@ -498,7 +496,7 @@ var $components = array('Common');
 		}
 
 		//$drinkingset = $this->Drinking->find('all',array('fields'=>array("eng_name","jap_name")));
-		$drinkingset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'drinking'),'order'=>array('order'=>'asc')));
+		$drinkingset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'drinking')));
 		if(!empty($drinkingset)){
 			
 			$drinking_Array = array();
@@ -509,7 +507,7 @@ var $components = array('Common');
 			$updated_Array['drinking_types'] = $drinking_Array;
 		}
 
-		$salaryset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'salary'),'order'=>array('order'=>'asc')));
+		$salaryset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'salary')));
 		
 		if(!empty($salaryset)){
 			
@@ -522,7 +520,7 @@ var $components = array('Common');
 		}
 		
 		//$relationshipset = $this->Relationship->find('all',array('fields'=>array("eng_name","jap_name")));
-		$relationshipset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'relationship'),'order'=>array('order'=>'asc')));
+		$relationshipset = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","type"),'conditions' => array('Option.type' => 'relationship')));
 		
 		if(!empty($relationshipset)){
 			
@@ -643,8 +641,7 @@ var $components = array('Common');
 					$this->request->data['image'] = BASE_URL."uploads/groups/original/".$this->Common->upload("group_image",$_FILES['image']);
 					//echo "3";	
 					//print_r($this->request->data['image']);
-				}
-				$this->request->data['is_deleted'] = false;
+					}
 				if($this->Group->save($this->request->data)){
 					$last_inserted_id = $this->Group->getLastInsertID();
 					$params = array(
@@ -829,11 +826,11 @@ var $components = array('Common');
 		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
 		//$this->loadModel('UserAccount');
-		$params = array('Group.is_deleted'=>false);
+		$params = array();
 		$new_arr = array();
 		$myGroups = array();
 		if(isset($this->request->data['user_id'])){
-			$params = array('Group.user_id' => $this->request->data['user_id'],'Group.is_deleted'=>false);	
+			$params = array('Group.user_id' => $this->request->data['user_id']);	
 		}
 		
 		$resultsets = $this->Group->find('all',array(
@@ -1046,9 +1043,9 @@ var $components = array('Common');
 				}else{
 					$sorted_arr = array();
 					foreach ($new_arr as $key => $row) {
-					    $sorted_arr[$key] = $row['Group']['distance'];
+					    $sorted_arr[$key] = $row['Group']['id'];
 					}
-					array_multisort($sorted_arr, SORT_ASC, $new_arr);
+					array_multisort($sorted_arr, SORT_DESC, $new_arr);
 				} 
 				
 				/*$myGroups = $this->Group->find('all',array(
@@ -1074,19 +1071,12 @@ var $components = array('Common');
 			$resultArray['message'] = "no groups found";
 		}*/
 		$myGroups = $this->Group->find('all',array(
-							'conditions' => array('Group.user_id' => $this->userId,'Group.is_deleted'=>false),
+							'conditions' => array('Group.user_id' => $this->userId),
 						));
 		$login_user_array = $this->User->find('first',array('conditions'=>array('_id' => $this->userId)));
-		$job = $this->JobList->find('first',array('conditions'=>array('_id' => $login_user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
-		$login_user_array['User']['job'] = $job['JobList'];
 		$myGroups_new = array();
-		$lat2 = $this->request->data['current_latitude'];
-		$lon2 = $this->request->data['current_longitude'];
 		foreach ($myGroups as $key => $myGroup) {
-			$lat1 = $resultset['Group']['group_latitude'];
-			$lon1 = $resultset['Group']['group_longitude'];
-			$myGroup['Group']['distance'] = $this->distance($lat1, $lon1, $lat2, $lon2);
-			$myGroup['Group']['user'] = $login_user_array['User'];
+			$myGroup['Group']['user'] = $login_user_array;
 			//print_r($myGroup); exit;
 			$myGroups_new[] = $myGroup;
 		}
@@ -1120,14 +1110,20 @@ var $components = array('Common');
 
 	public function showInterest() {
 		$this->loadModel('DrinkedGroup');
-		if($this->checkGroupExists($this->userId) != "1"){ 
+		//$this->loadModel('UserAccount');
+		if(!isset($this->request->data['user_id']) && empty($this->request->data['user_id'])){
+			$this->request->data['user_id'] = $this->userId;	
+		}
+		if($this->checkGroupExists($this->userId) != "1"){
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['drinked_status'] = "undrinked";
 			$resultArray['message'] = "you must have your own group to drink another group";
+			
 		}else{
-			//$this->request->data['user_id'] = $this->userId;
+
 			if (!empty($this->request->data['user_id']) && !empty($this->request->data['group_id'])) {
+
 				$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'group_id' => $this->request->data['group_id'])));
 				if(!empty($exists)){
 					// We already drinked group and now sending the drinked fr the same group
@@ -1140,8 +1136,10 @@ var $components = array('Common');
 					// offer is in waiting or confirmed and we are undrinked
 					if($this->request->data['drinked_status'] == "undrinked"){
 						if($this->DrinkedGroup->delete($exists['DrinkedGroup']['id'])){
+							
 							//Delete Thread on undrinked
 							$this->deleteThreadIfHave($exists);
+							
 							$resultArray = array();
 							$resultArray['status'] = true;
 							$resultArray['drinked_status'] = "undrinked";
@@ -1156,36 +1154,34 @@ var $components = array('Common');
 					// offer is in waiting list and we confirmed
 					if($this->request->data['drinked_status'] == "confirmed"){
 						$exists['DrinkedGroup']['drinked_status'] = "confirmed";
-						$exists['DrinkedGroup']['is_deleted'] = false;
 						if($this->DrinkedGroup->save($exists)){
-						    //Create Thread on accepted
-						    $this->createThread($exists);
-							$resultArray = array();
-							$resultArray['status'] = true;
-							$resultArray['drinked_status'] = "confirmed";
-							$resultArray['message'] = "offer accepted successfully";	
-						}else{
-							$resultArray = array();
-							$resultArray['status'] = false;
-							$resultArray['drinked_status'] = "undrinked";
-							$resultArray['message'] = "something went wrong. please try again.";
-						}	
+							    
+							    //Create Thread on accepted
+							    $this->createThread($exists);
+
+								$resultArray = array();
+								$resultArray['status'] = true;
+								$resultArray['drinked_status'] = "confirmed";
+								$resultArray['message'] = "offer accepted successfully";	
+							}else{
+								$resultArray = array();
+								$resultArray['status'] = false;
+								$resultArray['drinked_status'] = "undrinked";
+								$resultArray['message'] = "something went wrong. please try again.";
+							}	
 					}
 
 				}else{
 					if($this->request->data['drinked_status'] == "drinked"){
 						
-						if(!$this->checkIfDrinked($this->userId,$this->request->data['owner_user_id'])){
+						if(!$this->checkIfDrinked($this->request->data['user_id'],$this->request->data['owner_user_id'])){
 							$this->DrinkedGroup->create();
-							$this->request->data['drinked_status'] = "drinked"; // direct interest confirrmed - removed "waiting"
-							$this->request->data['is_deleted'] = false; // direct interest confirrmed - removed "waiting"
-							
+							$this->request->data['drinked_status'] = "confirmed"; // direct interest confirrmed - removed "waiting"
 							$account_array = $this->User->find('first',array('conditions'=>array('id' => $this->request->data['user_id'])));
 							
 							if($account_array['User']['account'] > 0){
 								if($this->DrinkedGroup->save($this->request->data)){
-									//$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id' => $this->request->data['group_id'])));
-									//$this->createThread($exists);
+									
 									$new_arr = array();
 									$new_arr['id'] = $account_array['User']['id'];
 									$new_arr['balance'] = $account_array['User']['account']-1;
@@ -1193,7 +1189,7 @@ var $components = array('Common');
 
 									$resultArray = array();
 									$resultArray['status'] = true;
-									$resultArray['drinked_status'] = "drinked"; // direct interest confirmed - removed "waiting"
+									$resultArray['drinked_status'] = "confirmed"; // direct interest confirmed - removed "waiting"
 									$resultArray['message'] = "group drinked successfully";	
 								}else{
 									$resultArray = array();
@@ -1359,26 +1355,25 @@ var $components = array('Common');
 		
 	}
 
-	/*
-	*
-	* Method NAme: receivedOffers
-	* Decription: beoffered for receivedOffers
-	*
-	*/
+
 	public function receivedOffers() {
 		$this->loadModel('Group');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
 		$this->loadModel('DrinkedGroup');
-		$this->loadModel('ReportedUser'); 
+		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
-
-		$params = array('DrinkedGroup.owner_user_id' => $this->userId,'DrinkedGroup.is_deleted'=>false,'DrinkedGroup.drinked_status'=> 'drinked');	
+		//$this->loadModel('UserAccount');
+		$params = array();
+		if(isset($this->userId)){
+			$params = array('DrinkedGroup.owner_user_id' => $this->userId);	
+		}
+		
 		$resultsets = $this->DrinkedGroup->find('all',array(
 					'conditions' => $params,
 					'order'=>array('_id'=>'DESC'),
 				));
-		//print_r($results); exit;
+
 		if(!empty($resultsets)){
 			
 			$new_arr = array();
@@ -1386,10 +1381,10 @@ var $components = array('Common');
 				
 				$resultset = $this->Group->find('first',array(
 							//'conditions' => array('Group._id' => $resultGroup['DrinkedGroup']['group_id']),
-							'conditions' => array('Group.user_id' => $resultGroup['DrinkedGroup']['user_id'],'Group.is_deleted'=>false),
+							'conditions' => array('Group.user_id' => $resultGroup['DrinkedGroup']['user_id']),
 						));
 				$which_group_drinked = $this->Group->find('first',array(
-							'conditions' => array('Group._id' => $resultGroup['DrinkedGroup']['group_id'],'Group.is_deleted'=>false),
+							'conditions' => array('Group._id' => $resultGroup['DrinkedGroup']['group_id']),
 							//'conditions' => array('Group.user_id' => $resultGroup['DrinkedGroup']['user_id']),
 						));
 
@@ -1398,8 +1393,7 @@ var $components = array('Common');
 					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
 					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 					if(!empty($this->userId)){
-						//$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('owner_user_id' => $this->userId,'is_deleted'=>false,'group_id'=>$which_group_drinked['Group']['id'])));
-						$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'is_deleted'=>false,'group_id'=>$which_group_drinked['Group']['id'])));
+						$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('owner_user_id' => $this->userId,'group_id'=>$which_group_drinked['Group']['id'])));
 						
 						if(!empty($drinked_group)){
 							$resultset['Group']['drinked_status'] = $drinked_group['DrinkedGroup']['drinked_status'];
@@ -1431,14 +1425,6 @@ var $components = array('Common');
 				    //$user_array['User']['account'] = $account_array['UserAccount'];
 			    	$resultset['Group']['user'] = $user_array['User'];
 			    }
-
-
-			    $lat1 = $resultset['Group']['group_latitude'];
-				$lon1 = $resultset['Group']['group_longitude'];
-				$lat2 = $this->request->data['current_latitude'];
-				$lon2 = $this->request->data['current_longitude'];
-				$resultset['Group']['distance'] = $this->distance($lat1, $lon1, $lat2, $lon2);
-
 			    $resultGroup["Group"] = $resultset["Group"];
 			    $new_arr[] = $resultGroup;
 			
@@ -1468,12 +1454,6 @@ var $components = array('Common');
 	}
 
 
-	/*
-	*
-	* Method NAme: sentOffers
-	* Decription: offered for sentOffers
-	*
-	*/
 	public function sentOffers() {
 		$this->loadModel('Group');
 		$this->loadModel('User');
@@ -1482,9 +1462,9 @@ var $components = array('Common');
 		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
 		//$this->loadModel('UserAccount');
-		$params = array('DrinkedGroup.is_deleted'=>false);
+		$params = array();
 		if(isset($this->userId)){
-			$params = array('DrinkedGroup.user_id' => $this->userId,'DrinkedGroup.is_deleted'=>false,'DrinkedGroup.drinked_status'=> 'drinked');	
+			$params = array('DrinkedGroup.user_id' => $this->userId);	
 		}
 		
 		$resultsets = $this->DrinkedGroup->find('all',array(
@@ -1498,7 +1478,7 @@ var $components = array('Common');
 			foreach ($resultsets as $key => $resultGroup) {
 				
 				$resultset = $this->Group->find('first',array(
-							'conditions' => array('Group._id' => $resultGroup['DrinkedGroup']['group_id'],'Group.is_deleted'=>false),
+							'conditions' => array('Group._id' => $resultGroup['DrinkedGroup']['group_id']),
 						));
 
 				//Binding
@@ -1506,7 +1486,7 @@ var $components = array('Common');
 					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id'])));
 					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 					if(!empty($this->userId)){
-						$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'is_deleted'=>false,'group_id'=>$resultset['Group']['id'])));
+						$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id'=>$resultset['Group']['id'])));
 						if(!empty($drinked_group)){
 							$resultset['Group']['drinked_status'] = $drinked_group['DrinkedGroup']['drinked_status'];
 						}else{
@@ -1535,13 +1515,6 @@ var $components = array('Common');
 				    //$user_array['User']['account'] = $account_array['UserAccount'];
 			    	$resultset['Group']['user'] = $user_array['User'];
 			    } 
-
-			    $lat1 = $resultset['Group']['group_latitude'];
-				$lon1 = $resultset['Group']['group_longitude'];
-				$lat2 = $this->request->data['current_latitude'];
-				$lon2 = $this->request->data['current_longitude'];
-				$resultset['Group']['distance'] = $this->distance($lat1, $lon1, $lat2, $lon2);
-
 			    $resultGroup["Group"] = $resultset["Group"];
 			    $new_arr[] = $resultGroup;
 			
@@ -1581,7 +1554,7 @@ var $components = array('Common');
 
 		if (!empty($this->timeStamp) && !empty($this->userId)) {
 			$user_array = $this->User->find('first',array('conditions'=>array('_id' => $this->userId)));
-			$user_array['User']['last_login'] = date('Y-m-d H:i:s');
+			$user_array['User']['last_login'] = $this->timeStamp;
 
 			if($this->User->save($user_array)){
 				$resultArray = array();
@@ -1781,7 +1754,6 @@ var $components = array('Common');
 				if($this->request->data['group_reported_status'] == true){
 					$this->ReportedGroup->create();
 					unset($this->request->data['group_reported_status']);
-					$this->request->data['is_deleted'] = false;
 					if($this->ReportedGroup->save($this->request->data)){
 
 						$resultArray = array();
@@ -1833,13 +1805,12 @@ var $components = array('Common');
 		$this->loadModel('ReportedUser');
 		$this->loadModel('ReportedGroup');
 		//$this->loadModel('UserAccount');
-		$params = array('Thread.is_deleted'=>false);
+		$params = array();
 		if(isset($this->userId)){
 			$params = array('$or'=>array(
 	                             array('Thread.receiver_id'=>$this->userId),
 	                             array('Thread.sender_id'=>$this->userId ),
-                     			),
-								'Thread.is_deleted'=>false
+                     			)
                             );
 			//$params = array('Thread.sender_id' => $this->userId);	
 		}
@@ -1875,7 +1846,7 @@ var $components = array('Common');
 					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id']),'fields'=>array('full_name','image','job_id','fb_image',"dob")));
 					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 					if(!empty($this->userId)){
-						$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'is_deleted'=>false,'group_id'=>$resultset['Group']['id'])));
+						$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id'=>$resultset['Group']['id'])));
 						if(!empty($drinked_group)){
 							$resultset['Group']['drinked_status'] = $drinked_group['DrinkedGroup']['drinked_status'];
 						}else{
@@ -2079,35 +2050,6 @@ var $components = array('Common');
 		die;
 	} 
 
-
-	/**
-	 * add method
-	 *
-	 * @return void
-	 * @access public
-	 */
-	public function updateFacebookFriends() {
-		$this->loadModel('Friend');
-		$this->request->data['status'] = 1;
-		$this->Friend->create();
-		if($result = $this->Friend->save($this->request->data)){
-			$resultArray = array();
-			$resultArray['status'] = true;
-			$resultArray['status_code'] = 200;
-			$resultArray['data'] = $result['Friend'];
-			$resultArray['message'] = "Friend added successfully";	
-		}else{
-			$resultArray = array();
-			$resultArray['status'] = false;
-			$resultArray['status_code'] = 202;
-			$resultArray['data'] = new stdClass();
-			$resultArray['message'] = "Friend not added";
-		}			
-		echo json_encode($resultArray); 
-		die;
-	} 
-
-
 		/*
 	*
 	* Method: 
@@ -2115,10 +2057,10 @@ var $components = array('Common');
 	*
 	*/
 
-	public function getMembershipPlanAndTickets(){
+	public function getMembershipPlanAndPoints(){
 		$this->loadModel('Option');
 
-		$points = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","type"),'conditions' => array('Option.type' => 'ticket'),'order'=>array('order'=>'asc')));
+		$points = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","type"),'conditions' => array('Option.type' => 'point')));
 		/*$this->set(array(
             'options' => Hash::extract($points, '{n}.Option'),
             '_serialize' => 'options'
@@ -2130,10 +2072,10 @@ var $components = array('Common');
 				$points_Array[] = $point['Option']; 
 			}
 			
-			$updated_Array['tickets'] = $points_Array;
+			$updated_Array['points'] = $points_Array;
 		}
 
-		$membership_plans = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","discount","description","type"),'conditions' => array('Option.type' => 'membership_plan'),'order'=>array('order'=>'asc')));
+		$membership_plans = $this->Option->find('all',array('fields'=>array("eng_name","jap_name","point","amount","discount","description","type"),'conditions' => array('Option.type' => 'membership_plan')));
 		if(!empty($points)){
 			$membership_plans_Array = array();
 			foreach ($membership_plans as $membership_plan) {
@@ -2170,13 +2112,6 @@ var $components = array('Common');
 	 * @access public
 	 */
 	public function testapi(){
-
-		$this->loadModel('Group');
-		$data = $this->Group->find('all', array(
-			    'contain' => array('User')
-			));
-		print_r($data); exit;
-		exit;
 		$this->loadModel('Message');
 		$data['sender_info'] = $this->getUserInfoById('59b8d52aa642bee00bb2d545');
 		print_r($data['sender_info']['User']['full_name']); exit;

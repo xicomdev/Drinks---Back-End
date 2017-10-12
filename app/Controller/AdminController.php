@@ -112,6 +112,166 @@
             $this->set(compact('UsersData','keyword'));
         }
 
-       
+        public function webadmin_getPlans() {
+            //echo $type; exit;
+            $AdminUser = $this->Session->read('AdminUser');
+            if (!@$AdminUser) {
+                return $this->redirect(array("controller" => "admin", "action" => "index","webadmin"=>true));
+            }
+            $this->set('title_for_layout', 'Options List');
+            $this->layout = 'admin_inner';
+            $this->loadModel("Option");
+            $params = array('Option.type'=>'membership_plan');  
+            $OptionsData = $this->Option->find('all',array(
+                    'conditions' => $params,
+                ));
+            $this->set('page','option');
+            $this->set('sub_page','membership_plan');
+            $this->set(compact('OptionsData','sub_page','option'));
+        }
 
+        public function webadmin_getTickets() {
+            //echo $type; exit;
+            $AdminUser = $this->Session->read('AdminUser');
+            if (!@$AdminUser) {
+                return $this->redirect(array("controller" => "admin", "action" => "index","webadmin"=>true));
+            }
+            $this->set('title_for_layout', 'Options List');
+            $this->layout = 'admin_inner';
+            $this->loadModel("Option");
+            $params = array('Option.type'=>'ticket');  
+            $OptionsData = $this->Option->find('all',array(
+                    'conditions' => $params,
+                ));
+            $this->set('page','option');
+            $this->set('sub_page','ticket');
+            $this->set(compact('OptionsData','sub_page','option'));
+        }
+        public function webadmin_getOptions($type) {
+            //echo $type; exit;
+            $AdminUser = $this->Session->read('AdminUser');
+            if (!@$AdminUser) {
+                return $this->redirect(array("controller" => "admin", "action" => "index","webadmin"=>true));
+            }
+            $this->set('title_for_layout', 'Options List');
+            $this->layout = 'admin_inner';
+            $this->loadModel("Option");
+            $params = array('Option.type'=>$type);  
+            $OptionsData = $this->Option->find('all',array(
+                    'conditions' => $params,
+                ));
+            $this->set('page','option');
+            $this->set('sub_page',$type);
+            $this->set(compact('OptionsData','sub_page','option'));
+        }
+
+        public function webadmin_set_order(){
+            $list_order = $_POST['list_order'];
+            $this->loadModel("Option");
+            // convert the string list to an array
+            $list = explode(',' , $list_order);
+            $order_number = 0 ;
+            foreach($list as $id) {
+                $Option_array = $this->Option->find('first',array('conditions'=>array('_id' => $id)));
+                $Option_array['Option']['order'] = $order_number;
+                $this->Option->save($Option_array);
+                $order_number++ ;
+            }
+            exit;
+        }
+
+        public function webadmin_delete_option(){
+            $option_id = $_POST['option_id'];
+            $this->loadModel("Option");
+            // convert the string list to an array
+            $Option_array = $this->Option->find('first',array('conditions'=>array('_id' => $option_id)));
+            if(!empty($Option_array)){
+                $this->Option->delete($Option_array['Option']['id']);                    
+                echo 'success';
+                exit;
+            }
+        }
+
+        public function add_option(){
+            $this->loadModel("Option");
+            $this->Option->create();
+            //print_r($this->request->data['option_type']); exit;
+            $Option_array['eng_name'] = $this->request->data['eng_name'];
+            $Option_array['jap_name'] = $this->request->data['jap_name'];
+            $Option_array['type'] = $this->request->data['option_type'];
+            $Option_array['order'] = 1;
+            $this->Option->save($Option_array);
+            if ($this->request->is('ajax')) {
+                if (isset($failure) && $failure == TRUE) {
+                    $data['success'] = false;
+                    $data['error_message'] = 'Somthing wents wrong';
+                } else {
+                    $data['success'] = true;
+                    $data['resetform'] = true;
+                    $data['success_message'] = 'Added';
+                    $data['selfReload'] = true;
+                    $data['resetForm'] = true;
+                }
+                $data['slideToThisForm'] = true;
+                echo json_encode($data);
+                die;
+            }
+        }
+
+        public function add_plan(){
+            $this->loadModel("Option");
+            $this->Option->create();
+            //print_r($this->request->data['option_type']); exit;
+            $Option_array['eng_name'] = $this->request->data['eng_name'];
+            $Option_array['jap_name'] = $this->request->data['jap_name'];
+            $Option_array['type'] = $this->request->data['option_type'];
+            $Option_array['duration'] = $this->request->data['duration'];
+            $Option_array['amount'] = $this->request->data['amount'];
+            $Option_array['order'] = 1;
+            $Option_array['discount'] = $this->request->data['discount'];
+            $Option_array['description'] = $this->request->data['description'];
+            $this->Option->save($Option_array);
+            if ($this->request->is('ajax')) {
+                if (isset($failure) && $failure == TRUE) {
+                    $data['success'] = false;
+                    $data['error_message'] = 'Somthing wents wrong';
+                } else {
+                    $data['success'] = true;
+                    $data['resetform'] = true;
+                    $data['success_message'] = 'Added';
+                    $data['selfReload'] = true;
+                    $data['resetForm'] = true;
+                }
+                $data['slideToThisForm'] = true;
+                echo json_encode($data);
+                die;
+            }
+        }
+
+        public function add_ticket(){
+            $this->loadModel("Option");
+            $this->Option->create();
+            //print_r($this->request->data['option_type']); exit;
+            $Option_array['eng_name'] = $this->request->data['eng_name'];
+            $Option_array['jap_name'] = $this->request->data['jap_name'];
+            $Option_array['type'] = $this->request->data['option_type'];
+            $Option_array['point'] = $this->request->data['point'];
+            $Option_array['amount'] = $this->request->data['amount'];
+            $Option_array['order'] = 1;
+            $this->Option->save($Option_array);
+            if ($this->request->is('ajax')) {
+                if (isset($failure) && $failure == TRUE) {
+                    $data['success'] = false;
+                    $data['error_message'] = 'Somthing wents wrong';
+                } else {
+                    $data['success'] = true;
+                    $data['resetform'] = true;
+                    $data['success_message'] = 'Added';
+                    $data['selfReload'] = true;
+                }
+                $data['slideToThisForm'] = true;
+                echo json_encode($data);
+                die;
+            }
+        }
     }
