@@ -76,6 +76,13 @@ db.getCollection("threads").ensureIndex({
   
 ]);
 
+/** transactions indexes **/
+db.getCollection("transactions").ensureIndex({
+  "_id": NumberInt(1)
+},[
+  
+]);
+
 /** users indexes **/
 db.getCollection("users").ensureIndex({
   "_id": NumberInt(1)
@@ -106,9 +113,9 @@ db.getCollection("api_sessions").insert({
 });
 db.getCollection("api_sessions").insert({
   "_id": ObjectId("59c9140008cb825f448b4569"),
-  "token": "57ff13f6d6baf6c3e433812b62aeeb8275486bc16860e0c05815e06891205e0f",
+  "token": "a1eaa3a938f639a1014669f4c65901201702791e84e2f54464bc191b0ad73404",
   "login_status": NumberLong(1),
-  "session_id": "8c3ec120537af5c3b44d6dec6cbc1341fcae4caf",
+  "session_id": "6f8279eaf613f53a76f42310ad28e30e0c36106d",
   "user_id": "59c913fd08cb825f448b4567",
   "device_id": "BD51B241-C6CB-4731-A65A-51DEF5D22998",
   "modified": ISODate("2017-09-25T14:34:40.790Z"),
@@ -238,7 +245,7 @@ db.getCollection("api_sessions").insert({
   "_id": ObjectId("59d6244808cb82da1e8b4567"),
   "token": "",
   "login_status": NumberLong(1),
-  "session_id": "dc86a7934c3d7d90e6b46e485534a161e3a3a981",
+  "session_id": "6cc260f25dee0ac047253b825abc3c9f7e2e2deb",
   "user_id": "59d6130b08cb8206768b4567",
   "device_id": "B826676A-41AE-4E4A-81E9-41214447FC29",
   "modified": ISODate("2017-10-05T12:23:36.754Z"),
@@ -248,23 +255,73 @@ db.getCollection("api_sessions").insert({
   "_id": ObjectId("59db2b3508cb8233378b4567"),
   "token": "",
   "login_status": NumberLong(1),
-  "session_id": "564c52290e4039c185d0aefecfdfa14731958f79",
+  "session_id": "084ee7af9022b87b251513c3e7dcd443f0e73b35",
   "user_id": "59ca262a08cb82af718b4567",
   "device_id": "A06FEFC6-7961-4AC9-994E-6FE968E51735",
   "modified": ISODate("2017-10-09T07:54:29.625Z"),
   "created": ISODate("2017-10-09T07:54:29.625Z")
 });
+db.getCollection("api_sessions").insert({
+  "_id": ObjectId("59df0e7f08cb82e5218b4567"),
+  "token": "d34d7da5709a5e0866ca8549a3274d3a2438eac9e4885d4f7648191fbc5b348d",
+  "login_status": NumberLong(1),
+  "session_id": "a6239f067ace818ad0ec930e70dca8dd9d19bb88",
+  "user_id": "59d4caf008cb8274728b4567",
+  "device_id": "B6DFF40B-6659-438A-B12E-04E6A577D99B",
+  "modified": ISODate("2017-10-12T06:41:03.320Z"),
+  "created": ISODate("2017-10-12T06:41:03.320Z")
+});
+db.getCollection("api_sessions").insert({
+  "_id": ObjectId("59df363b08cb82cb3e8b4568"),
+  "token": "",
+  "login_status": NumberLong(0),
+  "session_id": "",
+  "user_id": "59df363908cb82cb3e8b4567",
+  "device_id": "B826676A-41AE-4E4A-81E9-41214447FC29",
+  "modified": ISODate("2017-10-12T09:30:35.562Z"),
+  "created": ISODate("2017-10-12T09:30:35.562Z")
+});
+db.getCollection("api_sessions").insert({
+  "_id": ObjectId("59df410e08cb824c488b4567"),
+  "token": "d34d7da5709a5e0866ca8549a3274d3a2438eac9e4885d4f7648191fbc5b348d",
+  "login_status": NumberLong(0),
+  "session_id": "",
+  "user_id": "59ca262a08cb82af718b4567",
+  "device_id": "B6DFF40B-6659-438A-B12E-04E6A577D99B",
+  "modified": ISODate("2017-10-12T10:16:46.656Z"),
+  "created": ISODate("2017-10-12T10:16:46.656Z")
+});
 
 /** drinked_groups records **/
 db.getCollection("drinked_groups").insert({
-  "_id": ObjectId("59dc912208cb825d188b4567"),
-  "drinked_status": "drinked",
+  "_id": ObjectId("59defe653b2efdf5788ba724"),
+  "drinked_status": "confirmed",
   "group_id": "59dc5a3908cb826e788b4567",
   "owner_user_id": "59d6130b08cb8206768b4567",
   "user_id": "59ca262a08cb82af718b4567",
-  "is_deleted": false,
+  "is_deleted": true,
   "modified": ISODate("2017-10-10T09:21:38.479Z"),
   "created": ISODate("2017-10-10T09:21:38.479Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59deffdb08cb82d9168b4567"),
+  "drinked_status": "confirmed",
+  "group_id": "59def66f08cb827a0b8b4567",
+  "owner_user_id": "59ca262a08cb82af718b4567",
+  "user_id": "59d6130b08cb8206768b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-12T05:38:35.601Z"),
+  "created": ISODate("2017-10-12T05:38:35.601Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59df3e0808cb8216458b4567"),
+  "drinked_status": "confirmed",
+  "group_id": "59def66f08cb827a0b8b4567",
+  "owner_user_id": "59ca262a08cb82af718b4567",
+  "user_id": "59d4caf008cb8274728b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-12T10:03:52.163Z"),
+  "created": ISODate("2017-10-12T10:03:52.163Z")
 });
 
 /** friends records **/
@@ -281,7 +338,7 @@ db.getCollection("groups").insert({
   "relationship": "Family",
   "user_id": "59d6130b08cb8206768b4567",
   "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1507613241.jpeg",
-  "is_deleted": false,
+  "is_deleted": true,
   "modified": ISODate("2017-10-10T05:27:21.147Z"),
   "created": ISODate("2017-10-10T05:27:21.147Z")
 });
@@ -296,9 +353,84 @@ db.getCollection("groups").insert({
   "relationship": "School Friends",
   "user_id": "59ca262a08cb82af718b4567",
   "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1507627152.jpeg",
-  "is_deleted": false,
+  "is_deleted": true,
   "modified": ISODate("2017-10-10T09:19:11.740Z"),
   "created": ISODate("2017-10-10T09:19:11.740Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59def66f08cb827a0b8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711be\",\n    \"Age\" : 21,\n    \"eng_name\" : \"A doctor\",\n    \"jap_name\" : \"医師\"\n  }\n]",
+  "group_description": "Aaa",
+  "group_latitude": "30.7294",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8446",
+  "group_tag": "1",
+  "relationship": "College Friends",
+  "user_id": "59ca262a08cb82af718b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1507784304.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-12T04:58:23.650Z"),
+  "created": ISODate("2017-10-12T04:58:23.650Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59def93508cb82a10f8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c0\",\n    \"Age\" : 22,\n    \"eng_name\" : \"Certified public accountant\",\n    \"jap_name\" : \"公認会計士\"\n  }\n]",
+  "group_description": "Enter description here",
+  "group_latitude": "30.7294",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8446",
+  "group_tag": "1",
+  "relationship": "School Friends",
+  "user_id": "59d6130b08cb8206768b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1507785013.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-12T05:10:13.139Z"),
+  "created": ISODate("2017-10-12T05:10:13.139Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59df1dca08cb822a2d8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c5\",\n    \"Age\" : 25,\n    \"eng_name\" : \"Foreign finance\",\n    \"jap_name\" : \"外資金融\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c9\",\n    \"Age\" : 26,\n    \"eng_name\" : \"IT related\",\n    \"jap_name\" : \"IT関連\"\n  }\n]",
+  "group_description": "Hello whats up?",
+  "group_latitude": "30.7279071565144",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8458341274613",
+  "group_tag": "1",
+  "relationship": "Family",
+  "user_id": "59d4caf008cb8274728b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1507794378.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-12T07:46:18.446Z"),
+  "created": ISODate("2017-10-12T07:46:18.446Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59e0aefa08cb8216658b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711be\",\n    \"Age\" : 26,\n    \"eng_name\" : \"A doctor\",\n    \"jap_name\" : \"医師\"\n  }\n]",
+  "group_description": "Adele",
+  "group_latitude": "30.7294",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8446",
+  "group_tag": "1",
+  "relationship": "College Friends",
+  "user_id": "59df363908cb82cb3e8b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1507897083.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-13T12:18:02.763Z"),
+  "created": ISODate("2017-10-13T12:18:02.763Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59e47d0e08cb82c35a8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 20,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  }\n]",
+  "group_description": "Hbsbsjsjs",
+  "group_latitude": "35.6726231798862",
+  "group_location": "南烏山, 世田谷区",
+  "group_longitude": "139.606965892147",
+  "group_tag": "1",
+  "relationship": "Family",
+  "user_id": "59c913fd08cb825f448b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508146491.jpeg",
+  "is_deleted": false,
+  "modified": ISODate("2017-10-16T09:34:06.148Z"),
+  "created": ISODate("2017-10-16T09:34:06.148Z")
 });
 
 /** job_lists records **/
@@ -555,7 +687,7 @@ db.getCollection("job_lists").insert({
 
 /** members records **/
 db.getCollection("members").insert({
-  "_id": ObjectId("59acfe762e7c99203c7db986"),
+  "_id": ObjectId("59ddc9233b2efd795728c6e8"),
   "id": 1,
   "name": "Admin",
   "user_name": "admin",
@@ -567,6 +699,116 @@ db.getCollection("members").insert({
 });
 
 /** messages records **/
+db.getCollection("messages").insert({
+  "_id": ObjectId("59ddb3fa08cb825e3b8b4567"),
+  "message": "Nbnbn",
+  "receiver_id": "59ca262a08cb82af718b4567",
+  "thread_id": "59dda94f08cb827b348b4567",
+  "sender_id": "59d6130b08cb8206768b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(0),
+  "modified": ISODate("2017-10-11T06:02:34.974Z"),
+  "created": ISODate("2017-10-11T06:02:34.974Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59ddb40c08cb82923b8b4567"),
+  "message": "Hiii",
+  "receiver_id": "59d6130b08cb8206768b4567",
+  "thread_id": "59dda94f08cb827b348b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-11T06:02:52.838Z"),
+  "created": ISODate("2017-10-11T06:02:52.838Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df419008cb829e488b4567"),
+  "message": "Hello",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-12T10:18:56.811Z"),
+  "created": ISODate("2017-10-12T10:18:56.811Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df419308cb82aa488b4567"),
+  "message": "Kidan",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-12T10:18:59.12Z"),
+  "created": ISODate("2017-10-12T10:18:59.12Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df419608cb82b5488b4567"),
+  "message": "Aaya mesaage tenu",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-12T10:19:02.338Z"),
+  "created": ISODate("2017-10-12T10:19:02.338Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df419908cb82ba488b4567"),
+  "message": "Ta das baai",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-12T10:19:05.128Z"),
+  "created": ISODate("2017-10-12T10:19:05.128Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df419e08cb82bf488b4567"),
+  "message": "Nahi aunda ta vi dasde",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-12T10:19:10.111Z"),
+  "created": ISODate("2017-10-12T10:19:10.111Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df41a308cb82ce488b4567"),
+  "message": "Eda kuch ni",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-12T10:19:15.72Z"),
+  "created": ISODate("2017-10-12T10:19:15.72Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df41a508cb82d1488b4567"),
+  "message": "Ash kar",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-12T10:19:17.181Z"),
+  "created": ISODate("2017-10-12T10:19:17.181Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59df426908cb82b6498b4567"),
+  "message": "Hello",
+  "receiver_id": "59ca262a08cb82af718b4567",
+  "thread_id": "59df414808cb8283488b4567",
+  "sender_id": "59d4caf008cb8274728b4567",
+  "read_status": "0",
+  "notification_status": NumberLong(0),
+  "modified": ISODate("2017-10-12T10:22:33.761Z"),
+  "created": ISODate("2017-10-12T10:22:33.761Z")
+});
 
 /** options records **/
 db.getCollection("options").insert({
@@ -589,8 +831,8 @@ db.getCollection("options").insert({
   "eng_name": "10 points",
   "point": "10",
   "amount": "100",
-  "type": "point",
-  "order": NumberInt(1)
+  "type": "ticket",
+  "order": NumberLong(1)
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb4dc93b2efdc05a4f4110"),
@@ -598,8 +840,8 @@ db.getCollection("options").insert({
   "eng_name": "30 points",
   "point": "30",
   "amount": "200",
-  "type": "point",
-  "order": NumberInt(1)
+  "type": "ticket",
+  "order": NumberLong(1)
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb4ddb3b2efd315a4f410f"),
@@ -607,8 +849,8 @@ db.getCollection("options").insert({
   "eng_name": "50 points",
   "point": "50",
   "amount": "300",
-  "type": "point",
-  "order": NumberInt(1)
+  "type": "ticket",
+  "order": NumberLong(1)
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb4df43b2efd68574f4110"),
@@ -616,8 +858,8 @@ db.getCollection("options").insert({
   "eng_name": "100 points",
   "point": "100",
   "amount": "500",
-  "type": "point",
-  "order": NumberInt(1)
+  "type": "ticket",
+  "order": NumberLong(1)
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb4aeb3b2efdc05a4f410f"),
@@ -653,95 +895,44 @@ db.getCollection("options").insert({
   "description": "#trending1"
 });
 db.getCollection("options").insert({
-  "_id": ObjectId("59cb6fea3b2efd315a4f4110"),
-  "jap_name": "未設定",
-  "eng_name": "Not set",
-  "type": "salary",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59cb70003b2efd1b644f410f"),
-  "type": "salary",
-  "jap_name": "表示しない",
-  "eng_name": "Do not show",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59cb70133b2efd68574f4111"),
-  "type": "salary",
-  "jap_name": "200万未満",
-  "eng_name": "Less than 2 million",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
   "_id": ObjectId("59cb701f3b2efd835a4f4110"),
   "type": "salary",
   "jap_name": "200万円〜400万円未満",
   "eng_name": "From 2 million yen to less than 4 million yen",
-  "order": NumberInt(1)
+  "order": NumberLong(0),
+  "modified": ISODate("2017-10-11T11:53:21.589Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb702e3b2efdc05a4f4111"),
   "type": "salary",
   "jap_name": "400万円〜600万円未満",
   "eng_name": "Less than 4 million yen ~ 6 million yen",
-  "order": NumberInt(1)
+  "order": NumberLong(1),
+  "modified": ISODate("2017-10-11T11:53:24.374Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb704c3b2efd315a4f4111"),
   "type": "salary",
   "jap_name": "600万円〜800万円未満",
   "eng_name": "From 6 million yen to less than 8 million yen",
-  "order": NumberInt(1)
+  "order": NumberLong(2),
+  "modified": ISODate("2017-10-11T11:53:25.573Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb70563b2efd1b644f4110"),
   "type": "salary",
   "jap_name": "800万円〜1000万円未満",
   "eng_name": "Less than 8 million yen ~ 10 million yen",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59cb705c3b2efd1b644f4111"),
-  "type": "salary",
-  "jap_name": "それ以上",
-  "eng_name": "Any further",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59cb73f13b2efd835a4f4111"),
-  "jap_name": "未設定",
-  "eng_name": "Not set",
-  "type": "education",
-  "order": NumberInt(1)
+  "order": NumberLong(3),
+  "modified": ISODate("2017-10-11T11:53:26.927Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb74033b2efd56694f410f"),
   "jap_name": "短大/専門学校卒",
   "eng_name": "Junior College / Vocational College",
   "type": "education",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59cb74353b2efd835a4f4112"),
-  "jap_name": "大学卒",
-  "eng_name": "University degree",
-  "type": "education",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59cb74463b2efd56694f4110"),
-  "jap_name": "大学院卒",
-  "eng_name": "Masters degree",
-  "type": "education",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59cb744e3b2efd56694f4111"),
-  "jap_name": "それ以外",
-  "eng_name": "other than that",
-  "type": "education",
-  "order": NumberInt(1)
+  "order": NumberLong(0),
+  "modified": ISODate("2017-10-11T11:52:56.874Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64cf241a73f9c5a771234"),
@@ -755,27 +946,6 @@ db.getCollection("options").insert({
   "jap_name": "吸わない",
   "eng_name": "Do not smoke",
   "type": "tobacco",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59a64c4941a73f9c5a7711ee"),
-  "jap_name": "飲む",
-  "eng_name": "drink",
-  "type": "drinking",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59a64c4941a73f9c5a7711ef"),
-  "jap_name": "たまに飲む",
-  "eng_name": "Occasionally",
-  "type": "drinking",
-  "order": NumberInt(1)
-});
-db.getCollection("options").insert({
-  "_id": ObjectId("59a64c4941a73f9c5a7711f0"),
-  "jap_name": "飲まない",
-  "eng_name": "do not drink",
-  "type": "drinking",
   "order": NumberInt(1)
 });
 db.getCollection("options").insert({
@@ -806,7 +976,8 @@ db.getCollection("options").insert({
   "latitude": 43.220327,
   "longitude": 142.863474,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(3),
+  "modified": ISODate("2017-10-11T13:23:38.997Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a7711fa"),
@@ -815,7 +986,8 @@ db.getCollection("options").insert({
   "latitude": 40.822072,
   "longitude": 140.747365,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(0),
+  "modified": ISODate("2017-10-11T13:23:40.131Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a7711fb"),
@@ -824,7 +996,8 @@ db.getCollection("options").insert({
   "latitude": 39.703619,
   "longitude": 141.152684,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(2),
+  "modified": ISODate("2017-10-11T13:23:41.335Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a7711fc"),
@@ -833,7 +1006,8 @@ db.getCollection("options").insert({
   "latitude": 38.268837,
   "longitude": 140.8721,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(6),
+  "modified": ISODate("2017-10-11T13:23:42.485Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a7711fd"),
@@ -842,7 +1016,8 @@ db.getCollection("options").insert({
   "latitude": 39.719922,
   "longitude": 140.10357,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(1),
+  "modified": ISODate("2017-10-11T13:23:43.904Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a7711fe"),
@@ -851,7 +1026,8 @@ db.getCollection("options").insert({
   "latitude": 38.240435,
   "longitude": 140.363633,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(4),
+  "modified": ISODate("2017-10-11T13:23:45.88Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a7711ff"),
@@ -860,7 +1036,8 @@ db.getCollection("options").insert({
   "latitude": 37.760834,
   "longitude": 140.474728,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(5),
+  "modified": ISODate("2017-10-11T13:23:46.219Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771200"),
@@ -869,7 +1046,8 @@ db.getCollection("options").insert({
   "latitude": 36.341811,
   "longitude": 140.446794,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(7),
+  "modified": ISODate("2017-10-11T13:23:47.348Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771201"),
@@ -878,7 +1056,8 @@ db.getCollection("options").insert({
   "latitude": 36.565725,
   "longitude": 139.883565,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(8),
+  "modified": ISODate("2017-10-11T13:23:48.770Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771202"),
@@ -887,7 +1066,8 @@ db.getCollection("options").insert({
   "latitude": 36.390667,
   "longitude": 139.060406,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(9),
+  "modified": ISODate("2017-10-11T13:23:49.902Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771203"),
@@ -896,7 +1076,8 @@ db.getCollection("options").insert({
   "latitude": 35.861729,
   "longitude": 139.645482,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(10),
+  "modified": ISODate("2017-10-11T13:23:51.68Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771204"),
@@ -905,7 +1086,8 @@ db.getCollection("options").insert({
   "latitude": 35.605057,
   "longitude": 140.123306,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(11),
+  "modified": ISODate("2017-10-11T13:23:52.199Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771205"),
@@ -914,7 +1096,8 @@ db.getCollection("options").insert({
   "latitude": 35.689487,
   "longitude": 139.691706,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(12),
+  "modified": ISODate("2017-10-11T13:23:53.896Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771206"),
@@ -923,7 +1106,8 @@ db.getCollection("options").insert({
   "latitude": 35.447507,
   "longitude": 139.642345,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(13),
+  "modified": ISODate("2017-10-11T13:23:55.27Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771207"),
@@ -932,7 +1116,8 @@ db.getCollection("options").insert({
   "latitude": 37.916192,
   "longitude": 139.036413,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(14),
+  "modified": ISODate("2017-10-11T13:23:56.162Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771208"),
@@ -941,7 +1126,8 @@ db.getCollection("options").insert({
   "latitude": 36.695952,
   "longitude": 137.213677,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(15),
+  "modified": ISODate("2017-10-11T13:23:57.290Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771209"),
@@ -950,7 +1136,8 @@ db.getCollection("options").insert({
   "latitude": 36.594682,
   "longitude": 136.625573,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(16),
+  "modified": ISODate("2017-10-11T13:23:58.705Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77120a"),
@@ -959,7 +1146,8 @@ db.getCollection("options").insert({
   "latitude": 36.065178,
   "longitude": 136.221527,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(17),
+  "modified": ISODate("2017-10-11T13:23:59.835Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77120b"),
@@ -968,7 +1156,8 @@ db.getCollection("options").insert({
   "latitude": 35.664158,
   "longitude": 138.568449,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(18),
+  "modified": ISODate("2017-10-11T13:24:00.965Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77120c"),
@@ -977,7 +1166,8 @@ db.getCollection("options").insert({
   "latitude": 36.648583,
   "longitude": 138.194771,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(19),
+  "modified": ISODate("2017-10-11T13:24:02.97Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77120d"),
@@ -986,7 +1176,8 @@ db.getCollection("options").insert({
   "latitude": 35.423298,
   "longitude": 136.760654,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(20),
+  "modified": ISODate("2017-10-11T13:24:03.231Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77120e"),
@@ -995,7 +1186,8 @@ db.getCollection("options").insert({
   "latitude": 34.975562,
   "longitude": 138.38276,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(21),
+  "modified": ISODate("2017-10-11T13:24:04.644Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77120f"),
@@ -1004,7 +1196,8 @@ db.getCollection("options").insert({
   "latitude": 35.180188,
   "longitude": 136.906565,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(22),
+  "modified": ISODate("2017-10-11T13:24:05.772Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771210"),
@@ -1013,7 +1206,8 @@ db.getCollection("options").insert({
   "latitude": 47.60873,
   "longitude": -122.337462,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(23),
+  "modified": ISODate("2017-10-11T13:24:06.943Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771211"),
@@ -1022,7 +1216,8 @@ db.getCollection("options").insert({
   "latitude": 35.004531,
   "longitude": 135.86859,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(24),
+  "modified": ISODate("2017-10-11T13:24:08.639Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771212"),
@@ -1031,7 +1226,8 @@ db.getCollection("options").insert({
   "latitude": 35.011636,
   "longitude": 135.768029,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(25),
+  "modified": ISODate("2017-10-11T13:24:09.768Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771213"),
@@ -1040,7 +1236,8 @@ db.getCollection("options").insert({
   "latitude": 34.693738,
   "longitude": 135.502165,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(26),
+  "modified": ISODate("2017-10-11T13:24:10.927Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771214"),
@@ -1049,7 +1246,8 @@ db.getCollection("options").insert({
   "latitude": 34.691269,
   "longitude": 135.183071,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(27),
+  "modified": ISODate("2017-10-11T13:24:12.59Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771215"),
@@ -1058,7 +1256,8 @@ db.getCollection("options").insert({
   "latitude": 34.685087,
   "longitude": 135.805,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(28),
+  "modified": ISODate("2017-10-11T13:24:13.191Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771216"),
@@ -1067,7 +1266,8 @@ db.getCollection("options").insert({
   "latitude": 34.225987,
   "longitude": 135.167509,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(29),
+  "modified": ISODate("2017-10-11T13:24:14.610Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771217"),
@@ -1076,7 +1276,8 @@ db.getCollection("options").insert({
   "latitude": 35.501133,
   "longitude": 134.235091,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(30),
+  "modified": ISODate("2017-10-11T13:24:15.739Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771218"),
@@ -1085,7 +1286,8 @@ db.getCollection("options").insert({
   "latitude": 35.472295,
   "longitude": 133.0505,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(31),
+  "modified": ISODate("2017-10-11T13:24:16.872Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771219"),
@@ -1094,7 +1296,8 @@ db.getCollection("options").insert({
   "latitude": 34.655146,
   "longitude": 133.919502,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(32),
+  "modified": ISODate("2017-10-11T13:24:18.20Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77121a"),
@@ -1103,7 +1306,8 @@ db.getCollection("options").insert({
   "latitude": 34.385203,
   "longitude": 132.455293,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(33),
+  "modified": ISODate("2017-10-11T13:24:19.456Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77121b"),
@@ -1112,7 +1316,8 @@ db.getCollection("options").insert({
   "latitude": 34.178496,
   "longitude": 131.473727,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(34),
+  "modified": ISODate("2017-10-11T13:24:20.590Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77121c"),
@@ -1121,7 +1326,8 @@ db.getCollection("options").insert({
   "latitude": 34.07027,
   "longitude": 134.554844,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(35),
+  "modified": ISODate("2017-10-11T13:24:21.719Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77121d"),
@@ -1130,7 +1336,8 @@ db.getCollection("options").insert({
   "latitude": 34.340149,
   "longitude": 134.043444,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(36),
+  "modified": ISODate("2017-10-11T13:24:23.129Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77121e"),
@@ -1139,7 +1346,8 @@ db.getCollection("options").insert({
   "latitude": 33.841624,
   "longitude": 132.765681,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(37),
+  "modified": ISODate("2017-10-11T13:24:24.545Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a77121f"),
@@ -1148,7 +1356,8 @@ db.getCollection("options").insert({
   "latitude": 9.931233,
   "longitude": 76.267304,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(38),
+  "modified": ISODate("2017-10-11T13:24:25.675Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771220"),
@@ -1157,7 +1366,8 @@ db.getCollection("options").insert({
   "latitude": 33.590355,
   "longitude": 130.401716,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(39),
+  "modified": ISODate("2017-10-11T13:24:26.809Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771221"),
@@ -1166,7 +1376,8 @@ db.getCollection("options").insert({
   "latitude": 33.263482,
   "longitude": 130.300858,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(40),
+  "modified": ISODate("2017-10-11T13:24:27.943Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771222"),
@@ -1175,7 +1386,8 @@ db.getCollection("options").insert({
   "latitude": 32.750286,
   "longitude": 129.877667,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(41),
+  "modified": ISODate("2017-10-11T13:24:29.353Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771223"),
@@ -1184,7 +1396,8 @@ db.getCollection("options").insert({
   "latitude": 32.8031,
   "longitude": 130.707891,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(42),
+  "modified": ISODate("2017-10-11T13:24:30.482Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771224"),
@@ -1193,7 +1406,8 @@ db.getCollection("options").insert({
   "latitude": 33.238172,
   "longitude": 131.612619,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(43),
+  "modified": ISODate("2017-10-11T13:24:31.614Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771225"),
@@ -1202,7 +1416,8 @@ db.getCollection("options").insert({
   "latitude": 38.268837,
   "longitude": 140.8721,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(44),
+  "modified": ISODate("2017-10-11T13:24:34.181Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771226"),
@@ -1211,7 +1426,8 @@ db.getCollection("options").insert({
   "latitude": 31.596553,
   "longitude": 130.557116,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(45),
+  "modified": ISODate("2017-10-11T13:24:32.743Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64c9f41a73f9c5a771227"),
@@ -1220,7 +1436,8 @@ db.getCollection("options").insert({
   "latitude": 26.501301,
   "longitude": 127.945404,
   "type": "place",
-  "order": NumberInt(1)
+  "order": NumberLong(46),
+  "modified": ISODate("2017-10-11T13:24:35.313Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59cb4b283b2efdc35a4f410f"),
@@ -1238,7 +1455,8 @@ db.getCollection("options").insert({
   "jap_name": "高校卒",
   "eng_name": "High school graduates",
   "type": "education",
-  "order": NumberInt(1)
+  "order": NumberLong(5),
+  "modified": ISODate("2017-10-11T11:53:02.947Z")
 });
 db.getCollection("options").insert({
   "_id": ObjectId("59a64cf241a73f9c5a771235"),
@@ -1253,6 +1471,94 @@ db.getCollection("options").insert({
   "eng_name": "Seniors & juniors",
   "type": "relationship",
   "order": NumberInt(1)
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb73f13b2efd835a4f4111"),
+  "jap_name": "未設定",
+  "eng_name": "Not set",
+  "type": "education",
+  "order": NumberLong(2),
+  "modified": ISODate("2017-10-11T11:52:58.180Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb74353b2efd835a4f4112"),
+  "jap_name": "大学卒",
+  "eng_name": "University degree",
+  "type": "education",
+  "order": NumberLong(1),
+  "modified": ISODate("2017-10-11T11:52:59.297Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb74463b2efd56694f4110"),
+  "jap_name": "大学院卒",
+  "eng_name": "Masters degree",
+  "type": "education",
+  "order": NumberLong(3),
+  "modified": ISODate("2017-10-11T11:53:00.688Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb744e3b2efd56694f4111"),
+  "jap_name": "それ以外",
+  "eng_name": "other than that",
+  "type": "education",
+  "order": NumberLong(4),
+  "modified": ISODate("2017-10-11T11:53:01.842Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb6fea3b2efd315a4f4110"),
+  "jap_name": "未設定",
+  "eng_name": "Not set",
+  "type": "salary",
+  "order": NumberLong(4),
+  "modified": ISODate("2017-10-11T11:53:19.251Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb70003b2efd1b644f410f"),
+  "type": "salary",
+  "jap_name": "表示しない",
+  "eng_name": "Do not show",
+  "order": NumberLong(6),
+  "modified": ISODate("2017-10-11T11:53:20.395Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb70133b2efd68574f4111"),
+  "type": "salary",
+  "jap_name": "200万未満",
+  "eng_name": "Less than 2 million",
+  "order": NumberLong(5),
+  "modified": ISODate("2017-10-11T11:53:22.917Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59cb705c3b2efd1b644f4111"),
+  "type": "salary",
+  "jap_name": "それ以上",
+  "eng_name": "Any further",
+  "order": NumberLong(7),
+  "modified": ISODate("2017-10-11T11:53:28.102Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59a64c4941a73f9c5a7711ef"),
+  "jap_name": "たまに飲む",
+  "eng_name": "Occasionally",
+  "type": "drinking",
+  "order": NumberLong(0),
+  "modified": ISODate("2017-10-11T12:24:28.945Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59a64c4941a73f9c5a7711ee"),
+  "jap_name": "飲む",
+  "eng_name": "drink",
+  "type": "drinking",
+  "order": NumberLong(1),
+  "modified": ISODate("2017-10-11T12:24:30.172Z")
+});
+db.getCollection("options").insert({
+  "_id": ObjectId("59a64c4941a73f9c5a7711f0"),
+  "jap_name": "飲まない",
+  "eng_name": "do not drink",
+  "type": "drinking",
+  "order": NumberLong(2),
+  "modified": ISODate("2017-10-11T12:24:31.413Z")
 });
 
 /** reported_groups records **/
@@ -1356,71 +1662,110 @@ db.getCollection("system.indexes").insert({
   "name": "_id_",
   "ns": "drinks.friends"
 });
+db.getCollection("system.indexes").insert({
+  "v": NumberInt(1),
+  "key": {
+    "_id": NumberInt(1)
+  },
+  "name": "_id_",
+  "ns": "drinks.transactions"
+});
 
 /** threads records **/
 db.getCollection("threads").insert({
-  "_id": ObjectId("59dc912308cb825d188b4568"),
+  "_id": ObjectId("59dda94f08cb827b348b4567"),
   "group_id": "59dc5a3908cb826e788b4567",
   "sender_id": "59ca262a08cb82af718b4567",
   "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T09:21:39.669Z"),
-  "created": ISODate("2017-10-10T09:21:39.669Z")
+  "modified": ISODate("2017-10-11T05:17:03.769Z"),
+  "created": ISODate("2017-10-11T05:17:03.769Z"),
+  "is_deleted": true
 });
 db.getCollection("threads").insert({
-  "_id": ObjectId("59dc91c308cb82d6188b4567"),
-  "group_id": "59dc5a3908cb826e788b4567",
-  "sender_id": "59ca262a08cb82af718b4567",
-  "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T09:24:19.21Z"),
-  "created": ISODate("2017-10-10T09:24:19.21Z")
+  "_id": ObjectId("59df005008cb8257178b4567"),
+  "group_id": "59def66f08cb827a0b8b4567",
+  "sender_id": "59d6130b08cb8206768b4567",
+  "receiver_id": "59ca262a08cb82af718b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-12T05:40:32.105Z"),
+  "created": ISODate("2017-10-12T05:40:32.105Z")
 });
 db.getCollection("threads").insert({
-  "_id": ObjectId("59dc940308cb82721d8b4567"),
-  "group_id": "59dc5a3908cb826e788b4567",
-  "sender_id": "59ca262a08cb82af718b4567",
-  "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T09:33:55.86Z"),
-  "created": ISODate("2017-10-10T09:33:55.86Z")
+  "_id": ObjectId("59df414808cb8283488b4567"),
+  "group_id": "59def66f08cb827a0b8b4567",
+  "sender_id": "59d4caf008cb8274728b4567",
+  "receiver_id": "59ca262a08cb82af718b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-12T10:17:44.426Z"),
+  "created": ISODate("2017-10-12T10:17:44.426Z")
 });
-db.getCollection("threads").insert({
-  "_id": ObjectId("59dc954b08cb829b1f8b4567"),
-  "group_id": "59dc5a3908cb826e788b4567",
-  "sender_id": "59ca262a08cb82af718b4567",
-  "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T09:39:23.759Z"),
-  "created": ISODate("2017-10-10T09:39:23.759Z")
+
+/** transactions records **/
+db.getCollection("transactions").insert({
+  "_id": ObjectId("59e49fd908cb82e27b8b4567"),
+  "user_id": "59ce185b08cb82384e8b4567",
+  "stripe_id": "ch_1BDXIiHzWFyFYZlHyni5LpZI",
+  "relation_id": "59cb4b043b2efd68574f410f",
+  "amount": 1800,
+  "type": "membership_plan",
+  "is_deleted": false,
+  "modified": ISODate("2017-10-16T12:02:33.180Z"),
+  "created": ISODate("2017-10-16T12:02:33.180Z")
 });
-db.getCollection("threads").insert({
-  "_id": ObjectId("59dc961a08cb8249208b4567"),
-  "group_id": "59dc5a3908cb826e788b4567",
-  "sender_id": "59ca262a08cb82af718b4567",
-  "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T09:42:50.427Z"),
-  "created": ISODate("2017-10-10T09:42:50.427Z")
+db.getCollection("transactions").insert({
+  "_id": ObjectId("59e4a0cd08cb82ac7c8b4567"),
+  "user_id": "59d6130b08cb8206768b4567",
+  "stripe_id": "ch_1BDXMeHzWFyFYZlH7xRrzgXe",
+  "relation_id": "59cb4b043b2efd68574f410f",
+  "amount": 1800,
+  "type": "membership_plan",
+  "is_deleted": false,
+  "modified": ISODate("2017-10-16T12:06:37.91Z"),
+  "created": ISODate("2017-10-16T12:06:37.91Z")
 });
-db.getCollection("threads").insert({
-  "_id": ObjectId("59dc99cf08cb8245228b4567"),
-  "group_id": "59dc5a3908cb826e788b4567",
-  "sender_id": "59ca262a08cb82af718b4567",
-  "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T09:58:39.765Z"),
-  "created": ISODate("2017-10-10T09:58:39.765Z")
+db.getCollection("transactions").insert({
+  "_id": ObjectId("59e4a0f708cb82dd7c8b4567"),
+  "user_id": "59d6130b08cb8206768b4567",
+  "stripe_id": "ch_1BDXNKHzWFyFYZlH8at0x3Xx",
+  "relation_id": "59cb4aeb3b2efdc05a4f410f",
+  "amount": 800,
+  "type": "membership_plan",
+  "is_deleted": false,
+  "modified": ISODate("2017-10-16T12:07:19.935Z"),
+  "created": ISODate("2017-10-16T12:07:19.935Z")
 });
-db.getCollection("threads").insert({
-  "_id": ObjectId("59dc9a2608cb82a3228b4567"),
-  "group_id": "59dc5a3908cb826e788b4567",
-  "sender_id": "59ca262a08cb82af718b4567",
-  "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T10:00:06.735Z"),
-  "created": ISODate("2017-10-10T10:00:06.735Z")
+db.getCollection("transactions").insert({
+  "_id": ObjectId("59e4a12f08cb82177d8b4567"),
+  "user_id": "59d6130b08cb8206768b4567",
+  "stripe_id": "ch_1BDXOEHzWFyFYZlHfuDaixJu",
+  "relation_id": "59cb4aeb3b2efdc05a4f410f",
+  "amount": 800,
+  "type": "membership_plan",
+  "is_deleted": false,
+  "modified": ISODate("2017-10-16T12:08:15.729Z"),
+  "created": ISODate("2017-10-16T12:08:15.729Z")
 });
-db.getCollection("threads").insert({
-  "_id": ObjectId("59dc9aab08cb827c238b4567"),
-  "group_id": "59dc5a3908cb826e788b4567",
-  "sender_id": "59ca262a08cb82af718b4567",
-  "receiver_id": "59d6130b08cb8206768b4567",
-  "modified": ISODate("2017-10-10T10:02:19.272Z"),
-  "created": ISODate("2017-10-10T10:02:19.272Z")
+db.getCollection("transactions").insert({
+  "_id": ObjectId("59e4a13708cb821f7d8b4567"),
+  "user_id": "59ce185b08cb82384e8b4567",
+  "stripe_id": "ch_1BDXOLHzWFyFYZlHO4MzzYcX",
+  "relation_id": "59cb4b043b2efd68574f410f",
+  "amount": 1800,
+  "type": "membership_plan",
+  "is_deleted": false,
+  "modified": ISODate("2017-10-16T12:08:23.8Z"),
+  "created": ISODate("2017-10-16T12:08:23.8Z")
+});
+db.getCollection("transactions").insert({
+  "_id": ObjectId("59e4a1c408cb826f7d8b4567"),
+  "user_id": "59d6130b08cb8206768b4567",
+  "stripe_id": "ch_1BDXQcHzWFyFYZlH1nYhJyQC",
+  "relation_id": "59cb4aeb3b2efdc05a4f410f",
+  "amount": 800,
+  "type": "membership_plan",
+  "is_deleted": false,
+  "modified": ISODate("2017-10-16T12:10:44.17Z"),
+  "created": ISODate("2017-10-16T12:10:44.17Z")
 });
 
 /** users records **/
@@ -1437,29 +1782,17 @@ db.getCollection("users").insert({
   "school_career": "Master",
   "tabaco": "DEF",
   "last_login": "2017-10-05 06:35:07",
-  "modified": ISODate("2017-10-04T05:48:11.83Z"),
+  "modified": ISODate("2017-10-04T05:48:11.830Z"),
   "created": ISODate("2017-09-25T10:00:31.594Z"),
   "account": "100",
   "balance": NumberLong(99),
-  "gender": "male"
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59c8d3c108cb82190f8b4567"),
-  "annual_income": "$ 5000 - 8000",
-  "blood_type": "B+",
-  "dob": "1999/09/25",
-  "fb_id": "1588167327924629",
-  "fb_image": "http://graph.facebook.com/1588167327924629/picture?type=large",
-  "full_name": "Maninderjit Singh",
-  "job_id": "59a545e241a73f9c5a7711be",
-  "marriage": "UnMarried",
-  "school_career": "Master",
-  "tabaco": "DEF",
-  "last_login": "",
-  "modified": ISODate("2017-09-25T10:00:33.440Z"),
-  "created": ISODate("2017-09-25T10:00:33.440Z"),
-  "account": "100",
-  "gender": "male"
+  "gender": "male",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59c913fd08cb825f448b4567"),
@@ -1473,102 +1806,18 @@ db.getCollection("users").insert({
   "marriage": "Divorced",
   "school_career": "Graduate",
   "tabaco": "GHI",
-  "last_login": "2017-10-09 03:49:17",
+  "last_login": "2017-10-16 09:32:45",
   "modified": ISODate("2017-10-02T03:58:40.161Z"),
   "created": ISODate("2017-09-25T14:34:37.975Z"),
   "account": "100",
   "balance": NumberLong(99),
-  "gender": "female"
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59c9140108cb8260448b4567"),
-  "annual_income": "$ 5000 - 8000",
-  "blood_type": "AB+",
-  "dob": "1992/09/25",
-  "fb_id": "1288672714577080",
-  "fb_image": "http://graph.facebook.com/1288672714577080/picture?type=large",
-  "full_name": "Jonghwa Park",
-  "job_id": "59a545e241a73f9c5a7711c0",
-  "marriage": "Divorced",
-  "school_career": "Graduate",
-  "tabaco": "GHI",
-  "last_login": "",
-  "modified": ISODate("2017-09-25T14:34:41.138Z"),
-  "created": ISODate("2017-09-25T14:34:41.138Z"),
-  "account": "100",
-  "gender": "male"
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59ca1db008cb825c6c8b4567"),
-  "annual_income": "$ 5000 - 8000",
-  "blood_type": "A+",
-  "dob": "1999/09/26",
-  "fb_id": "1659578594114433",
-  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
-  "full_name": "Nao Naka",
-  "job_id": "59a545e241a73f9c5a7711bd",
-  "marriage": "Married",
-  "school_career": "Middle",
-  "tabaco": "DEF",
-  "last_login": "",
-  "modified": ISODate("2017-09-26T09:28:16.230Z"),
-  "created": ISODate("2017-09-26T09:28:16.230Z"),
-  "account": "100",
-  "gender": "female"
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59ca1db008cb825d6c8b4567"),
-  "annual_income": "$ 5000 - 8000",
-  "blood_type": "A+",
-  "dob": "1999/09/26",
-  "fb_id": "1659578594114433",
-  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
-  "full_name": "Nao Naka",
-  "job_id": "59a545e241a73f9c5a7711bd",
-  "marriage": "Married",
-  "school_career": "Middle",
-  "tabaco": "DEF",
-  "last_login": "",
-  "modified": ISODate("2017-09-26T09:28:16.702Z"),
-  "created": ISODate("2017-09-26T09:28:16.702Z"),
-  "account": "100",
-  "gender": "male"
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59ca1db508cb82666c8b4567"),
-  "annual_income": "$ 5000 - 8000",
-  "blood_type": "A+",
-  "dob": "1999/09/26",
-  "fb_id": "1659578594114433",
-  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
-  "full_name": "Nao Naka",
-  "job_id": "59a545e241a73f9c5a7711bd",
-  "marriage": "Married",
-  "school_career": "Middle",
-  "tabaco": "DEF",
-  "last_login": "",
-  "modified": ISODate("2017-09-26T09:28:21.209Z"),
-  "created": ISODate("2017-09-26T09:28:21.209Z"),
-  "account": "100",
-  "gender": "male"
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59ca1db608cb82676c8b4567"),
-  "annual_income": "$ 5000 - 8000",
-  "blood_type": "A+",
-  "dob": "1999/09/26",
-  "fb_id": "1659578594114433",
-  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
-  "full_name": "Nao Naka",
-  "job_id": "59a545e241a73f9c5a7711bd",
-  "marriage": "Married",
-  "school_career": "Middle",
-  "tabaco": "DEF",
-  "last_login": "",
-  "modified": ISODate("2017-09-26T09:28:22.154Z"),
-  "created": ISODate("2017-09-26T09:28:22.154Z"),
-  "account": "100",
-  "gender": "female"
+  "gender": "female",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca262a08cb82af718b4567"),
@@ -1582,48 +1831,18 @@ db.getCollection("users").insert({
   "marriage": "Single",
   "school_career": "Ph.d",
   "tabaco": "GHI",
-  "last_login": "2017-10-09 07:54:30",
-  "modified": ISODate("2017-10-10T09:21:41.39Z"),
+  "last_login": "2017-10-12 10:16:47",
+  "modified": ISODate("2017-10-10T09:21:41.390Z"),
   "created": ISODate("2017-09-26T10:04:26.779Z"),
   "account": "100",
   "gender": "female",
-  "balance": NumberLong(99)
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59ca4b1208cb821d1a8b4567"),
-  "annual_income": "$ 8000 - 15000",
-  "blood_type": "A+",
-  "dob": "1987/08/17",
-  "fb_id": "1541427585913395",
-  "fb_image": "http://graph.facebook.com/1541427585913395/picture?type=large",
-  "full_name": "Narumitsu Hanafusa",
-  "job_id": "59a545e241a73f9c5a7711c9",
-  "marriage": "Single",
-  "school_career": "Master",
-  "tabaco": "ABC",
-  "last_login": "",
-  "modified": ISODate("2017-09-26T12:41:54.902Z"),
-  "created": ISODate("2017-09-26T12:41:54.902Z"),
-  "account": "100",
-  "gender": "female"
-});
-db.getCollection("users").insert({
-  "_id": ObjectId("59ca4b1808cb821e1a8b4567"),
-  "annual_income": "$ 8000 - 15000",
-  "blood_type": "A+",
-  "dob": "1987/08/17",
-  "fb_id": "1541427585913395",
-  "fb_image": "http://graph.facebook.com/1541427585913395/picture?type=large",
-  "full_name": "Narumitsu Hanafusa",
-  "job_id": "59a545e241a73f9c5a7711c9",
-  "marriage": "Single",
-  "school_career": "Master",
-  "tabaco": "ABC",
-  "last_login": "",
-  "modified": ISODate("2017-09-26T12:42:00.714Z"),
-  "created": ISODate("2017-09-26T12:42:00.714Z"),
-  "account": "100",
-  "gender": "male"
+  "balance": NumberLong(99),
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ce185b08cb82384e8b4567"),
@@ -1642,7 +1861,13 @@ db.getCollection("users").insert({
   "modified": ISODate("2017-10-03T14:42:27.888Z"),
   "created": ISODate("2017-09-29T09:54:35.533Z"),
   "balance": NumberLong(99),
-  "gender": "male"
+  "gender": "male",
+  "premium_plan_last_date": "2018-02-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59d4caf008cb8274728b4567"),
@@ -1657,11 +1882,17 @@ db.getCollection("users").insert({
   "marriage": "UnMarried",
   "school_career": "Master",
   "tabaco": "GHI",
-  "last_login": "2017-10-04 13:33:27",
+  "last_login": "2017-10-12 10:22:05",
   "account": NumberLong(100),
-  "modified": ISODate("2017-10-04T13:18:01.457Z"),
+  "modified": ISODate("2017-10-12T10:03:53.574Z"),
   "created": ISODate("2017-10-04T11:50:08.693Z"),
-  "balance": NumberLong(99)
+  "balance": NumberLong(99),
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59d6130b08cb8206768b4567"),
@@ -1676,9 +1907,231 @@ db.getCollection("users").insert({
   "marriage": "UnMarried",
   "school_career": "Master",
   "tabaco": "JKL",
-  "last_login": "2017-10-05 12:23:37",
+  "last_login": "2017-10-16 07:33:40",
   "account": NumberLong(100),
-  "modified": ISODate("2017-10-09T06:44:09.444Z"),
+  "modified": ISODate("2017-10-12T05:38:37.0Z"),
   "created": ISODate("2017-10-05T11:10:03.288Z"),
-  "balance": NumberLong(99)
+  "balance": NumberLong(99),
+  "premium_plan_last_date": "2018-01-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59c8d3c108cb82190f8b4567"),
+  "annual_income": "$ 5000 - 8000",
+  "blood_type": "B+",
+  "dob": "1999/09/25",
+  "fb_id": "1588167327924629",
+  "fb_image": "http://graph.facebook.com/1588167327924629/picture?type=large",
+  "full_name": "Maninderjit Singh",
+  "job_id": "59a545e241a73f9c5a7711be",
+  "marriage": "UnMarried",
+  "school_career": "Master",
+  "tabaco": "DEF",
+  "last_login": "",
+  "modified": ISODate("2017-09-25T10:00:33.440Z"),
+  "created": ISODate("2017-09-25T10:00:33.440Z"),
+  "account": "100",
+  "gender": "male",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59c9140108cb8260448b4567"),
+  "annual_income": "$ 5000 - 8000",
+  "blood_type": "AB+",
+  "dob": "1992/09/25",
+  "fb_id": "1288672714577080",
+  "fb_image": "http://graph.facebook.com/1288672714577080/picture?type=large",
+  "full_name": "Jonghwa Park",
+  "job_id": "59a545e241a73f9c5a7711c0",
+  "marriage": "Divorced",
+  "school_career": "Graduate",
+  "tabaco": "GHI",
+  "last_login": "",
+  "modified": ISODate("2017-09-25T14:34:41.138Z"),
+  "created": ISODate("2017-09-25T14:34:41.138Z"),
+  "account": "100",
+  "gender": "male",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59ca1db008cb825c6c8b4567"),
+  "annual_income": "$ 5000 - 8000",
+  "blood_type": "A+",
+  "dob": "1999/09/26",
+  "fb_id": "1659578594114433",
+  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
+  "full_name": "Nao Naka",
+  "job_id": "59a545e241a73f9c5a7711bd",
+  "marriage": "Married",
+  "school_career": "Middle",
+  "tabaco": "DEF",
+  "last_login": "",
+  "modified": ISODate("2017-09-26T09:28:16.230Z"),
+  "created": ISODate("2017-09-26T09:28:16.230Z"),
+  "account": "100",
+  "gender": "female",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59ca1db008cb825d6c8b4567"),
+  "annual_income": "$ 5000 - 8000",
+  "blood_type": "A+",
+  "dob": "1999/09/26",
+  "fb_id": "1659578594114433",
+  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
+  "full_name": "Nao Naka",
+  "job_id": "59a545e241a73f9c5a7711bd",
+  "marriage": "Married",
+  "school_career": "Middle",
+  "tabaco": "DEF",
+  "last_login": "",
+  "modified": ISODate("2017-09-26T09:28:16.702Z"),
+  "created": ISODate("2017-09-26T09:28:16.702Z"),
+  "account": "100",
+  "gender": "male",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59ca1db508cb82666c8b4567"),
+  "annual_income": "$ 5000 - 8000",
+  "blood_type": "A+",
+  "dob": "1999/09/26",
+  "fb_id": "1659578594114433",
+  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
+  "full_name": "Nao Naka",
+  "job_id": "59a545e241a73f9c5a7711bd",
+  "marriage": "Married",
+  "school_career": "Middle",
+  "tabaco": "DEF",
+  "last_login": "",
+  "modified": ISODate("2017-09-26T09:28:21.209Z"),
+  "created": ISODate("2017-09-26T09:28:21.209Z"),
+  "account": "100",
+  "gender": "male",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59ca1db608cb82676c8b4567"),
+  "annual_income": "$ 5000 - 8000",
+  "blood_type": "A+",
+  "dob": "1999/09/26",
+  "fb_id": "1659578594114433",
+  "fb_image": "http://graph.facebook.com/1659578594114433/picture?type=large",
+  "full_name": "Nao Naka",
+  "job_id": "59a545e241a73f9c5a7711bd",
+  "marriage": "Married",
+  "school_career": "Middle",
+  "tabaco": "DEF",
+  "last_login": "",
+  "modified": ISODate("2017-09-26T09:28:22.154Z"),
+  "created": ISODate("2017-09-26T09:28:22.154Z"),
+  "account": "100",
+  "gender": "female",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59ca4b1208cb821d1a8b4567"),
+  "annual_income": "$ 8000 - 15000",
+  "blood_type": "A+",
+  "dob": "1987/08/17",
+  "fb_id": "1541427585913395",
+  "fb_image": "http://graph.facebook.com/1541427585913395/picture?type=large",
+  "full_name": "Narumitsu Hanafusa",
+  "job_id": "59a545e241a73f9c5a7711c9",
+  "marriage": "Single",
+  "school_career": "Master",
+  "tabaco": "ABC",
+  "last_login": "",
+  "modified": ISODate("2017-09-26T12:41:54.902Z"),
+  "created": ISODate("2017-09-26T12:41:54.902Z"),
+  "account": "100",
+  "gender": "female",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59ca4b1808cb821e1a8b4567"),
+  "annual_income": "$ 8000 - 15000",
+  "blood_type": "A+",
+  "dob": "1987/08/17",
+  "fb_id": "1541427585913395",
+  "fb_image": "http://graph.facebook.com/1541427585913395/picture?type=large",
+  "full_name": "Narumitsu Hanafusa",
+  "job_id": "59a545e241a73f9c5a7711c9",
+  "marriage": "Single",
+  "school_career": "Master",
+  "tabaco": "ABC",
+  "last_login": "",
+  "modified": ISODate("2017-09-26T12:42:00.714Z"),
+  "created": ISODate("2017-09-26T12:42:00.714Z"),
+  "account": "100",
+  "gender": "male",
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59df363908cb82cb3e8b4567"),
+  "annual_income": "$ 15000 +",
+  "blood_type": "B+",
+  "dob": "1999/10/12",
+  "fb_id": "509099109453723",
+  "fb_image": "http://graph.facebook.com/509099109453723/picture?type=large",
+  "full_name": "Julia Sam",
+  "gender": "Female",
+  "job_id": "59a545e241a73f9c5a7711be",
+  "marriage": "Divorced",
+  "school_career": "Master",
+  "tabaco": "GHI",
+  "last_login": "2017-10-13 10:24:49",
+  "account": NumberLong(100),
+  "modified": ISODate("2017-10-12T09:30:33.851Z"),
+  "created": ISODate("2017-10-12T09:30:33.851Z"),
+  "premium_plan_last_date": "2017-11-12",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "status": true
 });

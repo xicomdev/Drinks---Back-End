@@ -31,7 +31,7 @@ App::uses('AppController', 'Controller');
 class ApiController extends AppController {
 	//public $components = array('Common','Auth','Session','Paginator');
 	//public $helper = array('Form','Session');
-var $components = array('Common');
+var $components = array('Common','Stripe.Stripe');
 /**
  * This controller does not use a model
  *
@@ -46,6 +46,8 @@ var $components = array('Common');
 
 
     var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndTickets');
+
+
 
 	public function beforeFilter() {		
 		header("Content-type:application/json");
@@ -298,9 +300,6 @@ var $components = array('Common');
 				$job = $this->JobList->find('first',array('conditions'=>array('_id' => $resultset['User']['job_id']),'fields'=>array("eng_name","jap_name")));
 				$resultset['User']['job'] = $job['JobList'];	
 			}
-
-			
-
 			if(!empty($resultset['User']['id'])){
 				//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $resultset['User']['id'])));
 				//$resultset['User']['account'] = $account_array['UserAccount'];	
@@ -310,13 +309,16 @@ var $components = array('Common');
 				$this->updateApiSession(1,$this->deviceToken,$session_key,$resultset['User']['id'],$this->deviceId);
 				$resultset['User']['session_id'] = $session_key;
 			}		
-			 
 			if(!empty($resultset)){
 
 				$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['User']['id'])));
 				$user_array['User']['last_login'] = date('Y-m-d H:i:s');
 				$this->User->save($user_array);
-
+				if($user_array->premium_plan_last_date >= date('Y-m-d')){
+					$resultset['User']['membership_status'] = 'Premium';
+				}else{
+					$resultset['User']['membership_status'] = 'Regular';					
+				}
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = $resultset;
@@ -337,7 +339,7 @@ var $components = array('Common');
 		}
 		header("Content-type:application/json");
 		echo json_encode($resultArray); 
-		 die;
+		die;
 	}
 
 	public function logout()
@@ -371,9 +373,14 @@ var $components = array('Common');
 				$this->request->data['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
 			}
 			$this->request->data['last_login'] = date('Y-m-d H:i:s'); 
-			$this->request->data['account'] = 100; 
-
-
+			$this->request->data['account'] = 100;
+			$current_date = date('Y-m-d');
+			$this->request->data['premium_plan_last_date'] = date('Y-m-d', strtotime($current_date .' -1 day'));  
+			$this->request->data['notification_receive_offer'] = true;
+			$this->request->data['notification_when_matching'] = true;
+			$this->request->data['notification_message'] = true;
+			$this->request->data['notification_notice'] = true;
+			$this->request->data['status'] = true;
 			if($this->User->save($this->request->data)){
 
 				$params = array(
@@ -2159,9 +2166,159 @@ var $components = array('Common');
 		
 		header("Content-type:application/json");
 		echo json_encode($resultArray);
-		 die;
+		die;
 	
 	}
+
+    /*
+    *
+    * Author: Lakhvinder Singh
+    * API: updateUserInfo
+    * DEscription: updateUserInfo
+    */
+	public function updateUserInfo(){
+		$this->loadModel('User');
+		if (!empty($this->request->data['notification_receive_offer']){
+			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];
+		}
+
+		if (!empty($this->request->data['notification_receive_offer']){
+			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];			
+		}
+
+		if (!empty($this->request->data['notification_receive_offer']){
+			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];		
+			
+		}
+
+		if (!empty($this->request->data['notification_receive_offer']){
+			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];	
+			
+		}
+		$user_Data['User']['status'] = true;
+		$params = array(
+							'conditions' => array('User._id' => $this->userId),
+						);
+		$user_detail = $this->User->find('first', $params);
+		$this->User->save($user_Data);
+		$resultArray = array();
+		$resultArray['status'] = true;
+		$resultArray['data'] = new stdClass();
+		$resultArray['message'] = "Updated";
+		header("Content-type:application/json");
+		echo json_encode($resultArray);
+		die;
+		
+    }
+
+    /*
+    *
+    * Author: Lakhvinder Singh
+    * API: getUserInfo
+    * DEscription: Get user detail
+    */
+    public function getUserInfo(){
+		$this->loadModel('User');		
+		$params = array(
+							'conditions' => array('User._id' => $this->userId),
+						);
+		$user_detail = $this->User->find('first', $params);
+		$resultArray = array();
+		$resultArray['status'] = true;
+		$resultArray['data'] = $user_detail;
+		$resultArray['message'] = "Updated";
+		header("Content-type:application/json");
+		echo json_encode($resultArray);
+		die;
+		
+    }
+
+    /*
+    *
+    * Author: Lakhvinder Singh
+    * API: payByStripe
+    * DEscription: payByStripe
+    */
+	public function payByStripe(){
+		if (!empty($this->request->data['stripeToken']) && !empty($this->request->data['plan_id'])) {
+		    $this->loadModel('Transaction');
+		    $this->loadModel('Option');
+		    $this->loadModel('User');
+			$plan_id = $this->request->data['plan_id'];
+			$plan_detail = $this->Option->find('first',array('conditions' => array('Option._id' => $plan_id)));
+			if(!empty($plan_detail)){
+				$duration 	= $plan_detail['Option']['duration'];
+				$discount 	= $plan_detail['Option']['discount'];
+				$amount 	= $plan_detail['Option']['amount'];
+				$eng_name 	= $plan_detail['Option']['eng_name'];
+				$description 	= $plan_detail['Option']['description'];
+				$charge_amount = $amount - $discount;
+		    	$data = array(
+						'amount' => $charge_amount,
+						'stripeToken' => $this->request->data['stripeToken'], // either the token
+						'description' => 'Pay for plan -'.$eng_name
+					);
+		    	$result = $this->Stripe->charge($data);
+		    	if(isset($result['stripe_id'])){
+
+				    /********** START:  Transaction data inserted *************************/
+				    $this->Transaction->create();
+				    $Transaction['user_id'] 		= $this->userId;
+				    $Transaction['stripe_id'] 		= $result['stripe_id'];
+				    $Transaction['relation_id'] 	= $plan_id; // Relation id is plan id or option id
+				    $Transaction['amount'] 			= $charge_amount;
+				    $Transaction['type'] 			= 'membership_plan';
+				    $Transaction['is_deleted'] 		= false;
+				    $this->Transaction->save($Transaction);
+				    /********** End  Transaction data inserted *************************/
+
+				    /********** START  Plan date updated *************************/
+					$params = array(
+							'conditions' => array('User._id' => $this->userId),
+						);
+					$user_detail = $this->User->find('first', $params);
+				    $time = strtotime($user_detail['User']['premium_plan_last_date']);
+					$final = date("Y-m-d", strtotime("+".$duration." month", $time));
+					$user_detail['User']['premium_plan_last_date'] = $final;
+					$this->User->save($user_detail);
+				    /********** End  Plan date updated *************************/
+
+			    	$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['data'] = $result;
+					$resultArray['message'] = "success";
+					header("Content-type:application/json");
+					echo json_encode($resultArray);
+					die;
+		    	}else{
+		    		$resultArray = array();
+					$resultArray['status'] = false;
+					$resultArray['data'] = new stdClass();
+					$resultArray['message'] = $result;
+					header("Content-type:application/json");
+			    	echo json_encode($resultArray); 
+					die;
+		    	}
+		    }else{
+				$resultArray = array();
+				$resultArray['status'] = false;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = 'Plan not exists';
+				header("Content-type:application/json");
+		    	echo json_encode($resultArray); 
+				die;
+			}
+		}else{
+			$resultArray = array();
+			$resultArray['status'] = false;
+			$resultArray['data'] = new stdClass();
+			$resultArray['message'] = "no data found";
+			header("Content-type:application/json");
+	    	echo json_encode($resultArray); 
+			die;
+		}    
+    }
+
 
 	/**
 	 * add method (testapi)
@@ -2191,6 +2348,10 @@ var $components = array('Common');
 		echo json_encode($resultArray); 
 		die;
 	}
+
+
+
+
 
 	//Message Module API's end 
 

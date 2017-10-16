@@ -112,4 +112,17 @@ CakeLog::config('error', array(
 CakePlugin::load('Mongodb');
 /***************SITE CONSTANTS ***************/
 $host = $_SERVER['HTTP_HOST'];
-define('BASE_URL', 'http://' . $host . '/drinks/');
+define('BASE_URL', 'http://' . $host . '/~drinks/');
+
+/****************** START: Stripe Setting *************************/
+CakePlugin::load('Stripe');
+Configure::write('Stripe.TestSecret', 'sk_test_WcwKgp9PaBWEBu5M80xQF1JK');
+Configure::write('Stripe.LiveSecret', 'yourStripeLiveAPIKeyHere');
+Configure::write('Stripe.mode', 'Test');
+Configure::write('Stripe.currency', 'usd');
+Configure::write('Stripe.fields', array(
+	'stripe_id' => 'id',
+	'stripe_last4' => array('card' => 'last4'),
+	'stripe_amount' => 'amount'
+));
+/****************** END: Stripe Setting *************************/
