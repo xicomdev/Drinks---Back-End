@@ -15,28 +15,29 @@
             <div class="col-lg-12">
                 <section class="panel">
                     <form method="POST" id="add_ticket" class="add_ticket" class="well" action="<?php echo $this->webroot; ?>admin/add_ticket">
-                    <input type="hidden" name="option_type" value="ticket">
                         <header class="panel-heading">
                             <div class="col-sm-6">
                                 <label class="col-sm-6 control-label">Eng Name</label>
-                                <input type="text" required minlength="2"  class="form-control" placeholder="Enter Eng Name" name="eng_name" value="">
+                                <input type="text" required minlength="2"  class="form-control" placeholder="Enter Eng Name" name="eng_name" value="<?php echo isset($options_edit_data['Option']['eng_name']) ? $options_edit_data['Option']['eng_name'] : ''; ?>">
                             </div>
                             <div class="col-sm-6">
                                 <label class="col-sm-6 control-label">Jap Name</label>
-                                <input type="text" required minlength="2"  class="form-control" placeholder="Enter Jap Name" name="jap_name" value="">
+                                <input type="text" required minlength="2"  class="form-control" placeholder="Enter Jap Name" name="jap_name" value="<?php echo isset($options_edit_data['Option']['jap_name']) ? $options_edit_data['Option']['jap_name'] : ''; ?>">
                             </div>
                             <div class="clearfix"></div>
                             <div class="col-sm-6">
                                 <label class="col-sm-6 control-label">Point</label>
-                                <input type="text" required class="form-control" placeholder="Enter Amount" name="point" value="">
+                                <input type="text" required class="form-control" placeholder="Enter Amount" name="point" value="<?php echo isset($options_edit_data['Option']['point']) ? $options_edit_data['Option']['point'] : ''; ?>">
                             </div>
                             <div class="col-sm-6">
                                 <label class="col-sm-6 control-label">Amount</label>
-                                <input type="text" required class="form-control" placeholder="Enter Amount" name="amount" value="">
+                                <input type="text" required class="form-control" placeholder="Enter Amount" name="amount" value="<?php echo isset($options_edit_data['Option']['amount']) ? $options_edit_data['Option']['amount'] : ''; ?>">
                             </div>
                             <div class="clearfix"></div>
                             <div class="col-sm-12">
-                                <button class="btn btn-primary">Add Ticket</button>
+                                <input type="hidden" name="option_type" value="ticket">
+                                <input type="hidden" name="option_id" value="<?php echo isset($options_edit_data['Option']['id']) ? $options_edit_data['Option']['id'] : ''; ?>">
+                                <button class="btn btn-primary"><?php echo isset($options_edit_data['Option']['id']) ? 'Update' : 'Add'; ?> Ticket</button>
                             </div>
                             <div class="clearfix"></div>
                             <br>
@@ -79,8 +80,7 @@
                                     <td>
                                         <div class="btn-group">
                                             <div class="btn-group">
-                                                <a class="btn btn-primary" href="#"><i class="icon_plus_alt2"></i></a>
-                                                <a class="btn btn-success" href="#"><i class="icon_check_alt2"></i></a>
+                                                <a class="btn btn-success" href="<?php echo $this->webroot; ?>webadmin/admin/getTickets/<?php echo $Option['Option']['id']; ?>"><i class="icon_check_alt2"></i></a>
                                                 <a id="<?php echo $Option['Option']['id']; ?>" title="Remove" href="javascript:void(0);" class="btn btn-danger del_option"><i class="icon_close_alt2"></i></a>
                                             </div>
                                         </div>

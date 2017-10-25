@@ -45,7 +45,7 @@ var $components = array('Common','Stripe.Stripe');
     public $userId='';
 
 
-    var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndTickets');
+    var $allowedActions = array('newCheck','registerFacebook','memberJob','getMembershipPlanAndTickets','testapi');
 
 
 
@@ -168,12 +168,20 @@ var $components = array('Common','Stripe.Stripe');
     * Method: getUserInfoById
     * Description: return user detail 
     */
-    public function getUserInfoById($user_id)
+    public function getUserInfoById($user_id,$fields = false)
     {
     	$this->loadModel("User");
-    	$params = array(
-				'conditions' => array('User._id' => $user_id),
-			);
+    	if($fields == false){
+	    	$params = array(
+					'conditions' => array('User._id' => $user_id),
+				);
+
+    	}else{
+    		$params = array(
+					'conditions' => array('User._id' => $user_id),
+					'fields'=>$fields
+				);
+    	}
     	$result = $this->User->find('first', $params);
 		return $result['User'];
     }
@@ -342,6 +350,21 @@ var $components = array('Common','Stripe.Stripe');
 		die;
 	}
 
+
+	public function generateCouponCode(){
+		$chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		$coupon_code = "";
+		for ($i = 0; $i < 10; $i++) {
+		    $coupon_code .= $chars[mt_rand(0, strlen($chars)-1)];
+		}
+		$user_array = $this->User->find('first',array('conditions'=>array('coupon_code' => $coupon_code)));
+	 	while(empty($user_array)){
+			return $coupon_code;
+		}
+
+		
+	}
+
 	public function logout()
 	{
 		$this->updateApiSession(0,$this->deviceToken,"",$this->userId,$this->deviceId);
@@ -373,14 +396,19 @@ var $components = array('Common','Stripe.Stripe');
 				$this->request->data['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
 			}
 			$this->request->data['last_login'] = date('Y-m-d H:i:s'); 
-			$this->request->data['account'] = 100;
+			$this->request->data['balance'] = 10;
+			$this->request->data['image'] = '';
 			$current_date = date('Y-m-d');
 			$this->request->data['premium_plan_last_date'] = date('Y-m-d', strtotime($current_date .' -1 day'));  
 			$this->request->data['notification_receive_offer'] = true;
 			$this->request->data['notification_when_matching'] = true;
 			$this->request->data['notification_message'] = true;
 			$this->request->data['notification_notice'] = true;
+			$this->request->data['coupon_code'] = $this->generateCouponCode();
+			$this->request->data['is_deleted'] = false;
 			$this->request->data['status'] = true;
+			$this->request->data['consume_date'] = date('Y-m-d');
+			$this->request->data['consume_total'] = 0;
 			if($this->User->save($this->request->data)){
 
 				$params = array(
@@ -1167,6 +1195,24 @@ var $components = array('Common','Stripe.Stripe');
 						if($this->DrinkedGroup->save($exists)){
 						    //Create Thread on accepted
 						    $this->createThread($exists);
+
+						    /*************** PUSH NOTICATION CODE**************************/
+							$pushData =array();
+							$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
+							$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['user_id'],array('fb_image','full_name','full_name','image'));
+							$pushdata['group_info']		= $this->getGroupInfoById($this->request->data['group_id']);
+							$pushData['push_type'] 		= 'DrinkedGroupAccepted'; 
+							$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['user_id']);
+							$push_notification_message  = $pushData['sender_info']['User']['full_name'].'  accepted your offer.';
+							$notification_count = 0;
+							foreach ($pushNotificationTokens as $token) {
+								//print_r($token['ApiSession']); exit;
+								if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
+									$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
+									$notification_count++;
+								}
+							}
+							/*************** END: PUSH NOTICATION CODE **********************/
 							$resultArray = array();
 							$resultArray['status'] = true;
 							$resultArray['drinked_status'] = "confirmed";
@@ -1189,14 +1235,33 @@ var $components = array('Common','Stripe.Stripe');
 							
 							$account_array = $this->User->find('first',array('conditions'=>array('id' => $this->request->data['user_id'])));
 							
-							if($account_array['User']['account'] > 0){
+							if($account_array['User']['balance'] > 0){
 								if($this->DrinkedGroup->save($this->request->data)){
 									//$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id' => $this->request->data['group_id'])));
 									//$this->createThread($exists);
 									$new_arr = array();
 									$new_arr['id'] = $account_array['User']['id'];
-									$new_arr['balance'] = $account_array['User']['account']-1;
+									$new_arr['balance'] = $account_array['User']['balance']-1;
 									$this->User->save($new_arr);
+									$this->updateTicketConsumeCount(); // 5 ticket consume in a day
+
+									/*************** PUSH NOTICATION CODE**************************/
+									$pushData =array();
+									$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
+									$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['owner_user_id'],array('fb_image','full_name','full_name','image'));
+									$pushdata['group_info']		= $this->getGroupInfoById($this->request->data['group_id']);
+									$pushData['push_type'] 		= 'DrinkedGroup'; 
+									$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['owner_user_id']);
+									$push_notification_message  = $pushData['sender_info']['User']['full_name'].' interst in your group.';
+									$notification_count = 0;
+									foreach ($pushNotificationTokens as $token) {
+										//print_r($token['ApiSession']); exit;
+										if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
+											$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
+											$notification_count++;
+										}
+									}
+									/*************** END: PUSH NOTICATION CODE **********************/
 
 									$resultArray = array();
 									$resultArray['status'] = true;
@@ -1959,6 +2024,137 @@ var $components = array('Common','Stripe.Stripe');
 	}
 
 
+	/* 
+	*  Method: getThreadsHistory
+    *  Description: This method is used to get history of messages
+    *  Author: Lakhvinder Singh
+    */
+
+    public function getThreadsHistory() {
+		$this->loadModel('Thread');
+		$this->loadModel('Message');
+		$this->loadModel('Group');
+		$this->loadModel('User');
+		$this->loadModel('JobList');
+		$this->loadModel('DrinkedGroup');
+		$this->loadModel('ReportedUser');
+		$this->loadModel('ReportedGroup');
+		//$this->loadModel('UserAccount');
+		$params = array('Thread.is_deleted'=>false);
+		if(isset($this->userId)){
+			$params = array('$or'=>array(
+	                             array('Thread.receiver_id'=>$this->userId),
+	                             array('Thread.sender_id'=>$this->userId ),
+                     			),
+								'Thread.is_deleted'=>true
+                            );
+			//$params = array('Thread.sender_id' => $this->userId);	
+		}
+		//print_r($params);
+		$resultsets = $this->Thread->find('all',array(
+					'conditions' => $params,
+					'fields' => array('group_id','sender_id','receiver_id'),
+				));
+		//print_r($resultsets); die;
+	
+		if(!empty($resultsets)){
+			
+			$new_arr = array();
+			foreach ($resultsets as $key => $resultGroup) {
+				$thread_info = $resultGroup;
+				$resultset = $this->Group->find('first',array(
+							'conditions' => array('Group._id' => $resultGroup['Thread']['group_id'])
+						));
+				if($thread_info['Thread']['sender_id'] == $this->userId){
+					$second_member_array = $this->User->find('first',array('conditions'=>array('_id' => $thread_info['Thread']['receiver_id']),'fields'=>array('full_name','image','job_id',"fb_image","dob")));
+					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $second_member_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+					$second_member_array['User']['job'] = $job['JobList'];
+			    	$thread_info['Thread']['second_member'] = $second_member_array['User'];
+				}else{
+					$second_member_array = $this->User->find('first',array('conditions'=>array('_id' => $thread_info['Thread']['sender_id']),'fields'=>array('full_name','image','job_id',"fb_image","dob")));
+					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $second_member_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+					$second_member_array['User']['job'] = $job['JobList'];
+			    	$thread_info['Thread']['second_member'] = $second_member_array['User'];
+				} 
+
+				//Binding
+				if(!empty($resultset['Group']['user_id'])){
+					$user_array = $this->User->find('first',array('conditions'=>array('_id' => $resultset['Group']['user_id']),'fields'=>array('full_name','image','job_id','fb_image',"dob")));
+					$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+					if(!empty($this->userId)){
+						$drinked_group = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'is_deleted'=>false,'group_id'=>$resultset['Group']['id'])));
+						if(!empty($drinked_group)){
+							$resultset['Group']['drinked_status'] = $drinked_group['DrinkedGroup']['drinked_status'];
+						}else{
+							$resultset['Group']['drinked_status'] = "undrinked";
+						}
+
+						//$reported_user = $this->ReportedUser->find('first',array('conditions'=>array('user_id' => $this->userId,'reported_user_id'=>$resultset['Group']['user_id'])));
+						//if(!empty($reported_user)){
+						//	$user_array['User']['reported_status'] = true;
+						//}else{
+							$user_array['User']['reported_status'] = false;
+						//}
+
+						$reported_group = $this->ReportedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id'=>$resultset['Group']['id'])));
+						if(!empty($reported_user)){
+							$resultset['Group']['group_reported_status'] = true;
+						}else{
+							$resultset['Group']['group_reported_status'] = false;
+						}
+					}else{
+						$resultset['Group']['reported_status'] = false;
+						$resultset['Group']['drinked_status'] = "undrinked";
+						$user_array['User']['reported_status'] = false;
+					}
+					
+			    	$user_array['User']['job'] = $job['JobList'];
+			    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+				    //$user_array['User']['account'] = $account_array['UserAccount'];
+			    	$resultset['Group']['user'] = $user_array['User'];
+			    } 
+			    $thread_info['Thread']['Group'] = $resultset['Group']; 
+			    $last_message = $this->Message->find('first',array('conditions'=>array('Message.thread_id'=>$thread_info['Thread']['id']),'order'=>array('Message._id'=>'DESC')));
+			    if(!empty($last_message)){
+			    	//Binding
+					if(!empty($last_message['Message']['sender_id'])){
+						$user_array = $this->User->find('first',array('conditions'=>array('_id' => $last_message['Message']['sender_id']),'fields'=>array('full_name','image','job_id',"fb_image","dob")));
+						$job = $this->JobList->find('first',array('conditions'=>array('_id' => $user_array['User']['job_id']),'fields'=>array("eng_name","jap_name")));
+						//$user_array['User']['reported_status'] = false;
+				    	$user_array['User']['job'] = $job['JobList'];
+				    	//$account_array = $this->UserAccount->find('first',array('conditions'=>array('user_id' => $user_array['User']['id'])));
+					    //$user_array['User']['account'] = $account_array['UserAccount'];
+				    	$last_message['Message']['sender'] = $user_array['User'];
+				    } 
+			    	$thread_info['Thread']['last_message'] = $last_message['Message'];	
+			    	$new_arr[] = $thread_info['Thread'];
+			    }
+			    
+			
+			}
+			if(!empty($new_arr)){
+
+				$resultArray = array();
+				$resultArray['status'] = true;
+				$resultArray['data'] = $new_arr;
+				$resultArray['message'] = "success";
+			}else{
+				$resultArray = array();
+				$resultArray['status'] = true;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = "no threads found";
+			}
+			
+			
+		}else{
+			$resultArray = array();
+			$resultArray['status'] = true;
+			$resultArray['data'] = new stdClass();
+			$resultArray['message'] = "no threads found";
+		}
+		 
+		echo json_encode($resultArray); die;
+	}
 
 
 	    public function getAllMessages() {
@@ -2045,8 +2241,8 @@ var $components = array('Common','Stripe.Stripe');
 				/*************** PUSH NOTICATION CODE**************************/
 				
 				$pushData =array();
-				$pushData['sender_info'] 	= $this->getUserInfoById($this->userId);
-				$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['receiver_id']);
+				$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
+				$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['receiver_id'],array('fb_image','full_name','full_name','image'));
 				$pushData['thread_id'] 		= $this->request->data['thread_id'];
 				$thread_info  				= $this->getThreadInfoById($this->request->data['thread_id']);
 				$pushdata['group_info']		= $this->getGroupInfoById($thread_info['group_id']);
@@ -2173,34 +2369,21 @@ var $components = array('Common','Stripe.Stripe');
     /*
     *
     * Author: Lakhvinder Singh
-    * API: updateUserInfo
-    * DEscription: updateUserInfo
+    * API: updateNotificationInfo
+    * DEscription: updateNotificationInfo
     */
-	public function updateUserInfo(){
+	public function updateNotificationInfo(){
 		$this->loadModel('User');
-		if (!empty($this->request->data['notification_receive_offer']){
-			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];
-		}
-
-		if (!empty($this->request->data['notification_receive_offer']){
-			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];			
-		}
-
-		if (!empty($this->request->data['notification_receive_offer']){
-			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];		
-			
-		}
-
-		if (!empty($this->request->data['notification_receive_offer']){
-			$user_Data['User']['notification_receive_offer'] = $this->request->data['notification_receive_offer'];	
-			
-		}
-		$user_Data['User']['status'] = true;
 		$params = array(
 							'conditions' => array('User._id' => $this->userId),
 						);
 		$user_detail = $this->User->find('first', $params);
-		$this->User->save($user_Data);
+		$user_detail['User']['notification_receive_offer'] = ($this->request->data['notification_receive_offer'] == 1) ? true : false;
+		$user_detail['User']['notification_when_matching'] = ($this->request->data['notification_when_matching'] == 1) ? true : false;			
+		$user_detail['User']['notification_message'] = ($this->request->data['notification_message'] == 1) ? true : false;
+		$user_detail['User']['notification_notice'] = ($this->request->data['notification_notice'] == 1) ? true : false;
+		$user_detail['User']['status'] = true;
+		$this->User->save($user_detail);
 		$resultArray = array();
 		$resultArray['status'] = true;
 		$resultArray['data'] = new stdClass();
@@ -2214,15 +2397,114 @@ var $components = array('Common','Stripe.Stripe');
     /*
     *
     * Author: Lakhvinder Singh
+    * API: updateUserInfo
+    * DEscription: updateUserInfo
+    */
+	public function updateUserInfo(){
+		$this->loadModel('User');
+		$params = array(
+							'conditions' => array('User._id' => $this->userId),
+						);
+		$user_detail = $this->User->find('first', $params);
+
+		$user_detail['User']['status'] = true;
+		if(!empty($this->request->data['job_id'])){
+			$user_detail['User']['job_id'] = $this->request->data['job_id'];
+		}
+		if(!empty($this->request->data['full_name'])){
+			$user_detail['User']['full_name'] = $this->request->data['full_name'];
+		}
+
+		if(!empty($this->request->data['dob'])){
+			$user_detail['User']['dob'] = $this->request->data['dob'];
+		}
+
+		if(!empty($this->request->data['blood_type'])){
+			$user_detail['User']['blood_type'] = $this->request->data['blood_type'];
+		}
+
+		if(!empty($this->request->data['marriage'])){
+			$user_detail['User']['marriage'] = $this->request->data['marriage'];
+		}
+
+		if(!empty($this->request->data['tabaco'])){
+			$user_detail['User']['tabaco'] = $this->request->data['tabaco'];
+		}
+
+		if(!empty($this->request->data['school_career'])){
+			$user_detail['User']['school_career'] = $this->request->data['school_career'];
+		}
+
+		if(!empty($this->request->data['annual_income'])){
+			$user_detail['User']['annual_income'] = $this->request->data['annual_income'];
+		}
+
+		if(!empty($_FILES['image'])){
+			$user_detail['User']['image'] = BASE_URL."uploads/users/original/".$this->Common->upload("profile_image",$_FILES['image']);	
+		}
+		if(!empty($this->request->data['gender'])){
+			$user_detail['User']['gender'] = $this->request->data['gender'];
+		} 
+		$this->User->save($user_detail);
+		$resultArray = array();
+		$resultArray['status'] = true;
+		$resultArray['data'] = new stdClass();
+		$resultArray['message'] = "Updated";
+		header("Content-type:application/json");
+		echo json_encode($resultArray);
+		die;
+		
+    }
+
+    public function updateTicketConsumeCount(){
+    	$this->loadModel('User');		
+		$params = array(
+							'conditions' => array('User._id' => $this->userId),
+						);
+		$user_detail = $this->User->find('first', $params);
+		if(isset($user_detail['User']['consume_date']) && $user_detail['User']['consume_date'] == date('Y-m-d')){
+			$user_detail['User']['consume_total'] = $user_detail['User']['consume_total'] + 1;
+		}else{
+			$user_detail['User']['consume_date'] = date('Y-m-d');
+			$user_detail['User']['consume_total'] = 1;
+		}
+		$this->User->save($user_detail);		
+    }
+
+    /*
+    *
+    * Author: Lakhvinder Singh
     * API: getUserInfo
     * DEscription: Get user detail
     */
     public function getUserInfo(){
 		$this->loadModel('User');		
+		$this->loadModel('DrinkedGroup');		
 		$params = array(
 							'conditions' => array('User._id' => $this->userId),
 						);
 		$user_detail = $this->User->find('first', $params);
+		if($user_detail['User']['premium_plan_last_date'] >= date('Y-m-d')){
+			$user_detail['User']['membership_status'] = 'Premium';
+		}else{
+			$user_detail['User']['membership_status'] = 'Regular';					
+		}
+		if($user_detail['User']['membership_status'] == 'Regular'){
+			if(isset($user_detail['User']['consume_date']) && $user_detail['User']['consume_date'] == date('Y-m-d')){
+				if(isset($user_detail['User']['consume_total']) && $user_detail['User']['consume_total'] >= 5){
+					$user_detail['User']['membership_status'] = 'Premium';
+				}
+			}
+		}
+		$params = array(
+						'DrinkedGroup.drinked_status'=>'confirmed',
+	    				'$or'=>array(		
+	                    				array('DrinkedGroup.user_id'=>$this->userId),		
+                    					array('DrinkedGroup.owner_user_id'=>$this->userId),		
+	         						)		
+	            );		
+		$resultsets = $this->DrinkedGroup->find('all', array('conditions'=>$params));		
+		$user_detail['User']['offer_count'] = sizeof($resultsets);		
 		$resultArray = array();
 		$resultArray['status'] = true;
 		$resultArray['data'] = $user_detail;
@@ -2267,7 +2549,9 @@ var $components = array('Common','Stripe.Stripe');
 				    $Transaction['stripe_id'] 		= $result['stripe_id'];
 				    $Transaction['relation_id'] 	= $plan_id; // Relation id is plan id or option id
 				    $Transaction['amount'] 			= $charge_amount;
+				    $Transaction['coupon_code'] 	= '';
 				    $Transaction['type'] 			= 'membership_plan';
+				    $Transaction['payment_type'] 	= 'stripe';
 				    $Transaction['is_deleted'] 		= false;
 				    $this->Transaction->save($Transaction);
 				    /********** End  Transaction data inserted *************************/
@@ -2308,6 +2592,73 @@ var $components = array('Common','Stripe.Stripe');
 		    	echo json_encode($resultArray); 
 				die;
 			}
+		}elseif (!empty($this->request->data['stripeToken']) && !empty($this->request->data['ticket_id'])) {
+		    $this->loadModel('Transaction');
+		    $this->loadModel('Option');
+		    $this->loadModel('User');
+			$ticket_id = $this->request->data['ticket_id'];
+			$plan_detail = $this->Option->find('first',array('conditions' => array('Option._id' => $ticket_id)));
+			if(!empty($plan_detail)){
+				$point 	= $plan_detail['Option']['point'];
+				$amount 	= $plan_detail['Option']['amount'];
+				$eng_name 	= $plan_detail['Option']['eng_name'];
+				$charge_amount = $amount;
+		    	$data = array(
+						'amount' => $charge_amount,
+						'stripeToken' => $this->request->data['stripeToken'], // either the token
+						'description' => 'Pay for ticket -'.$eng_name
+					);
+		    	$result = $this->Stripe->charge($data);
+		    	if(isset($result['stripe_id'])){
+
+				    /********** START:  Transaction data inserted *************************/
+				    $this->Transaction->create();
+				    $Transaction['user_id'] 		= $this->userId;
+				    $Transaction['stripe_id'] 		= $result['stripe_id'];
+				    $Transaction['relation_id'] 	= $ticket_id; // Relation id is plan id or option id
+				    $Transaction['amount'] 			= $charge_amount;
+				    $Transaction['coupon_code'] 	= '';
+				    $Transaction['type'] 			= 'ticket';
+				    $Transaction['payment_type'] 	= 'stripe';
+				    $Transaction['is_deleted'] 		= false;
+				    $this->Transaction->save($Transaction);
+				    /********** End  Transaction data inserted *************************/
+
+				    /********** START  Plan date updated *************************/
+					$params = array(
+							'conditions' => array('User._id' => $this->userId),
+						);
+					$user_detail = $this->User->find('first', $params);
+				    $balance = $user_detail['User']['balance'] + $point;
+					$user_detail['User']['balance'] = $balance;
+					$this->User->save($user_detail);
+				    /********** End  Plan date updated *************************/
+
+			    	$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['data'] = $result;
+					$resultArray['message'] = "success";
+					header("Content-type:application/json");
+					echo json_encode($resultArray);
+					die;
+		    	}else{
+		    		$resultArray = array();
+					$resultArray['status'] = false;
+					$resultArray['data'] = new stdClass();
+					$resultArray['message'] = $result;
+					header("Content-type:application/json");
+			    	echo json_encode($resultArray); 
+					die;
+		    	}
+		    }else{
+				$resultArray = array();
+				$resultArray['status'] = false;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = 'Plan not exists';
+				header("Content-type:application/json");
+		    	echo json_encode($resultArray); 
+				die;
+			}
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = false;
@@ -2319,6 +2670,76 @@ var $components = array('Common','Stripe.Stripe');
 		}    
     }
 
+    /*
+    *
+    * Author: Lakhvinder Singh
+    * API: redeemCouponCode
+    * DEscription: redeemCouponCode
+    */
+    public function redeemCouponCode(){
+    	if (!empty($this->request->data['coupon_code'])) {
+		    $this->loadModel('Transaction');
+		    $this->loadModel('User');
+			$coupon_code = $this->request->data['coupon_code'];
+			$coupon_code_detail = $this->User->find('first',array('conditions' => array('User.coupon_code' => $coupon_code)));
+			if(!empty($coupon_code_detail)){				
+				$coupon_redeem_info = $this->Transaction->find('first',array('conditions' => array('Transaction.user_id' => $this->userId,'Transaction.type' => 'coupon','Transaction.coupon_code' => $coupon_code)));
+		    	//print_r($coupon_redeem_info); exit;
+		    	if(empty($coupon_redeem_info)){			    
+
+				    $this->Transaction->create();
+				    $Transaction['user_id'] 		= $this->userId;
+				    $Transaction['stripe_id'] 		= '';
+				    $Transaction['relation_id'] 	= ''; // Relation id is plan id or option id
+				    $Transaction['amount'] 			= '';
+				    $Transaction['type'] 			= 'coupon';
+				    $Transaction['tickets'] 		= 10;
+				    $Transaction['coupon_code'] 	= $coupon_code;
+				    $Transaction['payment_type'] 	= 'manually';
+				    $Transaction['is_deleted'] 		= false;
+				    $this->Transaction->save($Transaction);
+
+				    $user_detail = $this->User->find('first',array('conditions' => array('User._id' => $this->userId)));
+				    $new_balance = $user_detail['User']['balance'] + 10;
+				    $user_detail['User']['balance'] = $new_balance;
+				    $this->User->save($user_detail);
+
+			    	$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['data'] = new stdClass();
+					$resultArray['message'] = "success";
+					header("Content-type:application/json");
+					echo json_encode($resultArray);
+					die;
+		    	}else{
+		    		$resultArray = array();
+					$resultArray['status'] = false;
+					$resultArray['data'] = new stdClass();
+					$resultArray['message'] = 'Already Used';
+					header("Content-type:application/json");
+			    	echo json_encode($resultArray); 
+					die;
+		    	}
+		    }else{
+				$resultArray = array();
+				$resultArray['status'] = false;
+				$resultArray['data'] = new stdClass();
+				$resultArray['message'] = 'Coupon not exists';
+				header("Content-type:application/json");
+		    	echo json_encode($resultArray); 
+				die;
+			}
+		}else{
+			$resultArray = array();
+			$resultArray['status'] = false;
+			$resultArray['data'] = new stdClass();
+			$resultArray['message'] = "no data found";
+			header("Content-type:application/json");
+	    	echo json_encode($resultArray); 
+			die;
+		} 
+    }
+
 
 	/**
 	 * add method (testapi)
@@ -2327,7 +2748,22 @@ var $components = array('Common','Stripe.Stripe');
 	 * @access public
 	 */
 	public function testapi(){
-
+		$this->loadModel('User');
+		/*$data = $this->User->find('all', array(
+			    'contain' => array('User')
+			));
+		foreach ($data as $key => $value) {
+			$user_id = $value['User']['id'];
+			$coupon_code = $this->generateCouponCode();
+			$user_info = $this->User->find('first', array(
+			    'conditions' => array('User._id' => $user_id),
+			));
+			$user_info['User']['coupon_code'] = $coupon_code;
+			//print_r($value); exit;
+			$this->User->save($user_info);
+			//echo $coupon_code; exit;
+		}
+		exit;
 		$this->loadModel('Group');
 		$data = $this->Group->find('all', array(
 			    'contain' => array('User')
@@ -2336,14 +2772,14 @@ var $components = array('Common','Stripe.Stripe');
 		exit;
 		$this->loadModel('Message');
 		$data['sender_info'] = $this->getUserInfoById('59b8d52aa642bee00bb2d545');
-		print_r($data['sender_info']['User']['full_name']); exit;
+		print_r($data['sender_info']['User']['full_name']); exit;*/
 		$pushdata = array();
-		$token = '5a80591a9d39df47362209056e6e30f6edaba52736914dc9e7f215e83479286f';
-		$push_notification_message = 'Push notification working';
+		$token = 'c9d92ea758237ea79d31c5a04a3c3b4981d3b11eb7e9f67898822ad1cb6e3a67';
+		$push_notification_message = 'NEW Push notification working';
 		$this->sendPushNotificationOnIOS($token,$push_notification_message,'@testapi',json_encode($pushdata));
 		$resultArray = array();
 		$resultArray['status'] = true;
-		$resultArray['data'] = false;
+		$resultArray['data'] = true;
 		$resultArray['message'] = "REsponse";
 		echo json_encode($resultArray); 
 		die;

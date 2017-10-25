@@ -62,10 +62,17 @@
         }
 
         public function webadmin_dashboard() {
+            $this->loadModel("Group");
+            $this->loadModel("User");
             $AdminUser = $this->Session->read('AdminUser');
             if (!@$AdminUser) {
                 return $this->redirect(array("controller" => "admin", "action" => "index","webadmin"=>true));
             }
+            $total_group = $this->Group->find('count');
+            $total_user = $this->User->find('count');
+            
+
+            $this->set(compact('total_group','total_user'));
             $this->set('title_for_layout', 'Dashboard');
             $this->layout = 'admin_inner';
 
@@ -81,6 +88,8 @@
         }
 
         public function webadmin_usersList() {
+            $this->set('page','user');
+            $this->set('sub_page','user');
             $AdminUser = $this->Session->read('AdminUser');
             if (!@$AdminUser) {
                 return $this->redirect(array("controller" => "admin", "action" => "index","webadmin"=>true));
@@ -95,24 +104,81 @@
             }
             if ($this->request->is('post')) {
                 $keyword = $this->data['keyword'];
-                $conditions["OR"] = array('User.full_name LIKE' => '%' . $keyword . '%', 'User.email LIKE' => '%' . $keyword . '%');
+                //$conditions["OR"] = array('User.full_name LIKE' => '%' . $keyword . '%', 'User.email LIKE' => '%' . $keyword . '%');
+
+                $conditions = array(
+                                    '$or'=>
+                                        array(
+                                                array('User.full_name LIKE' => '%' . $keyword . '%'), 
+                                                array('User.email LIKE' => '%' . $keyword . '%')
+                                            ),
+                                        array('User.is_deleted' => false)
+                                );
                 $this->set("keyword", $this->data['keyword']);
             }else{
-            	if(!empty($keyword)){
-            		$conditions["OR"] = array('User.full_name LIKE' => '%' . $keyword . '%', 'User.email LIKE' => '%' . $keyword . '%');
-            		$this->set("keyword", $keyword);
-            	}
+                $conditions = array('User.is_deleted' => false);
             }
+            //print_r($conditions); exit;
             
 			$this->paginate = array(
-                'limit' => 5,
-                "conditions" => $conditions
+                'limit' => 10,
+                "conditions" => $conditions,
+                "order" =>array('User.created' => 'DESC')
             );
 	        $UsersData = $this->paginate('User');
-            $this->set(compact('UsersData','keyword'));
+            $this->set(compact('UsersData','page','sub_page','keyword'));
         }
 
-        public function webadmin_getPlans() {
+
+        public function webadmin_deleteUser(){
+            $user_id = $_POST['user_id'];
+            $this->loadModel("User");
+            // convert the string list to an array
+            $user_array = $this->User->find('first',array('conditions'=>array('_id' => $user_id)));
+            if(!empty($user_array)){
+                $user_array['User']['is_deleted'] = true;
+                $this->User->save($user_array);
+                echo 'success';
+                exit;
+            }
+        }
+
+
+        public function webadmin_delGroups(){
+            $group_id = $_POST['group_id'];
+            $this->loadModel("User");
+            // convert the string list to an array
+            $group_array = $this->Group->find('first',array('conditions'=>array('_id' => $group_id)));
+            if(!empty($group_array)){
+                $this->loadModel('Group');
+                $this->loadModel('Thread');
+                $this->loadModel('DrinkedGroup');
+                /*********************** START: Group deleted **********************/
+                $group_array['Group']['is_deleted'] = true;
+                $this->Group->save($group_array);
+                /*********************** END: Group deleted **********************/
+
+                /*********************** START: Thread deleted **********************/
+                $Thread_array = $this->Thread->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                if(!empty($Thread_array)){
+                    $Thread_array['Thread']['is_deleted'] = true;
+                    $this->Thread->save($Thread_array);
+                }
+                /*********************** END: Thread deleted **********************/
+
+                /*********************** START: DrinkedGroup deleted **********************/
+                $DrinkedGroup_array = $this->DrinkedGroup->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                if(!empty($DrinkedGroup_array)){
+                    $DrinkedGroup_array['DrinkedGroup']['is_deleted'] = true;
+                    $this->DrinkedGroup->save($DrinkedGroup_array);
+                }
+                /*********************** END: DrinkedGroup deleted **********************/
+                echo 'success';
+                exit;
+            }
+        }
+
+        public function webadmin_getPlans($id=false) {
             //echo $type; exit;
             $AdminUser = $this->Session->read('AdminUser');
             if (!@$AdminUser) {
@@ -125,12 +191,19 @@
             $OptionsData = $this->Option->find('all',array(
                     'conditions' => $params,
                 ));
+            $options_edit_data = '';
+            if($id != false){
+	            $params_edit = array('Option.id'=>$id);  
+	            $options_edit_data = $this->Option->find('first',array(
+	                    'conditions' => $params_edit,
+	                ));
+            }
             $this->set('page','option');
             $this->set('sub_page','membership_plan');
-            $this->set(compact('OptionsData','sub_page','option'));
+            $this->set(compact('OptionsData','options_edit_data','sub_page','option'));
         }
 
-        public function webadmin_getTickets() {
+        public function webadmin_getTickets($id=false) {
             //echo $type; exit;
             $AdminUser = $this->Session->read('AdminUser');
             if (!@$AdminUser) {
@@ -143,9 +216,17 @@
             $OptionsData = $this->Option->find('all',array(
                     'conditions' => $params,
                 ));
+            $options_edit_data = '';
+            if($id != false){
+	            $params_edit = array('Option.id'=>$id);  
+	            $options_edit_data = $this->Option->find('first',array(
+	                    'conditions' => $params_edit,
+	                ));
+            }
+            $this->set('options_edit_data','options_edit_data');
             $this->set('page','option');
             $this->set('sub_page','ticket');
-            $this->set(compact('OptionsData','sub_page','option'));
+            $this->set(compact('OptionsData','options_edit_data','sub_page','option'));
         }
         public function webadmin_getOptions($type) {
             //echo $type; exit;
@@ -220,17 +301,30 @@
 
         public function add_plan(){
             $this->loadModel("Option");
-            $this->Option->create();
-            //print_r($this->request->data['option_type']); exit;
-            $Option_array['eng_name'] = $this->request->data['eng_name'];
-            $Option_array['jap_name'] = $this->request->data['jap_name'];
-            $Option_array['type'] = $this->request->data['option_type'];
-            $Option_array['duration'] = $this->request->data['duration'];
-            $Option_array['amount'] = $this->request->data['amount'];
-            $Option_array['order'] = 1;
-            $Option_array['discount'] = $this->request->data['discount'];
-            $Option_array['description'] = $this->request->data['description'];
-            $this->Option->save($Option_array);
+            if(empty($this->request->data['option_id'])){
+	            $this->Option->create();
+	            //print_r($this->request->data['option_type']); exit;
+	            $Option_array['eng_name'] = $this->request->data['eng_name'];
+	            $Option_array['jap_name'] = $this->request->data['jap_name'];
+	            $Option_array['type'] = $this->request->data['option_type'];
+	            $Option_array['duration'] = $this->request->data['duration'];
+	            $Option_array['amount'] = $this->request->data['amount'];
+	            $Option_array['order'] = 1;
+	            $Option_array['discount'] = $this->request->data['discount'];
+	            $Option_array['description'] = $this->request->data['description'];
+	            $this->Option->save($Option_array);
+            }else{
+            	$Option_array = $this->Option->find('first',array('conditions'=>array('_id' => $this->request->data['option_id'])));
+            	$Option_array['Option']['eng_name'] = $this->request->data['eng_name'];
+	            $Option_array['Option']['jap_name'] = $this->request->data['jap_name'];
+	            $Option_array['Option']['type'] = $this->request->data['option_type'];
+	            $Option_array['Option']['duration'] = $this->request->data['duration'];
+	            $Option_array['Option']['amount'] = $this->request->data['amount'];
+	            $Option_array['Option']['order'] = 1;
+	            $Option_array['Option']['discount'] = $this->request->data['discount'];
+	            $Option_array['Option']['description'] = $this->request->data['description'];
+	            $this->Option->save($Option_array);
+            }
             if ($this->request->is('ajax')) {
                 if (isset($failure) && $failure == TRUE) {
                     $data['success'] = false;
@@ -239,7 +333,7 @@
                     $data['success'] = true;
                     $data['resetform'] = true;
                     $data['success_message'] = 'Added';
-                    $data['selfReload'] = true;
+                    $data['url'] = $this->webroot.'webadmin/admin/getPlans';
                     $data['resetForm'] = true;
                 }
                 $data['slideToThisForm'] = true;
@@ -250,24 +344,35 @@
 
         public function add_ticket(){
             $this->loadModel("Option");
-            $this->Option->create();
-            //print_r($this->request->data['option_type']); exit;
-            $Option_array['eng_name'] = $this->request->data['eng_name'];
-            $Option_array['jap_name'] = $this->request->data['jap_name'];
-            $Option_array['type'] = $this->request->data['option_type'];
-            $Option_array['point'] = $this->request->data['point'];
-            $Option_array['amount'] = $this->request->data['amount'];
-            $Option_array['order'] = 1;
-            $this->Option->save($Option_array);
+            if(empty($this->request->data['option_id'])){
+	            $this->Option->create();
+	            //print_r($this->request->data['option_type']); exit;
+	            $Option_array['eng_name'] = $this->request->data['eng_name'];
+	            $Option_array['jap_name'] = $this->request->data['jap_name'];
+	            $Option_array['type'] = $this->request->data['option_type'];
+	            $Option_array['point'] = $this->request->data['point'];
+	            $Option_array['amount'] = $this->request->data['amount'];
+	            $Option_array['order'] = 1;
+	            $this->Option->save($Option_array);
+            	
+            }else{
+            	$Option_array = $this->Option->find('first',array('conditions'=>array('_id' => $this->request->data['option_id'])));
+            	$Option_array['Option']['eng_name'] = $this->request->data['eng_name'];
+	            $Option_array['Option']['jap_name'] = $this->request->data['jap_name'];
+	            $Option_array['Option']['type'] = $this->request->data['option_type'];
+	            $Option_array['Option']['point'] = $this->request->data['point'];
+	            $Option_array['Option']['amount'] = $this->request->data['amount'];
+	            $this->Option->save($Option_array);
+            }
             if ($this->request->is('ajax')) {
                 if (isset($failure) && $failure == TRUE) {
                     $data['success'] = false;
                     $data['error_message'] = 'Somthing wents wrong';
                 } else {
                     $data['success'] = true;
-                    $data['resetform'] = true;
-                    $data['success_message'] = 'Added';
-                    $data['selfReload'] = true;
+                    $data['resetForm'] = true;
+                    $data['success_message'] = 'Updated';
+                    $data['url'] = $this->webroot.'webadmin/admin/getTickets';
                 }
                 $data['slideToThisForm'] = true;
                 echo json_encode($data);

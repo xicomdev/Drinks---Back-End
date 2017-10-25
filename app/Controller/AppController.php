@@ -72,7 +72,10 @@ class AppController extends Controller {
     {    
     
         //$device='21cae7e1f71b82b9ce62f6bb4ad4a61291add61b45fc4fda2f86b2ef3bd9198f';       
-        //$device = '907271e744d14bdeecac73680cfb598040c399d6817d493cc4c76b33d5850e21';
+        //$device = 'c9d92ea758237ea79d31c5a04a3c3b4981d3b11eb7e9f67898822ad1cb6e3a67';
+        //print_R($data); exit;
+        //$data = array();
+        //$data = json_encode($data);
         $env = 'developement';
         $devices = array($device);
         if(!empty($devices))
@@ -86,13 +89,14 @@ class AppController extends Controller {
                 if($env =='developement')
                 {           
                  $user_key = WWW_ROOT . 'pem/CertificatesPushP12Drinks.pem';
-                 $url = DEVELOPMENT_PUSH_URL;
+                 $url = 'ssl://gateway.sandbox.push.apple.com:2195';
                 }
                 elseif($env=='production')
                 {
                  $user_key = WWW_ROOT . 'pem/CertificatesPushP12Drinks.pem';
-                 $url = PRODUCTION_PUSH_URL;
+                 $url = 'ssl://gateway.push.apple.com:2195';
                 }
+                //echo $url; exit;
                 $ctx = stream_context_create();
                 stream_context_set_option($ctx, 'ssl', 'local_cert', $user_key);
                 stream_context_set_option($ctx, 'ssl', 'passphrase', 'Lunchserved');                

@@ -15,18 +15,18 @@
                     <span>Manage Users</span>
                     <span class="menu-arrow arrow_carrot-right"></span>
                 </a>
-                <ul class="sub">
-                    <li><a class="" href="<?= $this->webroot; ?>webadmin/admin/usersList">View Users</a></li>                    
+                <ul class="sub"  style='display:<?php echo (isset($page) && $page == 'user') ? 'block' : 'none'; ?>'>
+                    <li class='<?php echo (isset($sub_page) && $sub_page == 'user') ? 'active' : ''; ?>'><a class="" href="<?= $this->webroot; ?>webadmin/admin/usersList">View Users</a></li>                    
                 </ul>
             </li>              
             <li class="sub-menu">
                 <a href="javascript:;" class="">
                     <i class="icon_document_alt"></i>
                     <span>Manage Groups</span>
-                    <span class="menu-arrow arrow_carrot-right"></span>
+                    <span class="menu-arrow arrow_carrot-<?php echo (isset($page) && $page == 'group') ? 'down' : 'right'; ?>"></span>
                 </a>
-                <ul class="sub">
-                    <li><a class="" href="<?= $this->webroot; ?>webadmin/group/index">View Groups</a></li>                    
+                <ul class="sub" style='display:<?php echo (isset($page) && $page == 'group') ? 'block' : 'none'; ?>'>
+                    <li class="<?php echo (isset($sub_page) && $sub_page == 'groups') ? 'active' : ''; ?>"><a  href="<?= $this->webroot; ?>webadmin/group/groups">View Groups</a></li>                    
                 </ul>
             </li>
             <li class="sub-menu">
