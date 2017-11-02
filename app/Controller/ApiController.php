@@ -406,6 +406,8 @@ var $components = array('Common','Stripe.Stripe');
 			$this->request->data['notification_notice'] = true;
 			$this->request->data['coupon_code'] = $this->generateCouponCode();
 			$this->request->data['is_deleted'] = false;
+			$this->request->data['is_age_verified'] = false;
+			$this->request->data['age_document'] = '';
 			$this->request->data['status'] = true;
 			$this->request->data['consume_date'] = date('Y-m-d');
 			$this->request->data['consume_total'] = 0;
@@ -678,8 +680,36 @@ var $components = array('Common','Stripe.Stripe');
 					$this->request->data['image'] = BASE_URL."uploads/groups/original/".$this->Common->upload("group_image",$_FILES['image']);
 					//echo "3";	
 					//print_r($this->request->data['image']);
+				}else{
+					$this->request->data['image'] = '';					
+				}
+
+				if(empty($this->request->data['group_conditions'])){
+					$this->request->data['group_conditions'] = '';
+				}
+				if(empty($this->request->data['group_description'])){
+					$this->request->data['group_description'] = '';
+				}
+				if(empty($this->request->data['group_latitude'])){
+					$this->request->data['group_latitude'] = '';
+				}
+				if(empty($this->request->data['group_location'])){
+					$this->request->data['group_location'] = '';
+				}
+				if(empty($this->request->data['group_tag'])){
+					$this->request->data['group_tag'] = '';
+				}
+				if(empty($this->request->data['relationship'])){
+					$this->request->data['relationship'] = '';
+				}
+				if(empty($this->request->data['group_tag'])){
+					$this->request->data['group_tag'] = '';
+				}
+				if(empty($this->request->data['group_tag'])){
+					$this->request->data['group_tag'] = '';
 				}
 				$this->request->data['is_deleted'] = false;
+
 				if($this->Group->save($this->request->data)){
 					$last_inserted_id = $this->Group->getLastInsertID();
 					$params = array(
@@ -812,13 +842,14 @@ var $components = array('Common','Stripe.Stripe');
 		$this->loadModel('Group');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
-		//$this->loadModel('UserAccount');
+        $this->loadModel('Thread');
+        $this->loadModel('DrinkedGroup');
 		if (!empty($this->request->data['id'])) {
 
-			$group = $this->Group->find('first',array('conditions'=>array('_id' => $this->request->data['id'])));	
+			$group_array = $this->Group->find('first',array('conditions'=>array('_id' => $this->request->data['id'])));	
 
-			if($this->Group->delete($group['Group']['id'])){
-				$old_image = str_replace(BASE_URL."uploads/groups/original/", "", $group['Group']['image']); 
+			if(!empty($group_array)){
+				/*			$old_image = str_replace(BASE_URL."uploads/groups/original/", "", $group['Group']['image']); 
 				unlink(WWW_ROOT.'uploads/groups/original/'.$old_image);	
 				unlink(WWW_ROOT.'uploads/groups/resized/'.$old_image);	
 
@@ -831,7 +862,28 @@ var $components = array('Common','Stripe.Stripe');
 					//$user_array['User']['account'] = $account_array['UserAccount'];
 			    	$user_array['User']['reported_status'] = false;
 			    	$resultset['Group']['user'] = $user_array['User'];
-			    } 
+			    }*/
+
+                /*********************** START: Group deleted **********************/
+                $group_array['Group']['is_deleted'] = true;
+                $this->Group->save($group_array);
+                /*********************** END: Group deleted **********************/
+
+                /*********************** START: Thread deleted **********************/
+                $Thread_array = $this->Thread->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                if(!empty($Thread_array)){
+                    $Thread_array['Thread']['is_deleted'] = true;
+                    $this->Thread->save($Thread_array);
+                }
+                /*********************** END: Thread deleted **********************/
+
+                /*********************** START: DrinkedGroup deleted **********************/
+                $DrinkedGroup_array = $this->DrinkedGroup->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                if(!empty($DrinkedGroup_array)){
+                    $DrinkedGroup_array['DrinkedGroup']['is_deleted'] = true;
+                    $this->DrinkedGroup->save($DrinkedGroup_array);
+                }
+                /*********************** END: DrinkedGroup deleted **********************/
 			
 				$resultArray = array();
 				$resultArray['status'] = true;
@@ -2249,7 +2301,7 @@ var $components = array('Common','Stripe.Stripe');
 				$pushData['message'] 		= $result['Message'];
 				$pushData['push_type'] 		= 'Message'; 
 				$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['receiver_id']);
-				$push_notification_message  = $pushData['sender_info']['User']['full_name'].' sent you a message.';
+				$push_notification_message  = $pushData['sender_info']['full_name'].' sent you a new message.';
 				$notification_count = 0;
 				foreach ($pushNotificationTokens as $token) {
 					//print_r($token['ApiSession']); exit;
@@ -2449,6 +2501,36 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray = array();
 		$resultArray['status'] = true;
 		$resultArray['data'] = new stdClass();
+		$resultArray['message'] = "Updated";
+		header("Content-type:application/json");
+		echo json_encode($resultArray);
+		die;
+		
+    }
+
+    /*
+    *
+    * Author: Lakhvinder Singh
+    * API: updateAgeDocument
+    * DEscription: updateAgeDocument
+    */
+	public function updateAgeDocument(){
+		$this->loadModel('User');
+		$params = array(
+							'conditions' => array('User._id' => $this->userId),
+						);
+		$user_detail = $this->User->find('first', $params);
+
+		$user_detail['User']['status'] = true;
+		if(!empty($_FILES['age_document'])){
+			unlink(WWW_ROOT.'uploads/users/age_document/original/'.$user_detail['User']['age_document']);
+			unlink(WWW_ROOT.'uploads/users/age_document/resized/'.$user_detail['User']['age_document']);	
+			$user_detail['User']['age_document'] = BASE_URL."uploads/users/age_document/original/".$this->Common->upload("age_document",$_FILES['age_document']);	
+		}
+		$this->User->save($user_detail);
+		$resultArray = array();
+		$resultArray['status'] = true;
+		$resultArray['data'] = $user_detail;
 		$resultArray['message'] = "Updated";
 		header("Content-type:application/json");
 		echo json_encode($resultArray);

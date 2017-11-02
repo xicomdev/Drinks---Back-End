@@ -19,6 +19,7 @@
                     <tbody>
                         <tr>
                             <th><i class="icon_mail_alt"></i> Id</th>
+                            <th><i class="icon_tag_alt"></i> User Name</th>
                             <th><i class="icon_tag_alt"></i> Description</th>
                             <th><i class="icon_tag_alt"></i> Location</th>
                             <th><i class="icon_tag_alt"></i>  Relationship</th>
@@ -32,6 +33,9 @@
                                 <tr>
                                     <td>
                                         <?= $Group['Group']['id']; ?>
+                                    </td>
+                                     <td>
+                                        <?= $Group['Group']['user_info']['full_name']; ?>
                                     </td>
                                     <td>
                                         <?= $Group['Group']['group_description']; ?>
@@ -97,7 +101,7 @@ $(".delGroups").click(function () {
     var id = $(this).attr('id');
     swal({
         title: "Confirm?",
-        text: "Are you sure to delete this Option. !",
+        text: "Are you sure to delete this Group. !",
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
@@ -107,17 +111,17 @@ $(".delGroups").click(function () {
     function () {
         //swal.close();
         $.ajax({
-            url: '<?php echo $this->webroot; ?>webadmin/admin/delete_option',
+            url: '<?php echo $this->webroot; ?>webadmin/admin/delGroups',
             type: 'POST',
-            data: {option_id: id},
+            data: {group_id: id},
             beforeSend: function () {
                 $(".loading").show();
             },
             success: function (data) {
                 if (data == 'success') {
-                    var msg = 'Option is deleted successfully';
+                    var msg = 'Group is deleted successfully';
                 } else {
-                    var msg = 'Option can not be deleted.';
+                    var msg = 'Group can not be deleted.';
                 }
                 $(".loading").hide();
                 swal({

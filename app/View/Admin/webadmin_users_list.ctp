@@ -28,13 +28,13 @@ main content start-->
                   <table class="table table-striped table-advance table-hover">
                    <tbody>
                       <tr>
-                         <!-- <th><i class="icon_profile"></i> Full Name</th> -->
-                         <th><i class="icon_mail_alt"></i> Id</th>
+                         <!-- <th><i class="icon_mail_alt"></i> Id</th>-->
                          <th><i class="icon_mail_alt"></i> Name</th>
                          <th><i class="icon_mail_alt"></i> Last Login</th>
                          <th><i class="icon_mail_alt"></i> Balance</th>
                          <th><i class="icon_mail_alt"></i> Premium Last Date</th>
                          <th><i class="icon_mail_alt"></i> Coupon Code</th>
+                         <th><i class="icon_mail_alt"></i> Age Verified</th>
                          <th><i class="icon_calendar"></i> Created</th>
                          <th><i class="icon_cogs"></i> Action</th> 
                       </tr>
@@ -42,12 +42,18 @@ main content start-->
                       if(!empty($UsersData)){
                       foreach ($UsersData as $key => $user) { ?>
                         <tr>
-                         <td><?= $user['User']['id']; ?></td>
+                         <!--<td><?= $user['User']['id']; ?></td>-->
                          <td><?= $user['User']['full_name']; ?></td> 
                          <td><?= $user['User']['last_login']; ?></td> 
                          <td><span class="badge bg-success"><?= empty($user['User']['balance']) ? 0 : $user['User']['balance']; ?></span></td> 
                          <td><?= $user['User']['premium_plan_last_date']; ?></td> 
                          <td><span class="label label-info"><?= $user['User']['coupon_code']; ?></span></td> 
+                         <?php
+                         if($user['User']['is_age_verified'] == false){ ?> 
+                          <td><a id="<?php echo $user['User']['id']; ?>" title="Unverfied" href="javascript:void(0);" class="btn btn-danger ageVerfied">Unverfied</a></td> 
+                         <?php }else { ?>
+                          <td><a id="<?php echo $user['User']['id']; ?>" title="verfied" href="javascript:void(0);" class="btn btn-success ageUnverfied">Verified</a></td> 
+                         <?php }?>
                          <?php $unixtime = explode(" ", $user['User']['created']);?>
                          <td><?= date("d/m/Y h:i:s A T",$unixtime[1]); ?></td>
                          <td>
@@ -114,6 +120,97 @@ $(".deleteUser").click(function () {
                     var msg = 'User is deleted successfully';
                 } else {
                     var msg = 'User can not be deleted.';
+                }
+                $(".loading").hide();
+                swal({
+                    title: "Response",
+                    text: msg,
+                    type: data
+                },
+                function () {
+                    location.reload();
+                });
+
+            },
+            error: function () {
+                swal("Oops!", "error in form submission", "warning")
+                $(".loading").hide();
+            }
+        });
+    });
+});
+
+
+$(".ageVerfied").click(function () {
+    var id = $(this).attr('id');
+    swal({
+        title: "Confirm?",
+        text: "Are you sure to Verfied this User age verfication request. !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, Verfiy it!",
+        closeOnConfirm: false
+    },
+    function () {
+        //swal.close();
+        $.ajax({
+            url: '<?php echo $this->webroot; ?>webadmin/admin/ageVerficationStatusChange',
+            type: 'POST',
+            data: {user_id: id},
+            beforeSend: function () {
+                $(".loading").show();
+            },
+            success: function (data) {
+                if (data == 'success') {
+                    var msg = 'User is age verfiy successfully';
+                } else {
+                    var msg = 'User can not verify.';
+                }
+                $(".loading").hide();
+                swal({
+                    title: "Response",
+                    text: msg,
+                    type: data
+                },
+                function () {
+                    location.reload();
+                });
+
+            },
+            error: function () {
+                swal("Oops!", "error in form submission", "warning")
+                $(".loading").hide();
+            }
+        });
+    });
+});
+
+$(".ageUnverfied").click(function () {
+    var id = $(this).attr('id');
+    swal({
+        title: "Confirm?",
+        text: "Are you sure to Unverfied this User age verfication request. !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, Unverfiy it!",
+        closeOnConfirm: false
+    },
+    function () {
+        //swal.close();
+        $.ajax({
+            url: '<?php echo $this->webroot; ?>webadmin/admin/ageVerficationStatusChange',
+            type: 'POST',
+            data: {user_id: id},
+            beforeSend: function () {
+                $(".loading").show();
+            },
+            success: function (data) {
+                if (data == 'success') {
+                    var msg = 'User is age unverfiy successfully';
+                } else {
+                    var msg = 'User can not unverfiy.';
                 }
                 $(".loading").hide();
                 swal({

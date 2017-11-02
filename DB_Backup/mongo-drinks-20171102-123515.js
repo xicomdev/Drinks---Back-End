@@ -113,9 +113,9 @@ db.getCollection("api_sessions").insert({
 });
 db.getCollection("api_sessions").insert({
   "_id": ObjectId("59c9140008cb825f448b4569"),
-  "token": "24b8d2962f4a22e470d1b58cc6e9fcee6cd576ee4b70151b8706a3bebd9e4039",
+  "token": "ed9444708c140b7ec549e07a86c7c3dd4f069f37e444b449888dbc12cdead919",
   "login_status": NumberLong(1),
-  "session_id": "a1a07f31288a39bebf5afe42ed3641bfdad368c0",
+  "session_id": "ba88f32bfa269a302c087eed71f8b1c441c5afad",
   "user_id": "59c913fd08cb825f448b4567",
   "device_id": "BD51B241-C6CB-4731-A65A-51DEF5D22998",
   "modified": ISODate("2017-09-25T14:34:40.790Z"),
@@ -244,8 +244,8 @@ db.getCollection("api_sessions").insert({
 db.getCollection("api_sessions").insert({
   "_id": ObjectId("59d6244808cb82da1e8b4567"),
   "token": "",
-  "login_status": NumberLong(0),
-  "session_id": "",
+  "login_status": NumberLong(1),
+  "session_id": "9c42d49043356bfe82fe8aeca755369c384ac2df",
   "user_id": "59d6130b08cb8206768b4567",
   "device_id": "B826676A-41AE-4E4A-81E9-41214447FC29",
   "modified": ISODate("2017-10-05T12:23:36.754Z"),
@@ -263,9 +263,9 @@ db.getCollection("api_sessions").insert({
 });
 db.getCollection("api_sessions").insert({
   "_id": ObjectId("59df0e7f08cb82e5218b4567"),
-  "token": "a27c47eb10b7cf15f515e40b538454b4b4ab07ceeff87d217eb9c6b858a089eb",
+  "token": "c9d92ea758237ea79d31c5a04a3c3b4981d3b11eb7e9f67898822ad1cb6e3a67",
   "login_status": NumberLong(1),
-  "session_id": "0c401240bd2bbc0fcae63f60114493d395d48635",
+  "session_id": "becc29fe3aac338dcf6a1a6ba11684b3fc917529",
   "user_id": "59d4caf008cb8274728b4567",
   "device_id": "B6DFF40B-6659-438A-B12E-04E6A577D99B",
   "modified": ISODate("2017-10-12T06:41:03.320Z"),
@@ -304,8 +304,8 @@ db.getCollection("api_sessions").insert({
 db.getCollection("api_sessions").insert({
   "_id": ObjectId("59f035a308cb82a7338b4567"),
   "token": "c9d92ea758237ea79d31c5a04a3c3b4981d3b11eb7e9f67898822ad1cb6e3a67",
-  "login_status": NumberLong(1),
-  "session_id": "04f5001a6c7af9a4b25bd275ffe9ac5ebeca4e3a",
+  "login_status": NumberLong(0),
+  "session_id": "",
   "user_id": "59d6130b08cb8206768b4567",
   "device_id": "B6DFF40B-6659-438A-B12E-04E6A577D99B",
   "modified": ISODate("2017-10-25T06:56:35.865Z"),
@@ -315,11 +315,51 @@ db.getCollection("api_sessions").insert({
   "_id": ObjectId("59f0361808cb8233348b4567"),
   "token": "",
   "login_status": NumberLong(1),
-  "session_id": "1d26642b46b5cfbe80416677cb985d98513f2982",
+  "session_id": "d56ea379f9b6549e48fe4965ac0855a9b23d3a3e",
   "user_id": "59ca262a08cb82af718b4567",
   "device_id": "B826676A-41AE-4E4A-81E9-41214447FC29",
   "modified": ISODate("2017-10-25T06:58:32.435Z"),
   "created": ISODate("2017-10-25T06:58:32.435Z")
+});
+db.getCollection("api_sessions").insert({
+  "_id": ObjectId("59f17a8308cb827c3b8b4568"),
+  "token": "c9d92ea758237ea79d31c5a04a3c3b4981d3b11eb7e9f67898822ad1cb6e3a67",
+  "login_status": NumberLong(0),
+  "session_id": "",
+  "user_id": "59f17a8108cb827c3b8b4567",
+  "device_id": "B6DFF40B-6659-438A-B12E-04E6A577D99B",
+  "modified": ISODate("2017-10-26T06:02:43.29Z"),
+  "created": ISODate("2017-10-26T06:02:43.29Z")
+});
+db.getCollection("api_sessions").insert({
+  "_id": ObjectId("59f17bb908cb828d3c8b4568"),
+  "token": "c9d92ea758237ea79d31c5a04a3c3b4981d3b11eb7e9f67898822ad1cb6e3a67",
+  "login_status": NumberLong(0),
+  "session_id": "",
+  "user_id": "59f17bb708cb828d3c8b4567",
+  "device_id": "B6DFF40B-6659-438A-B12E-04E6A577D99B",
+  "modified": ISODate("2017-10-26T06:07:53.510Z"),
+  "created": ISODate("2017-10-26T06:07:53.510Z")
+});
+db.getCollection("api_sessions").insert({
+  "_id": ObjectId("59f1866c08cb8268498b4568"),
+  "token": "c9d92ea758237ea79d31c5a04a3c3b4981d3b11eb7e9f67898822ad1cb6e3a67",
+  "login_status": NumberLong(0),
+  "session_id": "",
+  "user_id": "59f1866b08cb8268498b4567",
+  "device_id": "B6DFF40B-6659-438A-B12E-04E6A577D99B",
+  "modified": ISODate("2017-10-26T06:53:32.784Z"),
+  "created": ISODate("2017-10-26T06:53:32.784Z")
+});
+db.getCollection("api_sessions").insert({
+  "_id": ObjectId("59f9571b08cb82d0278b4567"),
+  "token": "",
+  "login_status": NumberLong(1),
+  "session_id": "af171667b79233a59449308e7f99667d0bf5c886",
+  "user_id": "59ca262a08cb82af718b4567",
+  "device_id": "0C500ECF-6C7F-47EF-9A10-CBB1BCAD67C1",
+  "modified": ISODate("2017-11-01T05:09:47.637Z"),
+  "created": ISODate("2017-11-01T05:09:47.637Z")
 });
 
 /** drinked_groups records **/
@@ -379,9 +419,69 @@ db.getCollection("drinked_groups").insert({
   "group_id": "59f069b808cb82b2708b4567",
   "owner_user_id": "59d6130b08cb8206768b4567",
   "user_id": "59ca262a08cb82af718b4567",
-  "is_deleted": false,
+  "is_deleted": true,
   "modified": ISODate("2017-10-25T10:41:41.24Z"),
   "created": ISODate("2017-10-25T10:41:41.24Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59f07a0808cb82d8038b4567"),
+  "drinked_status": "drinked",
+  "group_id": "59f0719a3b2efdfe50230ea3",
+  "owner_user_id": "59d6130b08cb8206768b4567",
+  "user_id": "59c913fd08cb825f448b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T11:48:24.731Z"),
+  "created": ISODate("2017-10-25T11:48:24.731Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59f07b7e08cb82b0068b4567"),
+  "drinked_status": "drinked",
+  "group_id": "59f071b13b2efd0951230ea3",
+  "owner_user_id": "59ce185b08cb82384e8b4567",
+  "user_id": "59c913fd08cb825f448b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T11:54:38.376Z"),
+  "created": ISODate("2017-10-25T11:54:38.376Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59f17cf808cb82da3d8b4567"),
+  "drinked_status": "drinked",
+  "group_id": "59f1799608cb82223a8b4567",
+  "owner_user_id": "59ca262a08cb82af718b4567",
+  "user_id": "59f17bb708cb828d3c8b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T06:13:12.726Z"),
+  "created": ISODate("2017-10-26T06:13:12.726Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59f190ce08cb82f9568b4567"),
+  "drinked_status": "drinked",
+  "group_id": "59f17c2208cb82e73c8b4567",
+  "owner_user_id": "59f17bb708cb828d3c8b4567",
+  "user_id": "59c913fd08cb825f448b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T07:37:50.392Z"),
+  "created": ISODate("2017-10-26T07:37:50.392Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59f190f008cb820a578b4567"),
+  "drinked_status": "confirmed",
+  "group_id": "59f1767308cb8205378b4567",
+  "owner_user_id": "59d4caf008cb8274728b4567",
+  "user_id": "59c913fd08cb825f448b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T07:38:24.361Z"),
+  "created": ISODate("2017-10-26T07:38:24.361Z")
+});
+db.getCollection("drinked_groups").insert({
+  "_id": ObjectId("59f25a0e08cb8254028b4567"),
+  "drinked_status": "drinked",
+  "group_id": "59f17b3108cb82ea3b8b4567",
+  "owner_user_id": "59f17a8108cb827c3b8b4567",
+  "user_id": "59c913fd08cb825f448b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T21:56:30.36Z"),
+  "created": ISODate("2017-10-26T21:56:30.36Z")
 });
 
 /** friends records **/
@@ -493,6 +593,21 @@ db.getCollection("groups").insert({
   "created": ISODate("2017-10-16T09:34:06.148Z")
 });
 db.getCollection("groups").insert({
+  "_id": ObjectId("59f9783408cb82c0528b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"\",\n    \"Age\" : 0,\n    \"eng_name\" : \"\",\n    \"jap_name\" : \"\"\n  }\n]",
+  "group_description": "",
+  "group_latitude": "30.7294",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8446",
+  "group_tag": "",
+  "relationship": "",
+  "user_id": "59d6130b08cb8206768b4567",
+  "image": "",
+  "is_deleted": true,
+  "modified": ISODate("2017-11-01T07:31:00.962Z"),
+  "created": ISODate("2017-11-01T07:31:00.962Z")
+});
+db.getCollection("groups").insert({
   "_id": ObjectId("59ec135408cb82b94e8b4567"),
   "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 19,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  }\n]",
   "group_description": "にまやはさな",
@@ -593,7 +708,7 @@ db.getCollection("groups").insert({
   "relationship": "Open",
   "user_id": "59d6130b08cb8206768b4567",
   "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508927929.jpeg",
-  "is_deleted": false,
+  "is_deleted": true,
   "modified": ISODate("2017-10-25T10:38:48.811Z"),
   "created": ISODate("2017-10-25T10:38:48.811Z")
 });
@@ -608,9 +723,234 @@ db.getCollection("groups").insert({
   "relationship": "Family",
   "user_id": "59ca262a08cb82af718b4567",
   "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508928030.jpeg",
-  "is_deleted": false,
+  "is_deleted": true,
   "modified": ISODate("2017-10-25T10:40:29.636Z"),
   "created": ISODate("2017-10-25T10:40:29.636Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f0719a3b2efdfe50230ea3"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c7\",\n    \"Age\" : 30,\n    \"eng_name\" : \"Major foreign capital\",\n    \"jap_name\" : \"大手外資\"\n  }\n]",
+  "group_description": "Hello mitro",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "1",
+  "relationship": "Family",
+  "user_id": "59d6130b08cb8206768b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508928030.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T10:40:29.636Z"),
+  "created": ISODate("2017-10-25T10:40:29.636Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f071b13b2efd0951230ea3"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c7\",\n    \"Age\" : 30,\n    \"eng_name\" : \"Major foreign capital\",\n    \"jap_name\" : \"大手外資\"\n  }\n]",
+  "group_description": "Hello friends",
+  "group_latitude": "35.693840",
+  "group_location": "INDIA",
+  "group_longitude": "139.703549",
+  "group_tag": "1",
+  "relationship": "Family",
+  "user_id": "59ce185b08cb82384e8b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508928030.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T10:40:29.636Z"),
+  "created": ISODate("2017-10-25T10:40:29.636Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f071c03b2efd2652230ea3"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711d1\",\n    \"Age\" : 36,\n    \"eng_name\" : \"A secretary\",\n    \"jap_name\" : \"秘書\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c4\",\n    \"Age\" : 21,\n    \"eng_name\" : \"Major trading company\",\n    \"jap_name\" : \"大手商社\"\n  }\n]",
+  "group_description": "Aajo aajo mitro",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "0",
+  "relationship": "Open",
+  "user_id": "59ca1db608cb82676c8b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508927929.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T10:38:48.811Z"),
+  "created": ISODate("2017-10-25T10:38:48.811Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f071d33b2efd6351230ea3"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711d1\",\n    \"Age\" : 36,\n    \"eng_name\" : \"A secretary\",\n    \"jap_name\" : \"秘書\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c4\",\n    \"Age\" : 21,\n    \"eng_name\" : \"Major trading company\",\n    \"jap_name\" : \"大手商社\"\n  }\n]",
+  "group_description": "Tokyo test",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "0",
+  "relationship": "Open",
+  "user_id": "59ca1db008cb825d6c8b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508927929.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T10:38:48.811Z"),
+  "created": ISODate("2017-10-25T10:38:48.811Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f0726f3b2efd6351230ea4"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c7\",\n    \"Age\" : 30,\n    \"eng_name\" : \"Major foreign capital\",\n    \"jap_name\" : \"大手外資\"\n  }\n]",
+  "group_description": "Hello friends",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "1",
+  "relationship": "Family",
+  "user_id": "59d4caf008cb8274728b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508928030.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T10:40:29.636Z"),
+  "created": ISODate("2017-10-25T10:40:29.636Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f072733b2efd6351230ea5"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c7\",\n    \"Age\" : 30,\n    \"eng_name\" : \"Major foreign capital\",\n    \"jap_name\" : \"大手外資\"\n  }\n]",
+  "group_description": "Tokyo",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "1",
+  "relationship": "Family",
+  "user_id": "59d4caf008cb8274728b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508928030.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T10:40:29.636Z"),
+  "created": ISODate("2017-10-25T10:40:29.636Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f0792708cb82d9028b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 20,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bd\",\n    \"Age\" : 27,\n    \"eng_name\" : \"employee\",\n    \"jap_name\" : \"会社員\"\n  }\n]",
+  "group_description": "なまはま",
+  "group_latitude": "35.6726875948121",
+  "group_location": "南烏山, 世田谷区",
+  "group_longitude": "139.606932280715",
+  "group_tag": "1",
+  "relationship": "College Friends",
+  "user_id": "59c913fd08cb825f448b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508931880.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-25T11:44:39.546Z"),
+  "created": ISODate("2017-10-25T11:44:39.546Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f1763808cb82ca368b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c1\",\n    \"Age\" : 26,\n    \"eng_name\" : \"Management and officers\",\n    \"jap_name\" : \"経営者・役員\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bd\",\n    \"Age\" : 20,\n    \"eng_name\" : \"employee\",\n    \"jap_name\" : \"会社員\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 55,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  }\n]",
+  "group_description": "Sdsfcrrffffffgy",
+  "group_latitude": "35.672596190158",
+  "group_location": "南烏山, 世田谷区",
+  "group_longitude": "139.606979387011",
+  "group_tag": "1",
+  "relationship": "Open",
+  "user_id": "59c913fd08cb825f448b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508996665.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T05:44:24.769Z"),
+  "created": ISODate("2017-10-26T05:44:24.769Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f1767308cb8205378b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 28,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c0\",\n    \"Age\" : 21,\n    \"eng_name\" : \"Certified public accountant\",\n    \"jap_name\" : \"公認会計士\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 22,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c1\",\n    \"Age\" : 24,\n    \"eng_name\" : \"Management and officers\",\n    \"jap_name\" : \"経営者・役員\"\n  }\n]",
+  "group_description": "Hello please come and join our group.",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "1",
+  "relationship": "College Friends",
+  "user_id": "59d4caf008cb8274728b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508996724.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T05:45:23.680Z"),
+  "created": ISODate("2017-10-26T05:45:23.680Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f1799608cb82223a8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 22,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711be\",\n    \"Age\" : 20,\n    \"eng_name\" : \"A doctor\",\n    \"jap_name\" : \"医師\"\n  }\n]",
+  "group_description": "Open for new people",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "0",
+  "relationship": "Family",
+  "user_id": "59ca262a08cb82af718b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508997526.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T05:58:46.337Z"),
+  "created": ISODate("2017-10-26T05:58:46.337Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f17b3108cb82ea3b8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711c1\",\n    \"Age\" : 22,\n    \"eng_name\" : \"Management and officers\",\n    \"jap_name\" : \"経営者・役員\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711cd\",\n    \"Age\" : 22,\n    \"eng_name\" : \"Apparel \\/ Shop\",\n    \"jap_name\" : \"アパレル・ショップ\"\n  }\n]",
+  "group_description": "We all are college friends will like to make some new friends",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "0",
+  "relationship": "College Friends",
+  "user_id": "59f17a8108cb827c3b8b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508997938.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T06:05:37.671Z"),
+  "created": ISODate("2017-10-26T06:05:37.671Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f17c2208cb82e73c8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711be\",\n    \"Age\" : 21,\n    \"eng_name\" : \"A doctor\",\n    \"jap_name\" : \"医師\"\n  },\n  {\n    \"id\" : \"59a545e241a73f9c5a7711bf\",\n    \"Age\" : 21,\n    \"eng_name\" : \"lawyer\",\n    \"jap_name\" : \"弁護士\"\n  }\n]",
+  "group_description": "We invite some new friends to meet us on drink",
+  "group_latitude": "35.693840",
+  "group_location": "tokyo shinjuku",
+  "group_longitude": "139.703549",
+  "group_tag": "1",
+  "relationship": "Family",
+  "user_id": "59f17bb708cb828d3c8b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1508998179.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T06:09:38.902Z"),
+  "created": ISODate("2017-10-26T06:09:38.902Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f9591c08cb82ac2b8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"59a545e241a73f9c5a7711be\",\n    \"Age\" : 20,\n    \"eng_name\" : \"A doctor\",\n    \"jap_name\" : \"医師\"\n  }\n]",
+  "group_description": "Enter description here",
+  "group_latitude": "30.7294",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8446",
+  "group_tag": "1",
+  "relationship": "Collegues",
+  "user_id": "59ca262a08cb82af718b4567",
+  "image": "http://132.148.135.156/~drinks/uploads/groups/original/User_2017_1509513500.jpeg",
+  "is_deleted": true,
+  "modified": ISODate("2017-11-01T05:18:20.383Z"),
+  "created": ISODate("2017-11-01T05:18:20.383Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f9a83308cb82617f8b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"\",\n    \"Age\" : 0,\n    \"eng_name\" : \"\",\n    \"jap_name\" : \"\"\n  }\n]",
+  "group_description": "",
+  "group_latitude": "30.7294",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8446",
+  "group_tag": "",
+  "relationship": "",
+  "user_id": "59d6130b08cb8206768b4567",
+  "image": "",
+  "is_deleted": true,
+  "modified": ISODate("2017-11-01T10:55:47.776Z"),
+  "created": ISODate("2017-11-01T10:55:47.776Z")
+});
+db.getCollection("groups").insert({
+  "_id": ObjectId("59f9aaeb08cb82f2028b4567"),
+  "group_conditions": "[\n  {\n    \"id\" : \"\",\n    \"Age\" : 0,\n    \"eng_name\" : \"\",\n    \"jap_name\" : \"\"\n  }\n]",
+  "group_description": "",
+  "group_latitude": "30.7294",
+  "group_location": "Saketri Village, Panchkula",
+  "group_longitude": "76.8446",
+  "group_tag": "",
+  "relationship": "",
+  "user_id": "59d6130b08cb8206768b4567",
+  "image": "",
+  "is_deleted": true,
+  "modified": ISODate("2017-11-01T11:07:23.111Z"),
+  "created": ISODate("2017-11-01T11:07:23.111Z")
 });
 
 /** job_lists records **/
@@ -1285,6 +1625,83 @@ db.getCollection("messages").insert({
   "notification_status": NumberLong(1),
   "modified": ISODate("2017-10-25T10:22:50.536Z"),
   "created": ISODate("2017-10-25T10:22:50.536Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59f1931b08cb82cc598b4567"),
+  "message": "Hello",
+  "receiver_id": "59c913fd08cb825f448b4567",
+  "thread_id": "59f192ff08cb82b1598b4567",
+  "sender_id": "59d4caf008cb8274728b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-26T07:47:39.708Z"),
+  "created": ISODate("2017-10-26T07:47:39.708Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59f1937508cb82d45a8b4567"),
+  "message": "Shs",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59f192ff08cb82b1598b4567",
+  "sender_id": "59c913fd08cb825f448b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-26T07:49:09.854Z"),
+  "created": ISODate("2017-10-26T07:49:09.854Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59f1937b08cb82e25a8b4567"),
+  "message": "Gzb",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59f192ff08cb82b1598b4567",
+  "sender_id": "59c913fd08cb825f448b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-26T07:49:15.68Z"),
+  "created": ISODate("2017-10-26T07:49:15.68Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59f193a908cb82215b8b4567"),
+  "message": "Recd",
+  "receiver_id": "59c913fd08cb825f448b4567",
+  "thread_id": "59f192ff08cb82b1598b4567",
+  "sender_id": "59d4caf008cb8274728b4567",
+  "read_status": "1",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-26T07:50:01.245Z"),
+  "created": ISODate("2017-10-26T07:50:01.245Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59f25a7608cb8295028b4567"),
+  "message": "たは",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "thread_id": "59f192ff08cb82b1598b4567",
+  "sender_id": "59c913fd08cb825f448b4567",
+  "read_status": "0",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-26T21:58:14.483Z"),
+  "created": ISODate("2017-10-26T21:58:14.483Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59f82a6b08cb82ff4f8b4567"),
+  "message": "Kkkk",
+  "receiver_id": "59ca262a08cb82af718b4567",
+  "thread_id": "59dda94f08cb827b348b4567",
+  "sender_id": "59d6130b08cb8206768b4567",
+  "read_status": "0",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-31T07:46:51.557Z"),
+  "created": ISODate("2017-10-31T07:46:51.557Z")
+});
+db.getCollection("messages").insert({
+  "_id": ObjectId("59f82ac208cb8275508b4567"),
+  "message": "Yuu",
+  "receiver_id": "59ca262a08cb82af718b4567",
+  "thread_id": "59dda94f08cb827b348b4567",
+  "sender_id": "59d6130b08cb8206768b4567",
+  "read_status": "0",
+  "notification_status": NumberLong(1),
+  "modified": ISODate("2017-10-31T07:48:18.910Z"),
+  "created": ISODate("2017-10-31T07:48:18.910Z")
 });
 
 /** options records **/
@@ -2211,6 +2628,24 @@ db.getCollection("threads").insert({
   "modified": ISODate("2017-10-25T06:58:51.715Z"),
   "created": ISODate("2017-10-25T06:58:51.715Z")
 });
+db.getCollection("threads").insert({
+  "_id": ObjectId("59f192ff08cb82b1598b4567"),
+  "group_id": "59f1767308cb8205378b4567",
+  "sender_id": "59c913fd08cb825f448b4567",
+  "receiver_id": "59d4caf008cb8274728b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-10-26T07:47:11.535Z"),
+  "created": ISODate("2017-10-26T07:47:11.535Z")
+});
+db.getCollection("threads").insert({
+  "_id": ObjectId("59f95c3408cb82e82e8b4567"),
+  "group_id": "59f959ce08cb82852c8b4567",
+  "sender_id": "59ca262a08cb82af718b4567",
+  "receiver_id": "59d6130b08cb8206768b4567",
+  "is_deleted": true,
+  "modified": ISODate("2017-11-01T05:31:32.791Z"),
+  "created": ISODate("2017-11-01T05:31:32.791Z")
+});
 
 /** transactions records **/
 db.getCollection("transactions").insert({
@@ -2519,7 +2954,9 @@ db.getCollection("users").insert({
   "is_deleted": false,
   "image": "",
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59c913fd08cb825f448b4567"),
@@ -2530,14 +2967,14 @@ db.getCollection("users").insert({
   "fb_image": "http://graph.facebook.com/1288672714577080/picture?type=large",
   "full_name": "Jonghwa Park",
   "job_id": "59a545e241a73f9c5a7711c0",
-  "marriage": "Divorced",
+  "marriage": "Married",
   "school_career": "Graduate",
   "tabaco": "GHI",
-  "last_login": "2017-10-25 10:45:55",
-  "modified": ISODate("2017-10-02T03:58:40.161Z"),
+  "last_login": "2017-10-28 06:18:54",
+  "modified": ISODate("2017-10-26T21:56:31.425Z"),
   "created": ISODate("2017-09-25T14:34:37.975Z"),
-  "balance": NumberLong(99),
-  "gender": "female",
+  "balance": NumberLong(94),
+  "gender": "Male",
   "premium_plan_last_date": "2017-11-12",
   "notification_receive_offer": true,
   "notification_when_matching": true,
@@ -2547,8 +2984,10 @@ db.getCollection("users").insert({
   "coupon_code": "FCJXNHPT7S",
   "is_deleted": false,
   "image": "",
-  "consume_date": "2017-10-23",
-  "consume_total": NumberLong(0)
+  "consume_date": "2017-10-26",
+  "consume_total": NumberLong(3),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca262a08cb82af718b4567"),
@@ -2562,11 +3001,11 @@ db.getCollection("users").insert({
   "marriage": "Single",
   "school_career": "Ph.d",
   "tabaco": "GHI",
-  "last_login": "2017-10-25 09:49:51",
-  "modified": ISODate("2017-10-25T10:41:42.589Z"),
+  "last_login": "2017-11-01 05:09:48",
+  "modified": ISODate("2017-11-01T05:22:28.420Z"),
   "created": ISODate("2017-09-26T10:04:26.779Z"),
   "gender": "female",
-  "balance": NumberLong(127),
+  "balance": NumberLong(126),
   "premium_plan_last_date": "2017-11-12",
   "notification_receive_offer": false,
   "notification_when_matching": true,
@@ -2576,8 +3015,10 @@ db.getCollection("users").insert({
   "coupon_code": "CSYVZPMO5V",
   "is_deleted": false,
   "image": "http://132.148.135.156/~drinks/uploads/users/original/User_2017_1508756963.jpeg",
-  "consume_date": "2017-10-25",
-  "consume_total": NumberLong(1)
+  "consume_date": "2017-11-01",
+  "consume_total": NumberLong(1),
+  "is_age_verified": false,
+  "age_document": "http://132.148.135.156/~drinks/uploads/users/age_document/original/age_document_2017_1509530528.jpg"
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ce185b08cb82384e8b4567"),
@@ -2606,7 +3047,9 @@ db.getCollection("users").insert({
   "is_deleted": false,
   "image": "",
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59d4caf008cb8274728b4567"),
@@ -2616,12 +3059,12 @@ db.getCollection("users").insert({
   "fb_id": "348484712243600",
   "fb_image": "http://graph.facebook.com/348484712243600/picture?type=large",
   "full_name": "Jagan Xicom",
-  "gender": "Male",
+  "gender": "Female",
   "job_id": "59a545e241a73f9c5a7711c2",
   "marriage": "Married",
   "school_career": "Graduate",
   "tabaco": "DEF",
-  "last_login": "2017-10-24 09:41:51",
+  "last_login": "2017-10-26 07:46:48",
   "modified": ISODate("2017-10-12T10:03:53.574Z"),
   "created": ISODate("2017-10-04T11:50:08.693Z"),
   "balance": NumberLong(129),
@@ -2635,7 +3078,9 @@ db.getCollection("users").insert({
   "is_deleted": false,
   "image": "",
   "consume_date": "2017-10-23",
-  "consume_total": NumberLong(0)
+  "consume_total": NumberLong(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59d6130b08cb8206768b4567"),
@@ -2650,7 +3095,7 @@ db.getCollection("users").insert({
   "marriage": "Divorced",
   "school_career": "Master",
   "tabaco": "JKL",
-  "last_login": "2017-10-25 10:37:38",
+  "last_login": "2017-10-25 11:56:57",
   "modified": ISODate("2017-10-25T06:52:44.567Z"),
   "created": ISODate("2017-10-05T11:10:03.288Z"),
   "balance": NumberLong(148),
@@ -2664,7 +3109,9 @@ db.getCollection("users").insert({
   "is_deleted": false,
   "image": "http://132.148.135.156/~drinks/uploads/users/original/User_2017_1508755842.jpeg",
   "consume_date": "2017-10-25",
-  "consume_total": NumberLong(1)
+  "consume_total": NumberLong(1),
+  "is_age_verified": false,
+  "age_document": "http://132.148.135.156/~drinks/uploads/users/age_document/original/age_document_2017_1509530408.jpeg"
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59c8d3c108cb82190f8b4567"),
@@ -2693,7 +3140,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberInt(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59c9140108cb8260448b4567"),
@@ -2722,7 +3171,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberInt(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca1db008cb825c6c8b4567"),
@@ -2751,7 +3202,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberInt(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca1db008cb825d6c8b4567"),
@@ -2780,7 +3233,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberLong(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca1db508cb82666c8b4567"),
@@ -2809,7 +3264,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberInt(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca1db608cb82676c8b4567"),
@@ -2838,7 +3295,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberInt(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca4b1208cb821d1a8b4567"),
@@ -2867,7 +3326,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberInt(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ca4b1808cb821e1a8b4567"),
@@ -2896,7 +3357,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberLong(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59df363908cb82cb3e8b4567"),
@@ -2925,7 +3388,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberLong(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59e6ecee3b2efdbb6cf08a4c"),
@@ -2954,7 +3419,9 @@ db.getCollection("users").insert({
   "image": "",
   "balance": NumberInt(10),
   "consume_date": "2017-10-23",
-  "consume_total": NumberInt(0)
+  "consume_total": NumberInt(0),
+  "is_age_verified": false,
+  "age_document": ""
 });
 db.getCollection("users").insert({
   "_id": ObjectId("59ef01a508cb821f168b4567"),
@@ -2983,5 +3450,101 @@ db.getCollection("users").insert({
   "consume_date": "2017-10-24",
   "consume_total": NumberLong(0),
   "modified": ISODate("2017-10-24T09:02:29.249Z"),
-  "created": ISODate("2017-10-24T09:02:29.249Z")
+  "created": ISODate("2017-10-24T09:02:29.249Z"),
+  "is_age_verified": false,
+  "age_document": ""
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59f17a8108cb827c3b8b4567"),
+  "annual_income": "$ 1000 - 3000",
+  "blood_type": "A+",
+  "dob": "1999/10/26",
+  "fb_id": "1437892572967757",
+  "fb_image": "http://graph.facebook.com/1437892572967757/picture?type=large",
+  "full_name": "Samuels Mat",
+  "gender": "Male",
+  "job_id": "59a545e241a73f9c5a7711c1",
+  "marriage": "Single",
+  "school_career": "Middle",
+  "tabaco": "ABC",
+  "last_login": "2017-10-26 06:03:21",
+  "balance": NumberLong(10),
+  "image": "",
+  "premium_plan_last_date": "2017-10-25",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "coupon_code": "NFIQVZU2ZH",
+  "is_deleted": false,
+  "status": true,
+  "consume_date": "2017-10-26",
+  "consume_total": NumberLong(0),
+  "modified": ISODate("2017-10-26T06:02:41.77Z"),
+  "created": ISODate("2017-10-26T06:02:41.77Z"),
+  "is_age_verified": false,
+  "age_document": ""
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59f17bb708cb828d3c8b4567"),
+  "annual_income": "$ 5000 - 8000",
+  "blood_type": "B+",
+  "dob": "1999/10/26",
+  "fb_id": "1430418013717131",
+  "fb_image": "http://graph.facebook.com/1430418013717131/picture?type=large",
+  "full_name": "Marshal Erick",
+  "gender": "Male",
+  "job_id": "59a545e241a73f9c5a7711c1",
+  "marriage": "Married",
+  "school_career": "Master",
+  "tabaco": "GHI",
+  "last_login": "2017-10-26 06:08:08",
+  "balance": NumberLong(9),
+  "image": "",
+  "premium_plan_last_date": "2017-10-25",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "coupon_code": "LY82TD9EUB",
+  "is_deleted": false,
+  "status": true,
+  "consume_date": "2017-10-26",
+  "consume_total": NumberLong(1),
+  "modified": ISODate("2017-10-26T06:13:14.144Z"),
+  "created": ISODate("2017-10-26T06:07:51.835Z"),
+  "is_age_verified": false,
+  "age_document": ""
+});
+db.getCollection("users").insert({
+  "_id": ObjectId("59f1866b08cb8268498b4567"),
+  "annual_income": "$ 1000 - 3000",
+  "blood_type": "AB+",
+  "dob": "1999/10/26",
+  "fb_id": "1462018123905766",
+  "fb_image": "http://graph.facebook.com/1462018123905766/picture?type=large",
+  "full_name": "Sudhanshu Srivastava",
+  "gender": "Male",
+  "job_id": "59a545e241a73f9c5a7711be",
+  "marriage": "UnMarried",
+  "school_career": "Ph.d",
+  "tabaco": "JKL",
+  "last_login": "2017-10-26 06:53:30",
+  "balance": NumberLong(10),
+  "image": "",
+  "premium_plan_last_date": "2017-10-25",
+  "notification_receive_offer": true,
+  "notification_when_matching": true,
+  "notification_message": true,
+  "notification_notice": true,
+  "coupon_code": "ZXMEXRL4XO",
+  "is_deleted": false,
+  "status": true,
+  "consume_date": "2017-10-26",
+  "consume_total": NumberLong(0),
+  "modified": ISODate("2017-10-26T06:53:31.55Z"),
+  "created": ISODate("2017-10-26T06:53:31.55Z"),
+  "is_age_verified": false,
+  "age_document": "",
+  "is_age_ver": true
 });

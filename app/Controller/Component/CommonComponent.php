@@ -50,6 +50,18 @@ App::uses('CakeEmail', 'Network/Email');
                 return $filename;    
                 break;
 
+                case 'age_document':
+                $temp = explode(".", $file_array['name']);
+                $filename = "age_document_" . date("Y") . "_" . round(microtime(true)) . '.' . end($temp);
+                move_uploaded_file($file_array['tmp_name'], "uploads/users/age_document/original/" . $filename);
+
+                App::import('Component', 'image');
+                $MyImageCom = new ImageComponent();
+                $MyImageCom->prepare("uploads/users/age_document/original/" . $filename);
+                $MyImageCom->resize(240, 240);
+                $MyImageCom->save("uploads/users/age_document/resized/" . $filename);
+                return $filename;    
+                break;
                 case 'group_image':
                 //echo "2";
                 //print_r($file_array);

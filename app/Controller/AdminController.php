@@ -143,12 +143,30 @@
             }
         }
 
+        public function webadmin_ageVerficationStatusChange(){
+            $user_id = $_POST['user_id'];
+            $this->loadModel("User");
+            // convert the string list to an array
+            $user_array = $this->User->find('first',array('conditions'=>array('_id' => $user_id)));
+            if(!empty($user_array)){
+                if($user_array['User']['is_age_verified'] == true){
+                    $user_array['User']['is_age_verified'] = false;
+                }else{
+                    $user_array['User']['is_age_verified'] = true;
+                }                
+                $this->User->save($user_array);
+                echo 'success';
+                exit;
+            }
+        }
 
         public function webadmin_delGroups(){
             $group_id = $_POST['group_id'];
             $this->loadModel("User");
+            $this->loadModel("Group");
+            $this->autoRender = false;
             // convert the string list to an array
-            $group_array = $this->Group->find('first',array('conditions'=>array('_id' => $group_id)));
+            $group_array = $this->Group->find('first',array('conditions'=>array('Group._id' => $group_id)));
             if(!empty($group_array)){
                 $this->loadModel('Group');
                 $this->loadModel('Thread');
@@ -174,6 +192,9 @@
                 }
                 /*********************** END: DrinkedGroup deleted **********************/
                 echo 'success';
+                exit;
+            }else{
+                echo 'failed';
                 exit;
             }
         }
@@ -264,6 +285,7 @@
         public function webadmin_delete_option(){
             $option_id = $_POST['option_id'];
             $this->loadModel("Option");
+            $this->autoRender = false;
             // convert the string list to an array
             $Option_array = $this->Option->find('first',array('conditions'=>array('_id' => $option_id)));
             if(!empty($Option_array)){
