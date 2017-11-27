@@ -49,11 +49,18 @@ main content start-->
                          <td><?= $user['User']['premium_plan_last_date']; ?></td> 
                          <td><span class="label label-info"><?= $user['User']['coupon_code']; ?></span></td> 
                          <?php
-                         if($user['User']['is_age_verified'] == false){ ?> 
-                          <td><a id="<?php echo $user['User']['id']; ?>" title="Unverfied" href="javascript:void(0);" class="btn btn-danger ageVerfied">Unverfied</a></td> 
+                         if($user['User']['is_age_verified'] == "approve"){ ?> 
+                          <td>
+                            <!-- <a id="<?php echo $user['User']['id']; ?>" title="verfied" href="javascript:void(0);" class="btn btn-success ageUnverfied">Verified</a> -->
+                            <a data-toggle="modal" data-id="<?php echo $user['User']['id']; ?>" data-username="(<?php echo $user['User']['full_name']; ?>)" data-document="<?php echo $user['User']['age_document']; ?>" title="Verified" class="open-addVerifyDialog btn btn-success" href="#addVerifyDialog">Verified</a>
+                          </td> 
                          <?php }else { ?>
-                          <td><a id="<?php echo $user['User']['id']; ?>" title="verfied" href="javascript:void(0);" class="btn btn-success ageUnverfied">Verified</a></td> 
+                          <td>
+                            <!-- <a id="<?php echo $user['User']['id']; ?>" title="Unverfied" href="javascript:void(0);" class="btn btn-danger ageVerfied">Unverfied</a> -->
+                            <a data-toggle="modal" data-id="<?php echo $user['User']['id']; ?>" data-username="(<?php echo $user['User']['full_name']; ?>)" data-document="<?php echo $user['User']['age_document']; ?>" title="Unverfied" class="open-addUnVerifyDialog btn btn-danger" href="#addUnVerifyDialog">Unverfied</a>
+                          </td> 
                          <?php }?>
+
                          <?php $unixtime = explode(" ", $user['User']['created']);?>
                          <td><?= date("d/m/Y h:i:s A T",$unixtime[1]); ?></td>
                          <td>
@@ -93,8 +100,65 @@ main content start-->
       <!-- page end-->
   </section>
 </section>
+
+<div class="modal fade bs-example-modal-sm" tabindex="-1" id="addVerifyDialog">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Age Verfied</h4><div class="verify_user_name"></div>
+      </div>
+      <div class="modal-body">
+        <div class="document_download"></div>
+        <a id=""  style=" margin-left: 40%;margin-top: 10px;" title="verfied" href="javascript:void(0);" class="btn btn-danger ageUnverfied">Unverify</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade bs-example-modal-sm" tabindex="-1" id="addUnVerifyDialog">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h4 class="modal-title">Age Verfied</h4> <div class="verify_user_name"></div>
+      </div>
+      <div class="modal-body">
+        <div class="document_download"></div>
+        <a id="" style=" margin-left: 40%;margin-top: 10px;" title="verfied" href="javascript:void(0);" class="btn btn-success ageVerfied">Verify</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
 
+$(document).on("click", ".open-addVerifyDialog", function () {
+    var verifiedId = $(this).data('id');
+    var username = $(this).data('username');
+    var document_is = $(this).data('document');
+    $(".modal-body .ageUnverfied").attr( 'id',verifiedId);
+    $(".modal-header .verify_user_name").html( username);
+    if(document_is == ''){
+        document_is_html = 'Age document not exist'; 
+     }else{
+        document_is_html = '<a target="_blank"  href="'+document_is+'">Click here to view age document</a>';
+     }
+     $(".modal-body .document_download").html( document_is_html);
+});
+
+$(document).on("click", ".open-addUnVerifyDialog", function () {
+    var unVerifiedId = $(this).data('id');
+    var username = $(this).data('username');
+    var document_is = $(this).data('document');
+     $(".modal-body .ageVerfied").attr( 'id',unVerifiedId);
+     $(".modal-header .verify_user_name").html( username);
+     if(document_is == ''){
+        document_is_html = 'Age document not exist'; 
+     }else{
+        document_is_html = '<a target="_blank" href="'+document_is+'">Click here to view age document</a>';
+     }
+     $(".modal-body .document_download").html( document_is_html);
+});
 $(".deleteUser").click(function () {
     var id = $(this).attr('id');
     swal({

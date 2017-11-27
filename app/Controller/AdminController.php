@@ -149,10 +149,10 @@
             // convert the string list to an array
             $user_array = $this->User->find('first',array('conditions'=>array('_id' => $user_id)));
             if(!empty($user_array)){
-                if($user_array['User']['is_age_verified'] == true){
-                    $user_array['User']['is_age_verified'] = false;
+                if($user_array['User']['is_age_verified'] == "pending" || $user_array['User']['is_age_verified'] == "reject"){
+                    $user_array['User']['is_age_verified'] = "approve";
                 }else{
-                    $user_array['User']['is_age_verified'] = true;
+                    $user_array['User']['is_age_verified'] = "reject";
                 }                
                 $this->User->save($user_array);
                 echo 'success';
