@@ -3,10 +3,10 @@
   <section class="wrapper">
   <div class="row">
 		<div class="col-lg-12">
-			<h3 class="page-header"><i class="fa fa-th-list"></i> Users List</h3>
+			<h3 class="page-header"><i class="fa fa-th-list"></i> Deleted Users List</h3>
 			<ol class="breadcrumb">
 				<li><i class="fa fa-home"></i><a href="<?= $this->webroot; ?>webadmin/admin/dashboard">Dashboard</a></li>
-				<li><i class="fa fa-th-list"></i>View Users</li>
+				<li><i class="fa fa-th-list"></i>View Deleted Users</li>
 			</ol>
 		</div>
 	</div>
@@ -21,7 +21,7 @@
                           <input type="text" class="form-control" placeholder="Enter Keyword" name="keyword" value="<?php echo @$keyword; ?>">
                           </div>
                           <span>
-                            <button class="btn btn-primary">Search User</button>
+                            <button class="btn btn-primary">Search Deleted User</button>
                           </span>
                   </header>
                 </form>  
@@ -29,14 +29,11 @@
                    <tbody>
                       <tr>
                          <!-- <th><i class="icon_mail_alt"></i> Id</th>-->
-                         <th><i class="icon_id"></i> Name</th>
-                         <th><i class="icon_calendar"></i>Last Login</th>
-                         <th><i class="icon_wallet_alt"></i>Balance</th>
-                         <th><i class="icon_calendar"></i>Premium Last Date</th>
-                         <th><i class="icon_folder-open_alt"></i>Coupon Code</th>
-                         <th><i class="icon_cloud-upload_alt"></i>Age Verified</th>
-                         <th><i class="icon_calendar"></i>Created</th>
-                         <th><i class="icon_cogs"></i>Action</th> 
+                         <th><i class="icon_mail_alt"></i> Name</th>
+                         <th><i class="icon_wallet_alt "></i> Balance</th>
+                         <th><i class="icon_menu-circle_alt2"></i> Reason</th>
+                         <th><i class="icon_calendar"></i> Last Login</th>
+                         <th><i class="icon_calendar"></i> Created</th>
                       </tr>
                       <?php 
                       if(!empty($UsersData)){
@@ -44,32 +41,13 @@
                         <tr>
                          <!--<td><?= $user['User']['id']; ?></td>-->
                          <td><?= $user['User']['full_name']; ?></td> 
-                         <td><?= $user['User']['last_login']; ?></td> 
                          <td><span class="badge bg-success"><?= empty($user['User']['balance']) ? 0 : $user['User']['balance']; ?></span></td> 
-                         <td><?= $user['User']['premium_plan_last_date']; ?></td> 
-                         <td><span class="label label-info"><?= $user['User']['coupon_code']; ?></span></td> 
-                         <?php
-                         if($user['User']['is_age_verified'] == "approve"){ ?> 
-                          <td>
-                            <!-- <a id="<?php echo $user['User']['id']; ?>" title="verfied" href="javascript:void(0);" class="btn btn-success ageUnverfied">Verified</a> -->
-                            <a data-toggle="modal" data-id="<?php echo $user['User']['id']; ?>" data-username="(<?php echo $user['User']['full_name']; ?>)" data-document="<?php echo $user['User']['age_document']; ?>" title="Verified" class="open-addVerifyDialog btn btn-success" href="#addVerifyDialog">Verified</a>
-                          </td> 
-                         <?php }else { ?>
-                          <td>
-                            <!-- <a id="<?php echo $user['User']['id']; ?>" title="Unverfied" href="javascript:void(0);" class="btn btn-danger ageVerfied">Unverfied</a> -->
-                            <a data-toggle="modal" data-id="<?php echo $user['User']['id']; ?>" data-username="(<?php echo $user['User']['full_name']; ?>)" data-document="<?php echo $user['User']['age_document']; ?>" title="Unverfied" class="open-addUnVerifyDialog btn btn-danger" href="#addUnVerifyDialog">Unverfied</a>
-                          </td> 
-                         <?php }?>
-
-                         <?php $unixtime = explode(" ", $user['User']['created']);?>
-                         <td><?= date("d/m/Y h:i:s A T",$unixtime[1]); ?></td>
+                         <td><?= $user['User']['deleted_reason']; ?></td> 
+                         
+                         <td><?= $user['User']['last_login']; ?></td> 
                          <td>
-                          <div class="btn-group">
-                              <!-- <a class="btn btn-primary" href="#"><i class="fa fa-eye" aria-hidden="true"></i></a> -->
-                              <?php //echo $this->Html->link($this->Custom->getUserStatus($user['User']['status']), array("controller" => "Admin", "action" => "ChangeUserStatus", "webadmin" => true, base64_encode($user['User']['id'])), array("class" => "btn btn-success", "escape" => false)); ?>
-                             
-                              <a id="<?php echo $user['User']['id']; ?>" title="Remove" href="javascript:void(0);" class="btn btn-danger deleteUser"><i class="icon_close_alt2"></i></a>
-                          </div>
+                            <?php $unixtime = explode(" ", $user['User']['created']);?>
+                            <?= date("d/m/Y h:i:s A T",$unixtime[1]); ?>
                           </td>
                       </tr>    
                       <?php }}else{ ?>

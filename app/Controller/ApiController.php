@@ -72,17 +72,22 @@ var $components = array('Common','Stripe.Stripe');
 						$resultArray['status_code'] = 203;
 						$resultArray['data'] = new stdClass();
 						$resultArray['message'] = "session expired. please login again";
+						$resultArray['jap_message'] = "セッションの有効期限が切れ。もう一度ログインしてください";
 						echo json_encode($resultArray); die;
 		        	}
+		        	$this->loadModel("User");
+			        $last_login_user_array = $this->User->find('first',array('conditions'=>array('_id' => $this->userId)));
+					$last_login_user_array['User']['last_login'] = date('Y-m-d H:i:s');
+					$this->User->save($last_login_user_array);
 	        	}else{
 	        		$resultArray = array();
 					$resultArray['status'] = false;
 					$resultArray['status_code'] = 203;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = "session expired. please login again";
+					$resultArray['jap_message'] = "セッションの有効期限が切れ。もう一度ログインしてください";
 					echo json_encode($resultArray); die;
 	        	}
-	        
         }
     }
 
@@ -367,12 +372,14 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = $resultset;
 				$resultArray['message'] = "success";
+				$resultArray['jap_message'] = "成功";
 			
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "user not found";
+				$resultArray['jap_message'] = "ユーザーが見つかりません";
 			}
 		    
 		}else{
@@ -380,6 +387,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no parameter found";
+			$resultArray['jap_message'] = "パラメータが見つかりません";
 		}
 		header("Content-type:application/json");
 		echo json_encode($resultArray); 
@@ -408,6 +416,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status'] = true;
 		$resultArray['data'] = new stdClass();
 		$resultArray['message'] = "Logout successfully";
+		$resultArray['jap_message'] = "ログアウトに成功しました";
 		header("Content-type:application/json");
 		echo json_encode($resultArray); 
 		die;
@@ -442,6 +451,7 @@ var $components = array('Common','Stripe.Stripe');
 			$this->request->data['notification_notice'] = true;
 			$this->request->data['coupon_code'] = $this->generateCouponCode();
 			$this->request->data['is_deleted'] = false;
+			$this->request->data['deleted_reason'] = '';
 			$this->request->data['is_age_verified'] = "pending";
 			$this->request->data['age_document'] = '';
 			$this->request->data['status'] = true;
@@ -478,18 +488,20 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = $resultset;
 				$resultArray['message'] = "user successfully saved";
-			
+				$resultArray['jap_message'] = "ユーザーは保存されました";
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "user not saved";
+				$resultArray['jap_message'] = "ユーザーは保存されません";
 			}	
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no fb_id found";
+			$resultArray['jap_message'] = "fb_idが見つかりません";
 		}
 		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
@@ -613,12 +625,14 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = $updated_Array;
 			$resultArray['message'] = "success";
+			$resultArray['jap_message'] = "成功";
 			
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no data found";
+			$resultArray['jap_message'] = "何もデータが見つかりませんでした";
 		}
 		
 		header("Content-type:application/json");
@@ -704,6 +718,17 @@ var $components = array('Common','Stripe.Stripe');
 		$this->loadModel('User');
 		$this->loadModel('JobList');
 		//$this->loadModel('UserAccount');
+
+		$data_is = $this->request->data;
+		$file = new File('/var/www/html/drinks/debug.txt', true);
+        $txt = '--------------'.json_encode($data_is).' -----------------';
+        //$txt = $this->sessionId;
+		$json = $file->read(true, 'r');
+		$file = new File('/var/www/html/drinks/debug.txt', true);
+		$json = $json.$txt;
+		$file->write($json);
+		
+
 		$this->request->data['user_id'] = $this->userId;
 		if (!empty($this->request->data['user_id'])) {
 			$check_group = $this->checkGroupExists($this->request->data['user_id']);
@@ -774,12 +799,14 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['data'] = $resultset;
 					$resultArray['message'] = "group successfully added";
+					$resultArray['jap_message'] = "グループが追加されました";
 				
 				}else{
 					$resultArray = array();
 					$resultArray['status'] = false;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = "group not added";
+					$resultArray['jap_message'] = "グループが追加されていない";
 				}
 			}else if($check_group == "2"){
 				$resultArray = array();
@@ -787,11 +814,13 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status_code'] = 203;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "user deleted by admin. please register again";
+				$resultArray['jap_message'] = "ユーザーは管理者によって削除されました。再度登録してください";
 			}else {
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "only one group is allowed";
+				$resultArray['jap_message'] = "1つのグループのみが許可されます";
 			}
 
 
@@ -800,6 +829,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no user_id found";
+			$resultArray['jap_message'] = "user_idは見つかりませんでした";
 		}
 		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
@@ -846,18 +876,21 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['data'] = $group;
 					$resultArray['message'] = "group successfully updated";
+					$resultArray['jap_message'] = "グループが更新されました";
 				
 				}else{
 					$resultArray = array();
 					$resultArray['status'] = false;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = "group not updated";
+					$resultArray['jap_message'] = "グループは更新されません";
 				}	
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "no group found with this id";	
+				$resultArray['jap_message'] = "このIDのグループは見つかりませんでした";
 			}
 			
 		}else{
@@ -865,13 +898,78 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no group_id found";
+			$resultArray['jap_message'] = "group_idが見つかりません";
 		}
 		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
 		die;
 	}
 
+	/**
+	 * deleteUser
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function deleteUser(){
+		$user_id = $this->userId;
+        $this->loadModel("User");
+        if($this->request->data['deleted_reason']){
+	        // convert the string list to an array
+	        $user_array = $this->User->find('first',array('conditions'=>array('_id' => $user_id)));
+	        $user_array['User']['is_deleted'] = true;
+	        $user_array['User']['fb_id'] = '';
+	        $user_array['User']['deleted_reason'] = $this->request->data['deleted_reason'];
+	        $this->User->save($user_array);
+	        $this->updateApiSession(0,$this->deviceToken,"",$this->userId,$this->deviceId);
+	        $group_array = $this->Group->find('first',array('conditions'=>array('Group.user_id' => $this->userId,'Group.is_deleted' => false)));
 
+	        if(!empty($group_array)){
+                $this->loadModel('Group');
+                $this->loadModel('Thread');
+                $this->loadModel('DrinkedGroup');
+                /*********************** START: Group deleted **********************/
+                $group_array['Group']['is_deleted'] = true;
+                $this->Group->save($group_array);
+                /*********************** END: Group deleted **********************/
+
+                /*********************** START: Thread deleted **********************/
+                $Thread_array = $this->Thread->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                if(!empty($Thread_array)){
+                    $Thread_array['Thread']['is_deleted'] = true;
+                    $this->Thread->save($Thread_array);
+                }
+                /*********************** END: Thread deleted **********************/
+
+                /*********************** START: DrinkedGroup deleted **********************/
+                $DrinkedGroup_array = $this->DrinkedGroup->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                if(!empty($DrinkedGroup_array)){
+                    $DrinkedGroup_array['DrinkedGroup']['is_deleted'] = true;
+                    $this->DrinkedGroup->save($DrinkedGroup_array);
+                }
+                /*********************** END: DrinkedGroup deleted **********************/
+            }
+
+	        $resultArray = array();
+			$resultArray['status'] = true;
+			$resultArray['data'] = new stdClass();
+			$resultArray['message'] = "Deleted successfully.";
+			$resultArray['jap_message'] = "正常に削除されました。";
+			header("Content-type:application/json"); 
+			echo json_encode($resultArray); 
+			die;
+
+        }else{
+	        $resultArray = array();
+			$resultArray['status'] = false;
+			$resultArray['data'] = new stdClass();
+			$resultArray['message'] = "Reason is required.";
+			$resultArray['jap_message'] = "理由が必要です。";
+			header("Content-type:application/json"); 
+			echo json_encode($resultArray); 
+			die;
+        }
+	}
 	/**
 	 * add method
 	 *
@@ -929,18 +1027,21 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "group successfully deleted";
+				$resultArray['jap_message'] = "グループが削除されました";
 			
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "group not deleted";
+				$resultArray['jap_message'] = "グループは削除されません";
 			}	
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no group_id found";
+			$resultArray['jap_message'] = "group_idが見つかりません";
 		}
 		header("Content-type:application/json"); 
 		echo json_encode($resultArray); 
@@ -1260,6 +1361,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status'] = true;
 		$resultArray['data'] = array('myGroups'=>$myGroups_new , 'groups'=>$new_arr);
 		$resultArray['message'] = "success";
+		$resultArray['jap_message'] = "成功";
 		 
 		header("Content-type:application/json"); 
 		echo json_encode($resultArray); die;
@@ -1291,6 +1393,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = false;
 			$resultArray['drinked_status'] = "undrinked";
 			$resultArray['message'] = "you must have your own group to drink another group";
+			$resultArray['jap_message'] = "あなたは別のグループを飲むために自分のグループを持っている必要があります";
 		}else{
 			//$this->request->data['user_id'] = $this->userId;
 			if (!empty($this->request->data['user_id']) && !empty($this->request->data['group_id'])) {
@@ -1302,6 +1405,7 @@ var $components = array('Common','Stripe.Stripe');
 						$resultArray['status'] = true;
 						$resultArray['drinked_status'] = "waiting";
 						$resultArray['message'] = "group already drinked";
+						$resultArray['jap_message'] = "既に飲んだグループ";
 					}
 					// offer is in waiting or confirmed and we are undrinked
 					if($this->request->data['drinked_status'] == "undrinked"){
@@ -1312,11 +1416,13 @@ var $components = array('Common','Stripe.Stripe');
 							$resultArray['status'] = true;
 							$resultArray['drinked_status'] = "undrinked";
 							$resultArray['message'] = "group undrinked successfully";
+							$resultArray['jap_message'] = "グループはうまく飲まれた";
 						}else{
 							$resultArray = array();
 							$resultArray['status'] = false;
 							$resultArray['drinked_status'] = "undrinked";
 							$resultArray['message'] = "something went wrong. please try again.";
+							$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 						}
 					}
 					// offer is in waiting list and we confirmed
@@ -1348,11 +1454,13 @@ var $components = array('Common','Stripe.Stripe');
 							$resultArray['status'] = true;
 							$resultArray['drinked_status'] = "confirmed";
 							$resultArray['message'] = "offer accepted successfully";	
+							$resultArray['jap_message'] = "オファーが正常に受け入れられ";
 						}else{
 							$resultArray = array();
 							$resultArray['status'] = false;
 							$resultArray['drinked_status'] = "undrinked";
 							$resultArray['message'] = "something went wrong. please try again.";
+							$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 						}	
 					}
 
@@ -1398,17 +1506,20 @@ var $components = array('Common','Stripe.Stripe');
 									$resultArray['status'] = true;
 									$resultArray['drinked_status'] = "drinked"; // direct interest confirmed - removed "waiting"
 									$resultArray['message'] = "group drinked successfully";	
+									$resultArray['jap_message'] = "グループは正常に飲んだ";
 								}else{
 									$resultArray = array();
 									$resultArray['status'] = false;
 									$resultArray['drinked_status'] = "undrinked";
 									$resultArray['message'] = "something went wrong. please try again.";
+									$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 								}	
 							}else{
 								$resultArray = array();
 								$resultArray['status'] = true;
 								$resultArray['drinked_status'] = "undrinked";
 								$resultArray['message'] = "insufficient balance";
+								$resultArray['jap_message'] = "残高不足";
 							}
 					   	}else{
 
@@ -1416,6 +1527,7 @@ var $components = array('Common','Stripe.Stripe');
 							$resultArray['status'] = false;
 							$resultArray['drinked_status'] = "undrinked";
 							$resultArray['message'] = "You have already been offered interest by this group";
+							$resultArray['jap_message'] = "あなたはすでにこのグループの関心を得ています";
 
 					   	}
 						
@@ -1424,6 +1536,7 @@ var $components = array('Common','Stripe.Stripe');
 						$resultArray['status'] = true;
 						$resultArray['drinked_status'] = "undrinked";
 						$resultArray['message'] = "group already undrinked";
+						$resultArray['jap_message'] = "既に飲まれていないグループ";
 						
 					}
 				}
@@ -1552,11 +1665,13 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = $resultset;
 			$resultArray['message'] = "user successfully saved";
+			$resultArray['jap_message'] = "ユーザーは保存されました";
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = true;
 			$resultArray['data'] = $resultset;
 			$resultArray['message'] = "header key user_id not found";
+			$resultArray['jap_message'] = "ヘッダーキーuser_idが見つかりません";
 		}
 		echo json_encode($resultArray); die;
 		
@@ -1653,11 +1768,13 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = $new_arr;
 				$resultArray['message'] = "success";
+				$resultArray['jap_message'] = "成功";
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "no groups found";
+				$resultArray['jap_message'] = "グループが見つかりません";
 			}
 			
 			
@@ -1666,6 +1783,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no groups found";
+			$resultArray['jap_message'] = "グループが見つかりません";
 		}
 		 
 		echo json_encode($resultArray); die;
@@ -1757,11 +1875,13 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = $new_arr;
 				$resultArray['message'] = "success";
+				$resultArray['jap_message'] = "成功";
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "no groups found";
+				$resultArray['jap_message'] = "グループが見つかりません";
 			}
 			
 			
@@ -1770,6 +1890,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no groups found";
+			$resultArray['jap_message'] = "グループが見つかりません";
 		}
 		 
 		echo json_encode($resultArray); die;
@@ -1793,17 +1914,20 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "Last Login successfully updated";
+				$resultArray['jap_message'] = "最終ログインが正常に更新されました";
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "Last Login not updated";
+				$resultArray['jap_message'] = "最終ログインは更新されません";
 			}	
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "header missing";
+			$resultArray['jap_message'] = "ヘッダーがありません";
 		}
 		echo json_encode($resultArray); 
 		die;
@@ -1829,17 +1953,20 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['reported_status'] = true;
 					$resultArray['message'] = "user already reported";
+					$resultArray['jap_message'] = "ユーザーは既に報告済み";
 				}else{
 					if($this->ReportedUser->delete($exists['ReportedUser']['id'])){
 						$resultArray = array();
 						$resultArray['status'] = true;
 						$resultArray['reported_status'] = false;
 						$resultArray['message'] = "user unreported successfully";
+						$resultArray['jap_message'] = "ユーザーは正常に報告されなかった";
 					}else{
 						$resultArray = array();
 						$resultArray['status'] = false;
 						$resultArray['reported_status'] = "";
 						$resultArray['message'] = "something went wrong. please try again.";
+						$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 					}
 				}
 			}else{
@@ -1852,17 +1979,20 @@ var $components = array('Common','Stripe.Stripe');
 						$resultArray['status'] = true;
 						$resultArray['reported_status'] = true;
 						$resultArray['message'] = "user reported successfully";	
+						$resultArray['jap_message'] = "ユーザーは正常に報告しました";
 					}else{
 						$resultArray = array();
 						$resultArray['status'] = false;
 						$resultArray['reported_status'] = "";
 						$resultArray['message'] = "something went wrong. please try again.";
+						$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 					}			
 				}else{
 					$resultArray = array();
 					$resultArray['status'] = true;
 					$resultArray['reported_status'] = false;
 					$resultArray['message'] = "user already unreported";
+					$resultArray['jap_message'] = "ユーザーは既に報告されていません";
 					
 				}
 			}
@@ -1871,6 +2001,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "incomplete data";
+			$resultArray['jap_message'] = "不完全なデータ";
 		}
 
 		echo json_encode($resultArray); 
@@ -1926,23 +2057,27 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['data'] = $resultset;
 					$resultArray['message'] = "Profile updated successfully ";
+					$resultArray['jap_message'] = "プロフィールを正常に更新しました";
 				}else{
 					$resultArray = array();
 					$resultArray['status'] = false;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = "Profile not updated";
+					$resultArray['jap_message'] = "プロフィールが更新されません";
 				}	
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "header missing";
+				$resultArray['jap_message'] = "ヘッダーがありません";
 			}	
 		}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "no data found";
+				$resultArray['jap_message'] = "何もデータが見つかりませんでした";
 		}
 		
 		echo json_encode($resultArray); 
@@ -1969,17 +2104,20 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['data'] = ['group_reported_status' => true];
 					$resultArray['message'] = "group already reported";
+					$resultArray['jap_message'] = "既に報告されたグループ";
 				}else{
 					if($this->ReportedGroup->delete($exists['ReportedGroup']['id'])){
 						$resultArray = array();
 						$resultArray['status'] = true;
 						$resultArray['data'] = ['group_reported_status' => false];
 						$resultArray['message'] = "group unreported successfully";
+						$resultArray['jap_message'] = "グループが正常に報告されなかった";
 					}else{
 						$resultArray = array();
 						$resultArray['status'] = false;
 						$resultArray['data'] = ['group_reported_status' => false];
 						$resultArray['message'] = "something went wrong. please try again.";
+						$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 					}
 				}
 			}else{
@@ -1993,17 +2131,20 @@ var $components = array('Common','Stripe.Stripe');
 						$resultArray['status'] = true;
 						$resultArray['data'] = ['group_reported_status' => true];
 						$resultArray['message'] = "group reported successfully";	
+						$resultArray['jap_message'] = "グループは正常に報告しました";
 					}else{
 						$resultArray = array();
 						$resultArray['status'] = false;
 						$resultArray['data'] = ['group_reported_status' => false];
 						$resultArray['message'] = "something went wrong. please try again.";
+						$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 					}			
 				}else{
 					$resultArray = array();
 					$resultArray['status'] = true;
 					$resultArray['data'] = ['group_reported_status' => false];
 					$resultArray['message'] = "group already unreported";
+					$resultArray['jap_message'] = "既に報告されていないグループ";
 					
 				}
 			}
@@ -2012,6 +2153,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "incomplete data";
+			$resultArray['jap_message'] = "不完全なデータ";
 		}
 
 		echo json_encode($resultArray); 
@@ -2138,11 +2280,13 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = $new_arr;
 				$resultArray['message'] = "success";
+				$resultArray['jap_message'] = "成功";
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "no threads found";
+				$resultArray['jap_message'] = "スレッドが見つかりません";
 			}
 			
 			
@@ -2151,6 +2295,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no threads found";
+			$resultArray['jap_message'] = "スレッドが見つかりません";
 		}
 		 
 		echo json_encode($resultArray); die;
@@ -2271,11 +2416,13 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = $new_arr;
 				$resultArray['message'] = "success";
+				$resultArray['jap_message'] = "成功";
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "no threads found";
+				$resultArray['jap_message'] = "スレッドが見つかりません";
 			}
 			
 			
@@ -2284,6 +2431,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = true;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no threads found";
+			$resultArray['jap_message'] = "スレッドが見つかりません";
 		}
 		 
 		echo json_encode($resultArray); die;
@@ -2330,11 +2478,13 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['data'] = $new_arr;
 					$resultArray['message'] = "success";
+					$resultArray['jap_message'] = "成功";
 				}else{
 					$resultArray = array();
 					$resultArray['status'] = true;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = "no messages found";
+					$resultArray['jap_message'] = "メッセージが見つかりません";
 				}
 				
 				
@@ -2343,6 +2493,7 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = true;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = "no messages found";
+				$resultArray['jap_message'] = "メッセージが見つかりません";
 			}
 			 
 			echo json_encode($resultArray); die;
@@ -2363,52 +2514,63 @@ var $components = array('Common','Stripe.Stripe');
 		$this->request->data['notification_status'] = 1;
 		//print_r($this->request->data); die;
 		if (!empty($this->request->data['sender_id']) && !empty($this->request->data['thread_id']) && !empty($this->request->data['receiver_id']) && !empty($this->request->data['message'])) {
-
-			$this->Message->create();
-			if($result = $this->Message->save($this->request->data)){
-				//print_R($result); exit;
-				$resultArray = array();
-				$resultArray['status'] = true;
-				$resultArray['data'] = $result['Message'];
-				$resultArray['message'] = "message sent successfully";	
-				/*************** PUSH NOTICATION CODE**************************/
-				
-				$pushData =array();
-				$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
-				$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['receiver_id'],array('fb_image','full_name','full_name','image'));
-				$pushData['thread_id'] 		= $this->request->data['thread_id'];
-				$thread_info  				= $this->getThreadInfoById($this->request->data['thread_id']);
-				$pushdata['group_info']		= $this->getGroupInfoById($thread_info['group_id']);
-				$pushData['message'] 		= $result['Message'];
-				$pushData['push_type'] 		= 'Message'; 
-				$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['receiver_id']);
-				$push_notification_message  = $pushData['sender_info']['full_name'].' sent you a new message.';
-				$notification_count = 0;
-				foreach ($pushNotificationTokens as $token) {
-					//print_r($token['ApiSession']); exit;
-					if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
-						$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
-						$notification_count++;
+			$receiver_info = $this->getUserInfoById($this->request->data['receiver_id'],array('fb_image','full_name','full_name','image'));
+			if($receiver_info['is_deleted'] == false){
+				$this->Message->create();
+				if($result = $this->Message->save($this->request->data)){
+					//print_R($result); exit;
+					$resultArray = array();
+					$resultArray['status'] = true;
+					$resultArray['data'] = $result['Message'];
+					$resultArray['message'] = "message sent successfully";
+					$resultArray['jap_message'] = "送信に成功しました";	
+					/*************** PUSH NOTICATION CODE**************************/
+					
+					$pushData =array();
+					$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
+					$pushData['receiver_info']  = $receiver_info;
+					$pushData['thread_id'] 		= $this->request->data['thread_id'];
+					$thread_info  				= $this->getThreadInfoById($this->request->data['thread_id']);
+					$pushdata['group_info']		= $this->getGroupInfoById($thread_info['group_id']);
+					$pushData['message'] 		= $result['Message'];
+					$pushData['push_type'] 		= 'Message'; 
+					$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['receiver_id']);
+					$push_notification_message  = $pushData['sender_info']['full_name'].' sent you a new message.';
+					$notification_count = 0;
+					foreach ($pushNotificationTokens as $token) {
+						//print_r($token['ApiSession']); exit;
+						if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
+							$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
+							$notification_count++;
+						}
 					}
-				}
-				if($notification_count == 0){
-					$message_array = $this->Message->find('first',array('conditions'=>array('_id' => $result['Message']['id'])));
-					$message_array['Message']['notification_status'] = 0;
-					$this->Message->save($message_array);
+					if($notification_count == 0){
+						$message_array = $this->Message->find('first',array('conditions'=>array('_id' => $result['Message']['id'])));
+						$message_array['Message']['notification_status'] = 0;
+						$this->Message->save($message_array);
 
-				}
-				/*************** END: PUSH NOTICATION CODE **********************/
+					}
+					/*************** END: PUSH NOTICATION CODE **********************/
+				}else{
+					$resultArray = array();
+					$resultArray['status'] = false;
+					$resultArray['data'] = new stdClass();
+					$resultArray['message'] = "message not sent";
+					$resultArray['jap_message'] = "メッセージは送信されません";
+				}	
 			}else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
-				$resultArray['message'] = "message not sent";
-			}			
+				$resultArray['message'] = "User account has been deleted.";
+				$resultArray['jap_message'] = "ユーザーアカウントが削除されました。";
+			}		
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = true;
 			$resultArray['data'] = false;
 			$resultArray['message'] = "incomplete data";
+			$resultArray['jap_message'] = "不完全なデータ";
 		}	
 
 		echo json_encode($resultArray); 
@@ -2451,6 +2613,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status_code'] = 202;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "Friend not added";
+			$resultArray['jap_message'] = "友達は追加されません";
 			echo json_encode($resultArray); 
 			die;
 		}
@@ -2459,6 +2622,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status_code'] = 200;
 		$resultArray['data'] = $result['Friend'];
 		$resultArray['message'] = "Friend added successfully";	
+		$resultArray['jap_message'] = "友達が正常に追加";
 		echo json_encode($resultArray); 
 		die;
 	} 
@@ -2498,33 +2662,33 @@ var $components = array('Common','Stripe.Stripe');
 	public function getMembershipPlanAndTickets(){
 		$this->loadModel('Option');
 
-		$points = $this->Option->find('all',array(
-											'fields'=>array("eng_name","jap_name","point","amount","type"),
+		$tickets = $this->Option->find('all',array(
+											'fields'=>array("eng_name","jap_name","ticket","amount","type"),
 											'conditions' => array('Option.type' => 'ticket'),
-											'order'=>array('Option.point'=>'DESC')
+											'order'=>array('Option.ticket'=>'DESC')
 											));
 		/*$this->set(array(
-            'options' => Hash::extract($points, '{n}.Option'),
+            'options' => Hash::extract($tickets, '{n}.Option'),
             '_serialize' => 'options'
         )); */
-		if(!empty($points)){
+		if(!empty($tickets)){
 			
-			$points_Array = array();
-			foreach ($points as $point) {
-				$points_Array[] = $point['Option']; 
+			$tickets_Array = array();
+			foreach ($tickets as $ticket) {
+				$tickets_Array[] = $ticket['Option']; 
 			}
-			//print_r($points_Array); exit;
-			usort($points_Array, function($a, $b) {
+			//print_r($tickets_Array); exit;
+			usort($tickets_Array, function($a, $b) {
 			    return $b['amount'] - $a['amount'];
 			});
-			$updated_Array['tickets'] = $points_Array;
+			$updated_Array['tickets'] = $tickets_Array;
 		}
 
 		$membership_plans = $this->Option->find('all',array(
-													'fields'=>array("eng_name","jap_name","point","amount","discount","description","type"),
+													'fields'=>array("eng_name","jap_name","ticket","amount","discount","description","jap_description","type"),
 													'conditions' => array('Option.type' => 'membership_plan'),
 													'order'=>array('amount'=>'asc')));
-		if(!empty($points)){
+		if(!empty($tickets)){
 			$membership_plans_Array = array();
 			foreach ($membership_plans as $membership_plan) {
 				$membership_plans_Array[] = $membership_plan['Option']; 
@@ -2534,24 +2698,20 @@ var $components = array('Common','Stripe.Stripe');
 			});
 			$updated_Array['membership_plans'] = $membership_plans_Array;
 		}
-		/*foreach ($new_arr as $key => $row) {
-		    $sorted_arr[$key] = $row['Group']['distance'];
-		}*/
-		/*array_multisort($sorted_arr, SORT_DESC, $new_arr);*/
-
-
 		if(!empty($updated_Array)){
 
 			$resultArray = array();
 			$resultArray['status'] = true;
 			$resultArray['data'] = $updated_Array;
 			$resultArray['message'] = "success";
+			$resultArray['jap_message'] = "成功";
 			
 		}else{
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no data found";
+			$resultArray['jap_message'] = "何もデータが見つかりませんでした";
 		}
 		
 		header("Content-type:application/json");
@@ -2582,6 +2742,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status'] = true;
 		$resultArray['data'] = new stdClass();
 		$resultArray['message'] = "Updated";
+		$resultArray['jap_message'] = "更新しました";
 		header("Content-type:application/json");
 		echo json_encode($resultArray);
 		die;
@@ -2644,6 +2805,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status'] = true;
 		$resultArray['data'] = new stdClass();
 		$resultArray['message'] = "Updated";
+		$resultArray['jap_message'] = "更新しました";
 		header("Content-type:application/json");
 		echo json_encode($resultArray);
 		die;
@@ -2674,6 +2836,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status'] = true;
 		$resultArray['data'] = $user_detail;
 		$resultArray['message'] = "Updated";
+		$resultArray['jap_message'] = "更新しました";
 		header("Content-type:application/json");
 		echo json_encode($resultArray);
 		die;
@@ -2733,6 +2896,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status'] = true;
 		$resultArray['data'] = $user_detail;
 		$resultArray['message'] = "Updated";
+		$resultArray['jap_message'] = "更新しました";
 		header("Content-type:application/json");
 		echo json_encode($resultArray);
 		die;
@@ -2746,7 +2910,7 @@ var $components = array('Common','Stripe.Stripe');
     * DEscription: payByStripe
     */
 	public function payByStripe(){
-		if (!empty($this->request->data['stripeToken']) && !empty($this->request->data['plan_id'])) {
+		if (!empty($this->request->data['plan_id'])) {
 		    $this->loadModel('Transaction');
 		    $this->loadModel('Option');
 		    $this->loadModel('User');
@@ -2759,59 +2923,109 @@ var $components = array('Common','Stripe.Stripe');
 				$eng_name 	= $plan_detail['Option']['eng_name'];
 				$description 	= $plan_detail['Option']['description'];
 				$charge_amount = $amount - $discount;
-		    	$data = array(
-						'amount' => $charge_amount,
-						'stripeToken' => $this->request->data['stripeToken'], // either the token
-						'description' => 'Pay for plan -'.$eng_name
-					);
-		    	$result = $this->Stripe->charge($data);
-		    	if(isset($result['stripe_id'])){
+				if (!empty($this->request->data['stripeToken']) ) {
+			    	$data = array(
+							'amount' => $charge_amount,
+							'stripeToken' => $this->request->data['stripeToken'], // either the token
+							'description' => 'Pay for plan -'.$eng_name
+						);
+			    	$result = $this->Stripe->charge($data);
+			    	if(isset($result['stripe_id'])){
 
-				    /********** START:  Transaction data inserted *************************/
-				    $this->Transaction->create();
-				    $Transaction['user_id'] 		= $this->userId;
-				    $Transaction['stripe_id'] 		= $result['stripe_id'];
-				    $Transaction['relation_id'] 	= $plan_id; // Relation id is plan id or option id
-				    $Transaction['amount'] 			= $charge_amount;
-				    $Transaction['coupon_code'] 	= '';
-				    $Transaction['type'] 			= 'membership_plan';
-				    $Transaction['payment_type'] 	= 'stripe';
-				    $Transaction['is_deleted'] 		= false;
-				    $this->Transaction->save($Transaction);
-				    /********** End  Transaction data inserted *************************/
+					    /********** START:  Transaction data inserted *************************/
+					    $this->Transaction->create();
+					    $Transaction['user_id'] 		= $this->userId;
+					    $Transaction['stripe_id'] 		= $result['stripe_id'];
+					    $Transaction['relation_id'] 	= $plan_id; // Relation id is plan id or option id
+					    $Transaction['amount'] 			= $charge_amount;
+					    $Transaction['coupon_code'] 	= '';
+					    $Transaction['type'] 			= 'membership_plan';
+					    $Transaction['payment_type'] 	= 'stripe';
+					    $Transaction['is_deleted'] 		= false;
+					    $this->Transaction->save($Transaction);
+					    /********** End  Transaction data inserted *************************/
 
-				    /********** START  Plan date updated *************************/
+					    /********** START  Plan date updated *************************/
+						$params = array(
+								'conditions' => array('User._id' => $this->userId),
+							);
+						$user_detail = $this->User->find('first', $params);
+					    $time = strtotime($user_detail['User']['premium_plan_last_date']);
+						$final = date("Y-m-d", strtotime("+".$duration." month", $time));
+						$user_detail['User']['premium_plan_last_date'] = $final;
+						$this->User->save($user_detail);
+					    /********** End  Plan date updated *************************/
+
+				    	$resultArray = array();
+						$resultArray['status'] = true;
+						$resultArray['data'] = $result;
+						$resultArray['message'] = "success";
+						$resultArray['jap_message'] = "成功";
+						header("Content-type:application/json");
+						echo json_encode($resultArray);
+						die;
+			    	}else{
+			    		$resultArray = array();
+						$resultArray['status'] = false;
+						$resultArray['data'] = new stdClass();
+						$resultArray['message'] = $result;
+						$resultArray['jap_message'] = $result;
+						header("Content-type:application/json");
+				    	echo json_encode($resultArray); 
+						die;
+			    	}
+					
+				}else{
+					/********** START  Plan date updated *************************/
 					$params = array(
 							'conditions' => array('User._id' => $this->userId),
 						);
 					$user_detail = $this->User->find('first', $params);
-				    $time = strtotime($user_detail['User']['premium_plan_last_date']);
-					$final = date("Y-m-d", strtotime("+".$duration." month", $time));
-					$user_detail['User']['premium_plan_last_date'] = $final;
-					$this->User->save($user_detail);
-				    /********** End  Plan date updated *************************/
+					if($user_detail['User']['premium_plan_last_date'] >= date('Y-m-d')){
+						$resultArray = array();
+						$resultArray['status'] = false;
+						$resultArray['data'] = new stdClass();
+						$resultArray['message'] = 'You are already premium user.';
+						$resultArray['jap_message'] = "あなたはすでにプレミアムユーザーです。";
+						header("Content-type:application/json");
+				    	echo json_encode($resultArray); 
+						die;
+					}else{
 
-			    	$resultArray = array();
-					$resultArray['status'] = true;
-					$resultArray['data'] = $result;
-					$resultArray['message'] = "success";
-					header("Content-type:application/json");
-					echo json_encode($resultArray);
-					die;
-		    	}else{
-		    		$resultArray = array();
-					$resultArray['status'] = false;
-					$resultArray['data'] = new stdClass();
-					$resultArray['message'] = $result;
-					header("Content-type:application/json");
-			    	echo json_encode($resultArray); 
-					die;
-		    	}
+						if($user_detail['User']['balance'] >= 5){
+						    $balance = $user_detail['User']['balance'] - 5;
+							$user_detail['User']['balance'] = $balance;
+						    $time = strtotime($user_detail['User']['premium_plan_last_date']);
+							//$final = date("Y-m-d", strtotime("+1 day", $time));
+							$user_detail['User']['premium_plan_last_date'] = date("Y-m-d");
+							$this->User->save($user_detail);
+							$resultArray = array();
+							$resultArray['status'] = true;
+							$resultArray['data'] = $user_detail;
+							$resultArray['message'] = "success";
+							$resultArray['jap_message'] = "成功";
+							header("Content-type:application/json");
+							echo json_encode($resultArray);
+							die;
+						}else{
+							$resultArray = array();
+							$resultArray['status'] = false;
+							$resultArray['data'] = new stdClass();
+							$resultArray['message'] = 'Insufficient tickets in your account.';
+							$resultArray['jap_message'] = "アカウントのチケットが不足しています。";
+							header("Content-type:application/json");
+					    	echo json_encode($resultArray); 
+							die;
+						}
+					}
+				    /********** End  Plan date updated *************************/
+				}
 		    }else{
 				$resultArray = array();
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = 'Plan not exists';
+				$resultArray['jap_message'] = "計画は存在しません";
 				header("Content-type:application/json");
 		    	echo json_encode($resultArray); 
 				die;
@@ -2823,7 +3037,7 @@ var $components = array('Common','Stripe.Stripe');
 			$ticket_id = $this->request->data['ticket_id'];
 			$plan_detail = $this->Option->find('first',array('conditions' => array('Option._id' => $ticket_id)));
 			if(!empty($plan_detail)){
-				$point 	= $plan_detail['Option']['point'];
+				$ticket 	= $plan_detail['Option']['ticket'];
 				$amount 	= $plan_detail['Option']['amount'];
 				$eng_name 	= $plan_detail['Option']['eng_name'];
 				$charge_amount = $amount;
@@ -2853,7 +3067,7 @@ var $components = array('Common','Stripe.Stripe');
 							'conditions' => array('User._id' => $this->userId),
 						);
 					$user_detail = $this->User->find('first', $params);
-				    $balance = $user_detail['User']['balance'] + $point;
+				    $balance = $user_detail['User']['balance'] + $ticket;
 					$user_detail['User']['balance'] = $balance;
 					$this->User->save($user_detail);
 				    /********** End  Plan date updated *************************/
@@ -2862,6 +3076,7 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['data'] = $result;
 					$resultArray['message'] = "success";
+					$resultArray['jap_message'] = "成功";
 					header("Content-type:application/json");
 					echo json_encode($resultArray);
 					die;
@@ -2870,6 +3085,7 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = false;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = $result;
+					$resultArray['jap_message'] = $result;
 					header("Content-type:application/json");
 			    	echo json_encode($resultArray); 
 					die;
@@ -2879,6 +3095,7 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = 'Plan not exists';
+				$resultArray['jap_message'] = "計画は存在しません";
 				header("Content-type:application/json");
 		    	echo json_encode($resultArray); 
 				die;
@@ -2888,6 +3105,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no data found";
+			$resultArray['jap_message'] = "何もデータが見つかりませんでした";
 			header("Content-type:application/json");
 	    	echo json_encode($resultArray); 
 			die;
@@ -2932,6 +3150,7 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = true;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = "success";
+					$resultArray['jap_message'] = "成功";
 					header("Content-type:application/json");
 					echo json_encode($resultArray);
 					die;
@@ -2940,6 +3159,7 @@ var $components = array('Common','Stripe.Stripe');
 					$resultArray['status'] = false;
 					$resultArray['data'] = new stdClass();
 					$resultArray['message'] = 'Already Used';
+					$resultArray['jap_message'] = "既に使われた";
 					header("Content-type:application/json");
 			    	echo json_encode($resultArray); 
 					die;
@@ -2949,6 +3169,7 @@ var $components = array('Common','Stripe.Stripe');
 				$resultArray['status'] = false;
 				$resultArray['data'] = new stdClass();
 				$resultArray['message'] = 'Coupon not exists';
+				$resultArray['jap_message'] = "クーポンは存在しません";
 				header("Content-type:application/json");
 		    	echo json_encode($resultArray); 
 				die;
@@ -2958,6 +3179,7 @@ var $components = array('Common','Stripe.Stripe');
 			$resultArray['status'] = false;
 			$resultArray['data'] = new stdClass();
 			$resultArray['message'] = "no data found";
+			$resultArray['jap_message'] = "何もデータが見つかりませんでした";
 			header("Content-type:application/json");
 	    	echo json_encode($resultArray); 
 			die;
@@ -3005,6 +3227,7 @@ var $components = array('Common','Stripe.Stripe');
 		$resultArray['status'] = true;
 		$resultArray['data'] = true;
 		$resultArray['message'] = "REsponse";
+		$resultArray['jap_message'] = "応答";
 		echo json_encode($resultArray); 
 		die;
 	}

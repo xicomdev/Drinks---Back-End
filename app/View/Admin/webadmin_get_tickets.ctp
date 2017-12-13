@@ -26,12 +26,17 @@
                             </div>
                             <div class="clearfix"></div>
                             <div class="col-sm-6">
-                                <label class="col-sm-6 control-label">Point</label>
-                                <input type="text" required class="form-control" placeholder="Enter Amount" name="point" value="<?php echo isset($options_edit_data['Option']['point']) ? $options_edit_data['Option']['point'] : ''; ?>">
+                                <label class="col-sm-6 control-label">Ticket</label>
+                                <input type="text" required class="form-control" placeholder="Enter ticket" name="ticket" value="<?php echo isset($options_edit_data['Option']['ticket']) ? $options_edit_data['Option']['ticket'] : ''; ?>">
                             </div>
                             <div class="col-sm-6">
                                 <label class="col-sm-6 control-label">Amount</label>
                                 <input type="text" required class="form-control" placeholder="Enter Amount" name="amount" value="<?php echo isset($options_edit_data['Option']['amount']) ? $options_edit_data['Option']['amount'] : ''; ?>">
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-sm-12">
+                                <label class="col-sm-12 control-label">Discount</label>
+                                <input type="text" required class="form-control" placeholder="Enter discount" name="discount" value="<?php echo isset($options_edit_data['Option']['discount']) ? $options_edit_data['Option']['discount'] : ''; ?>">
                             </div>
                             <div class="clearfix"></div>
                             <div class="col-sm-12">
@@ -49,8 +54,9 @@
                             <th><i class="icon_mail_alt"></i> Id</th>
                             <th><i class="icon_tag_alt"></i> Title</th>
                             <th><i class="icon_tag_alt"></i> Jap Title</th>
-                            <th><i class="icon_tag_alt"></i>  Point</th>
+                            <th><i class="icon_tag_alt"></i>  Ticket</th>
                             <th><i class="icon_currency"></i>   Amount</th>
+                            <th><i class="icon_currency"></i>   Discount</th>
                             <th><i class="icon_calendar"></i> Created</th>
                             <th><i class="icon_cogs"></i> Action</th> 
                         </tr>
@@ -68,10 +74,13 @@
                                         <?= $Option['Option']['jap_name']; ?>
                                     </td>
                                     <td>
-                                        <?= $Option['Option']['point']; ?>
+                                        <?= $Option['Option']['ticket']; ?>
                                     </td>
                                     <td>
                                         <?= $Option['Option']['amount']; ?>
+                                    </td>
+                                    <td>
+                                        <?= $Option['Option']['discount']; ?>
                                     </td>
                                     <td>
                                         <?php $unixtime = explode(" ", $Option['Option']['created']);?>
@@ -168,7 +177,7 @@ $(".del_option").click(function () {
 
 $("#add_ticket").validate({
     rules: {
-        point: {
+        ticket: {
             required: true,
             digits: true
         },

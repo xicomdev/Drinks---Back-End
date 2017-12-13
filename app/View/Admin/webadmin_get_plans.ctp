@@ -46,6 +46,11 @@
                             <br>
                             <div class="clearfix"></div>
                             <div class="col-sm-12">
+                                <label class="col-sm-12 control-label">Jap Description</label>
+                                <input type="text" required class="form-control" placeholder="Enter Jap Description" name="jap_description" value="<?php echo isset($options_edit_data['Option']['jap_description']) ? $options_edit_data['Option']['jap_description'] : ''; ?>">
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="col-sm-12">
                                 <input type="hidden" name="option_id" value="<?php echo isset($options_edit_data['Option']['id']) ? $options_edit_data['Option']['id'] : ''; ?>">
                                 <button class="btn btn-primary"><?php echo isset($options_edit_data['Option']['id']) ? 'Update' : 'Add'; ?> Ticket</button>
                             </div>
@@ -64,6 +69,7 @@
                             <th><i class="icon_currency"></i> Amount</th>
                             <th><i class="icon_currency"></i> Discount</th>
                             <th><i class="icon_tag_alt"></i> Description</th>
+                            <th><i class="icon_tag_alt"></i> Jap Description</th>
                             <th><i class="icon_calendar"></i> Created</th>
                             <th><i class="icon_cogs"></i> Action</th> 
                         </tr>
@@ -91,6 +97,9 @@
                                     </td>
                                     <td>
                                         <?= $Option['Option']['description']; ?>
+                                    </td>
+                                    <td>
+                                        <?= $Option['Option']['jap_description']; ?>
                                     </td>
                                     <td>
                                         <?php $unixtime = explode(" ", $Option['Option']['created']);?>

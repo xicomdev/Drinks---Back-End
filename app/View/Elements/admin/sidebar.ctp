@@ -16,7 +16,8 @@
                     <span class="menu-arrow arrow_carrot-right"></span>
                 </a>
                 <ul class="sub"  style='display:<?php echo (isset($page) && $page == 'user') ? 'block' : 'none'; ?>'>
-                    <li class='<?php echo (isset($sub_page) && $sub_page == 'user') ? 'active' : ''; ?>'><a class="" href="<?= $this->webroot; ?>webadmin/admin/usersList">View Users</a></li>                    
+                    <li class='<?php echo (isset($sub_page) && $sub_page == 'user') ? 'active' : ''; ?>'><a class="" href="<?= $this->webroot; ?>webadmin/admin/usersList">View Users</a></li>      
+                    <li class='<?php echo (isset($sub_page) && $sub_page == 'deleted_user') ? 'active' : ''; ?>'><a class="" href="<?= $this->webroot; ?>webadmin/admin/deletedUsers">View Deleted Users</a></li>                    
                 </ul>
             </li>              
             <li class="sub-menu">

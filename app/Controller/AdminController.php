@@ -130,6 +130,48 @@
         }
 
 
+        public function webadmin_deletedUsers() {
+            $this->set('page','user');
+            $this->set('sub_page','deleted_user');
+            $AdminUser = $this->Session->read('AdminUser');
+            if (!@$AdminUser) {
+                return $this->redirect(array("controller" => "admin", "action" => "index","webadmin"=>true));
+            }
+            $this->set('title_for_layout', 'Deleted Users List');
+            $this->layout = 'admin_inner';
+            $this->loadModel("User");
+            $conditions = array();
+            $keyword = "";
+            if(isset($_GET['keyword'])){
+                $keyword = $_GET['keyword'];
+            }
+            if ($this->request->is('post')) {
+                $keyword = $this->data['keyword'];
+                //$conditions["OR"] = array('User.full_name LIKE' => '%' . $keyword . '%', 'User.email LIKE' => '%' . $keyword . '%');
+
+                $conditions = array(
+                                    '$or'=>
+                                        array(
+                                                array('User.full_name LIKE' => '%' . $keyword . '%'), 
+                                                array('User.email LIKE' => '%' . $keyword . '%')
+                                            ),
+                                        array('User.is_deleted' => true)
+                                );
+                $this->set("keyword", $this->data['keyword']);
+            }else{
+                $conditions = array('User.is_deleted' => true);
+            }
+            //print_r($conditions); exit;
+            
+            $this->paginate = array(
+                'limit' => 10,
+                "conditions" => $conditions,
+                "order" =>array('User.created' => 'DESC')
+            );
+            $UsersData = $this->paginate('User');
+            $this->set(compact('UsersData','page','sub_page','keyword'));
+        }
+
         public function webadmin_deleteUser(){
             $user_id = $_POST['user_id'];
             $this->loadModel("User");
@@ -137,7 +179,36 @@
             $user_array = $this->User->find('first',array('conditions'=>array('_id' => $user_id)));
             if(!empty($user_array)){
                 $user_array['User']['is_deleted'] = true;
+                $user_array['User']['fb_id'] = '';
                 $this->User->save($user_array);
+
+                $group_array = $this->Group->find('first',array('conditions'=>array('Group.user_id' => $user_id,'Group.is_deleted' => false)));
+
+                if(!empty($group_array)){
+                    $this->loadModel('Group');
+                    $this->loadModel('Thread');
+                    $this->loadModel('DrinkedGroup');
+                    /*********************** START: Group deleted **********************/
+                    $group_array['Group']['is_deleted'] = true;
+                    $this->Group->save($group_array);
+                    /*********************** END: Group deleted **********************/
+
+                    /*********************** START: Thread deleted **********************/
+                    $Thread_array = $this->Thread->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                    if(!empty($Thread_array)){
+                        $Thread_array['Thread']['is_deleted'] = true;
+                        $this->Thread->save($Thread_array);
+                    }
+                    /*********************** END: Thread deleted **********************/
+
+                    /*********************** START: DrinkedGroup deleted **********************/
+                    $DrinkedGroup_array = $this->DrinkedGroup->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                    if(!empty($DrinkedGroup_array)){
+                        $DrinkedGroup_array['DrinkedGroup']['is_deleted'] = true;
+                        $this->DrinkedGroup->save($DrinkedGroup_array);
+                    }
+                    /*********************** END: DrinkedGroup deleted **********************/
+                }
                 echo 'success';
                 exit;
             }
@@ -333,7 +404,8 @@
 	            $Option_array['amount'] = $this->request->data['amount'];
 	            $Option_array['order'] = 1;
 	            $Option_array['discount'] = $this->request->data['discount'];
-	            $Option_array['description'] = $this->request->data['description'];
+                $Option_array['description'] = $this->request->data['description'];
+	            $Option_array['jap_description'] = $this->request->data['jap_description'];
 	            $this->Option->save($Option_array);
             }else{
             	$Option_array = $this->Option->find('first',array('conditions'=>array('_id' => $this->request->data['option_id'])));
@@ -344,7 +416,8 @@
 	            $Option_array['Option']['amount'] = $this->request->data['amount'];
 	            $Option_array['Option']['order'] = 1;
 	            $Option_array['Option']['discount'] = $this->request->data['discount'];
-	            $Option_array['Option']['description'] = $this->request->data['description'];
+                $Option_array['Option']['description'] = $this->request->data['description'];
+	            $Option_array['Option']['jap_description'] = $this->request->data['jap_description'];
 	            $this->Option->save($Option_array);
             }
             if ($this->request->is('ajax')) {
@@ -372,7 +445,8 @@
 	            $Option_array['eng_name'] = $this->request->data['eng_name'];
 	            $Option_array['jap_name'] = $this->request->data['jap_name'];
 	            $Option_array['type'] = $this->request->data['option_type'];
-	            $Option_array['point'] = $this->request->data['point'];
+                $Option_array['ticket'] = $this->request->data['ticket'];
+	            $Option_array['discount'] = $this->request->data['discount'];
 	            $Option_array['amount'] = $this->request->data['amount'];
 	            $Option_array['order'] = 1;
 	            $this->Option->save($Option_array);
@@ -381,8 +455,9 @@
             	$Option_array = $this->Option->find('first',array('conditions'=>array('_id' => $this->request->data['option_id'])));
             	$Option_array['Option']['eng_name'] = $this->request->data['eng_name'];
 	            $Option_array['Option']['jap_name'] = $this->request->data['jap_name'];
-	            $Option_array['Option']['type'] = $this->request->data['option_type'];
-	            $Option_array['Option']['point'] = $this->request->data['point'];
+                $Option_array['Option']['type'] = $this->request->data['option_type'];
+	            $Option_array['Option']['discount'] = $this->request->data['discount'];
+	            $Option_array['Option']['ticket'] = $this->request->data['ticket'];
 	            $Option_array['Option']['amount'] = $this->request->data['amount'];
 	            $this->Option->save($Option_array);
             }
