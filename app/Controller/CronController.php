@@ -68,8 +68,8 @@ class CronController extends AppController {
         $params = array('User.is_deleted'=>false);  
         $UsersData = $this->User->find('all',array(
                 'conditions' => array('User.is_deleted'=>false),
-                'limit' => $count,
-                'order' => 'rand()',
+                //'limit' => $count,
+                //'order' => 'rand()',
             ));
         //print_r($UsersData); exit;
         $i=1;
@@ -148,6 +148,98 @@ class CronController extends AppController {
             $i++;
         }        
         exit;
+    }
+
+
+    public function createUsers($count = 2) {
+        $this->loadModel('User');
+        $this->loadModel('JobList');
+        $current_date = date('Y-m-d');
+
+        $gender = array("Female","Male","Female","Female");
+        $image = array("http://graph.facebook.com/509099109453723/picture?type=large","http://graph.facebook.com/1633787546633587/picture?type=large","http://graph.facebook.com/1633787546633587/picture?type=large","http://graph.facebook.com/1633787546633587/picture?type=large");
+        $random_index = rand(1,3);
+        for ($i=1; $i < $count; $i++) { 
+            $this->User->create();            
+            $this->request->data['annual_income'] = 'Less than 2 million'; 
+            $this->request->data['blood_type'] = 'A+'; 
+            $this->request->data['dob'] = '1990/01/01'; 
+            $this->request->data['fb_id'] = "".rand(11111111,99999999999).""; 
+            $this->request->data['fb_image'] = $image[$random_index]; 
+            $this->request->data['full_name'] = $this->generateRandomString(); 
+            $this->request->data['job_id'] = '59a545e241a73f9c5a7711bd'; 
+            $this->request->data['gender'] = $gender[$random_index]; 
+            $this->request->data['marriage'] = 'unmarried'; 
+            $this->request->data['school_career'] = 'Masters degree'; 
+            $this->request->data['tabaco'] = 'Occasionally suck'; 
+            $this->request->data['last_login'] = date('Y-m-d H:i:s'); 
+            $this->request->data['balance'] = 10;
+            $this->request->data['image'] = '';
+            $this->request->data['premium_plan_last_date'] = date('Y-m-d', strtotime($current_date .' -1 day'));  
+            $this->request->data['notification_receive_offer'] = true;
+            $this->request->data['notification_when_matching'] = true;
+            $this->request->data['notification_message'] = true;
+            $this->request->data['notification_notice'] = true;
+            $this->request->data['coupon_code'] = $this->generateCouponCode();
+            $this->request->data['is_deleted'] = false;
+            $this->request->data['deleted_reason'] = '';
+            $this->request->data['is_age_verified'] = "pending";
+            $this->request->data['age_document'] = '';
+            $this->request->data['status'] = true;
+            $this->request->data['consume_date'] = date('Y-m-d');
+            $this->request->data['consume_total'] = 0;
+            $this->User->save($this->request->data);
+            echo $i.':- '.$this->request->data['full_name']."<br>";
+        }
+        exit;
+            
+        
+    }
+    function updateuserdob(){
+        $this->loadModel('User');
+        $UsersData = $this->User->find('all',array());
+        foreach ($UsersData as $key => $value) {
+            $user_id = $value['User']['id'];
+            $dob = $value['User']['dob'];
+            //print_r($dob); exit;
+            $newDate = date("Y/m/d", strtotime($dob));
+            $params = array(
+                        'conditions' => array('User._id' => $user_id),
+                    );
+            $exists =$this->User->find('first', $params);
+            $exists['User']['dob'] = $newDate;   
+            $this->User->save($exists);
+            //$exists =$this->User->find('first', $params);
+            //print_r($exists);
+            //exit;
+
+        }
+        echo 'hhhhhh';exit;
+
+    }
+
+    public function generateCouponCode(){
+        $chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $coupon_code = "";
+        for ($i = 0; $i < 10; $i++) {
+            $coupon_code .= $chars[mt_rand(0, strlen($chars)-1)];
+        }
+        $user_array = $this->User->find('first',array('conditions'=>array('coupon_code' => $coupon_code)));
+        while(empty($user_array)){
+            return $coupon_code;
+        }
+
+        
+    }
+
+    public function generateRandomString($length = 10) {
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 
     public function checkGroupExists($user_id)

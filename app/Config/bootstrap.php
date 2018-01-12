@@ -112,7 +112,7 @@ CakeLog::config('error', array(
 CakePlugin::load('Mongodb');
 /***************SITE CONSTANTS ***************/
 $host = $_SERVER['HTTP_HOST'];
-define('BASE_URL', 'http://' . $host . '/~drinks/');
+define('BASE_URL', 'http://' . $host . '/drinks/');
 
 /****************** START: Stripe Setting *************************/
 CakePlugin::load('Stripe');

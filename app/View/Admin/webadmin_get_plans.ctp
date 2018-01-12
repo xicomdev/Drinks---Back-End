@@ -43,13 +43,13 @@
                                 <label class="col-sm-12 control-label">Description</label>
                                 <input type="text" required class="form-control" placeholder="Enter Description" name="description" value="<?php echo isset($options_edit_data['Option']['description']) ? $options_edit_data['Option']['description'] : ''; ?>">
                             </div>
-                            <br>
                             <div class="clearfix"></div>
                             <div class="col-sm-12">
                                 <label class="col-sm-12 control-label">Jap Description</label>
                                 <input type="text" required class="form-control" placeholder="Enter Jap Description" name="jap_description" value="<?php echo isset($options_edit_data['Option']['jap_description']) ? $options_edit_data['Option']['jap_description'] : ''; ?>">
                             </div>
                             <div class="clearfix"></div>
+                            <br>
                             <div class="col-sm-12">
                                 <input type="hidden" name="option_id" value="<?php echo isset($options_edit_data['Option']['id']) ? $options_edit_data['Option']['id'] : ''; ?>">
                                 <button class="btn btn-primary"><?php echo isset($options_edit_data['Option']['id']) ? 'Update' : 'Add'; ?> Ticket</button>

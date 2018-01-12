@@ -88,12 +88,12 @@ class AppController extends Controller {
                 }   
                 if($env =='developement')
                 {           
-                 $user_key = WWW_ROOT . 'pem/CertificatesPushP12Drinks.pem';
+                 $user_key = WWW_ROOT . 'pem/DrinksDevPush.pem';
                  $url = 'ssl://gateway.sandbox.push.apple.com:2195';
                 }
                 elseif($env=='production')
                 {
-                 $user_key = WWW_ROOT . 'pem/CertificatesPushP12Drinks.pem';
+                 $user_key = WWW_ROOT . 'pem/DrinksProdPush.pem';
                  $url = 'ssl://gateway.push.apple.com:2195';
                 }
                 //echo $url; exit;

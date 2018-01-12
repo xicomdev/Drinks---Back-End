@@ -33,6 +33,16 @@
             <li class="sub-menu">
                 <a href="javascript:;" class="">
                     <i class="icon_document_alt"></i>
+                    <span>Manage Pages</span>
+                    <span class="menu-arrow arrow_carrot-<?php echo (isset($page) && $page == 'pages') ? 'down' : 'right'; ?>"></span>
+                </a>
+                <ul class="sub" style='display:<?php echo (isset($page) && $page == 'pages') ? 'block' : 'none'; ?>'>
+                    <li class="<?php echo (isset($sub_page) && $sub_page == 'pages') ? 'active' : ''; ?>"><a  href="<?= $this->webroot; ?>webadmin/page/pages">View Pages</a></li>                   
+                </ul>
+            </li>
+            <li class="sub-menu">
+                <a href="javascript:;" class="">
+                    <i class="icon_document_alt"></i>
                     <span>Manage Options</span>
 
                     <span class="menu-arrow arrow_carrot-<?php echo (isset($page) && $page == 'option') ? 'down' : 'right'; ?>"></span>

@@ -18,14 +18,36 @@
         }
 
         public function webadmin_groups(){
-
             $AdminUser = $this->Session->read('AdminUser');
             $this->set('title_for_layout', 'Groups List');
             $this->layout = 'admin_inner';
             $this->loadModel("Group");
-            $GroupsDataList = $this->Group->find('all',array(
-                         'order' => array('_id' => -1)
-                    ));
+            $keyword = "";
+            if(isset($_GET['keyword'])){
+                $keyword = $_GET['keyword'];
+            }
+            if ($this->request->is('post')) {
+                $keyword = $this->data['keyword'];
+                $conditions = array(
+                                    '$or'=>
+                                        array(
+                                                array('Group.title LIKE' => '%' . $keyword . '%'), 
+                                                array('Group.description LIKE' => '%' . $keyword . '%'),
+                                                array('Group._id LIKE' => '%' . $keyword . '%')
+                                            )
+                                        //array('Group.is_deleted' => false)
+                                );
+                $this->set("keyword", $this->data['keyword']);
+            }else{
+                //$conditions = array('Group.is_deleted' => false);
+            }
+            $this->paginate = array(
+                'limit' => 10,
+                "conditions" => $conditions,
+                "order" =>array('Group.created' => 'DESC')
+            );
+            $GroupsDataList = $this->paginate('Group');
+            //print_r($conditions); exit;
             $GroupsData = array();
             foreach ($GroupsDataList as $key => $value) {
                 $user_info = $this->getUserInfoById($value['Group']['user_id'], array('fb_image','full_name','full_name','image'));
@@ -35,8 +57,8 @@
 
             $this->set('page','group');
             $this->set('sub_page','groups');
-            $this->set(compact('GroupsData','sub_page','page'));
-            $this -> render('/Admin/webadmin_groups');
+            $this->set(compact('GroupsData','page','sub_page','keyword'));
+             $this -> render('/Admin/webadmin_groups');
         }
 
     

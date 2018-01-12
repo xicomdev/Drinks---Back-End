@@ -14,7 +14,17 @@
         <div class="row">
             <div class="col-lg-12">
                 <section class="panel">
-                    
+                    <!-- <form method="post" class="well">
+                      <header class="panel-heading">
+                              <label class="col-sm-1 control-label">Keyword</label>
+                              <div class="col-sm-2">
+                              <input type="text" class="form-control" placeholder="Enter Keyword" name="keyword" value="<?php echo @$keyword; ?>">
+                              </div>
+                              <span>
+                                <button class="btn btn-primary">Search Group</button>
+                              </span>
+                      </header>
+                    </form>  -->
                     <table class="table table-striped table-advance table-hover">
                     <tbody>
                         <tr>

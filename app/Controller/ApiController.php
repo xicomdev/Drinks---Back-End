@@ -151,6 +151,19 @@ var $components = array('Common','Stripe.Stripe');
     	
     }
 
+    public function checkGroupExistsByGroupId($group_id){
+    	$this->loadModel("Group");
+    	$params = array(
+				'conditions' => array('Group._id' => $group_id,'Group.is_deleted' => false),
+			);
+		$exists = $this->Group->find('first', $params);			
+		if(!empty($exists)){
+			return true;  // one group already there
+		}else{
+			return false;  // no groups for this user
+		}
+    }
+
 
 
 
@@ -364,7 +377,7 @@ var $components = array('Common','Stripe.Stripe');
 				$user_array['User']['last_login'] = date('Y-m-d H:i:s');
 				$this->User->save($user_array);
 				if($user_array->premium_plan_last_date >= date('Y-m-d')){
-					$resultset['User']['membership_status'] = 'Premium';
+					$resultset['User']['membership_status'] = 'Paid member';
 				}else{
 					$resultset['User']['membership_status'] = 'Regular';					
 				}
@@ -914,6 +927,9 @@ var $components = array('Common','Stripe.Stripe');
 	public function deleteUser(){
 		$user_id = $this->userId;
         $this->loadModel("User");
+        $this->loadModel('Group');
+        $this->loadModel('Thread');
+        $this->loadModel('DrinkedGroup');
         if($this->request->data['deleted_reason']){
 	        // convert the string list to an array
 	        $user_array = $this->User->find('first',array('conditions'=>array('_id' => $user_id)));
@@ -925,16 +941,14 @@ var $components = array('Common','Stripe.Stripe');
 	        $group_array = $this->Group->find('first',array('conditions'=>array('Group.user_id' => $this->userId,'Group.is_deleted' => false)));
 
 	        if(!empty($group_array)){
-                $this->loadModel('Group');
-                $this->loadModel('Thread');
-                $this->loadModel('DrinkedGroup');
+	        	$group_id = $group_array['Group']['id'];
                 /*********************** START: Group deleted **********************/
                 $group_array['Group']['is_deleted'] = true;
                 $this->Group->save($group_array);
                 /*********************** END: Group deleted **********************/
 
                 /*********************** START: Thread deleted **********************/
-                $Thread_array = $this->Thread->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                $Thread_array = $this->Thread->find('first',array('conditions'=>array('group_id' => $group_id)));
                 if(!empty($Thread_array)){
                     $Thread_array['Thread']['is_deleted'] = true;
                     $this->Thread->save($Thread_array);
@@ -942,7 +956,7 @@ var $components = array('Common','Stripe.Stripe');
                 /*********************** END: Thread deleted **********************/
 
                 /*********************** START: DrinkedGroup deleted **********************/
-                $DrinkedGroup_array = $this->DrinkedGroup->find('first',array('conditions'=>array('group_id' => $group_array['Group']['id'])));
+                $DrinkedGroup_array = $this->DrinkedGroup->find('first',array('conditions'=>array('group_id' => $group_id)));
                 if(!empty($DrinkedGroup_array)){
                     $DrinkedGroup_array['DrinkedGroup']['is_deleted'] = true;
                     $this->DrinkedGroup->save($DrinkedGroup_array);
@@ -1350,8 +1364,8 @@ var $components = array('Common','Stripe.Stripe');
 		$lat2 = $this->request->data['current_latitude'];
 		$lon2 = $this->request->data['current_longitude'];
 		foreach ($myGroups as $key => $myGroup) {
-			$lat1 = $resultset['Group']['group_latitude'];
-			$lon1 = $resultset['Group']['group_longitude'];
+			$lat1 = $myGroup['Group']['group_latitude'];
+			$lon1 = $myGroup['Group']['group_longitude'];
 			$myGroup['Group']['distance'] = $this->distance($lat1, $lon1, $lat2, $lon2);
 			$myGroup['Group']['user'] = $login_user_info;
 			//print_r($myGroup); exit;
@@ -1369,7 +1383,7 @@ var $components = array('Common','Stripe.Stripe');
 
 
 	function distance($lat1, $lon1, $lat2, $lon2, $unit="K") {
-
+		//echo $lat1.' = '.$lon1.' = '.$lat2.' = '.$lon2; exit;
 	  $theta = $lon1 - $lon2;
 	  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
 	  $dist = acos($dist);
@@ -1388,7 +1402,7 @@ var $components = array('Common','Stripe.Stripe');
 
 	public function showInterest() {
 		$this->loadModel('DrinkedGroup');
-		if($this->checkGroupExists($this->userId) != "1"){ 
+		if($this->checkGroupExists($this->userId) != "1"){  
 			$resultArray = array();
 			$resultArray['status'] = false;
 			$resultArray['drinked_status'] = "undrinked";
@@ -1397,148 +1411,155 @@ var $components = array('Common','Stripe.Stripe');
 		}else{
 			//$this->request->data['user_id'] = $this->userId;
 			if (!empty($this->request->data['user_id']) && !empty($this->request->data['group_id'])) {
-				$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'group_id' => $this->request->data['group_id'])));
-				if(!empty($exists)){
-					// We already drinked group and now sending the drinked fr the same group
-					if($this->request->data['drinked_status'] == "drinked"){
-						$resultArray = array();
-						$resultArray['status'] = true;
-						$resultArray['drinked_status'] = "waiting";
-						$resultArray['message'] = "group already drinked";
-						$resultArray['jap_message'] = "既に飲んだグループ";
-					}
-					// offer is in waiting or confirmed and we are undrinked
-					if($this->request->data['drinked_status'] == "undrinked"){
-						if($this->DrinkedGroup->delete($exists['DrinkedGroup']['id'])){
-							//Delete Thread on undrinked
-							$this->deleteThreadIfHave($exists);
+				if($this->checkGroupExistsByGroupId($this->request->data['group_id']) == true){
+					$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->request->data['user_id'],'group_id' => $this->request->data['group_id'])));
+					if(!empty($exists)){
+						// We already drinked group and now sending the drinked fr the same group
+						if($this->request->data['drinked_status'] == "drinked"){
 							$resultArray = array();
 							$resultArray['status'] = true;
-							$resultArray['drinked_status'] = "undrinked";
-							$resultArray['message'] = "group undrinked successfully";
-							$resultArray['jap_message'] = "グループはうまく飲まれた";
-						}else{
-							$resultArray = array();
-							$resultArray['status'] = false;
-							$resultArray['drinked_status'] = "undrinked";
-							$resultArray['message'] = "something went wrong. please try again.";
-							$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
+							$resultArray['drinked_status'] = "waiting";
+							$resultArray['message'] = "group already drinked";
+							$resultArray['jap_message'] = "既に飲んだグループ";
 						}
-					}
-					// offer is in waiting list and we confirmed
-					if($this->request->data['drinked_status'] == "confirmed"){
-						$exists['DrinkedGroup']['drinked_status'] = "confirmed";
-						$exists['DrinkedGroup']['is_deleted'] = false;
-						if($this->DrinkedGroup->save($exists)){
-						    //Create Thread on accepted
-						    $this->createThread($exists);
-
-						    /*************** PUSH NOTICATION CODE**************************/
-							$pushData =array();
-							$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
-							$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['user_id'],array('fb_image','full_name','full_name','image'));
-							$pushdata['group_info']		= $this->getGroupInfoById($this->request->data['group_id']);
-							$pushData['push_type'] 		= 'DrinkedGroupAccepted'; 
-							$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['user_id']);
-							$push_notification_message  = $pushData['sender_info']['User']['full_name'].'  accepted your offer.';
-							$notification_count = 0;
-							foreach ($pushNotificationTokens as $token) {
-								//print_r($token['ApiSession']); exit;
-								if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
-									$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
-									$notification_count++;
-								}
-							}
-							/*************** END: PUSH NOTICATION CODE **********************/
-							$resultArray = array();
-							$resultArray['status'] = true;
-							$resultArray['drinked_status'] = "confirmed";
-							$resultArray['message'] = "offer accepted successfully";	
-							$resultArray['jap_message'] = "オファーが正常に受け入れられ";
-						}else{
-							$resultArray = array();
-							$resultArray['status'] = false;
-							$resultArray['drinked_status'] = "undrinked";
-							$resultArray['message'] = "something went wrong. please try again.";
-							$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
-						}	
-					}
-
-				}else{
-					if($this->request->data['drinked_status'] == "drinked"){
-						
-						if(!$this->checkIfDrinked($this->userId,$this->request->data['owner_user_id'])){
-							$this->DrinkedGroup->create();
-							$this->request->data['drinked_status'] = "drinked"; // direct interest confirrmed - removed "waiting"
-							$this->request->data['is_deleted'] = false; // direct interest confirrmed - removed "waiting"
-							
-							$account_array = $this->User->find('first',array('conditions'=>array('id' => $this->request->data['user_id'])));
-							
-							if($account_array['User']['balance'] > 0){
-								if($this->DrinkedGroup->save($this->request->data)){
-									//$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id' => $this->request->data['group_id'])));
-									//$this->createThread($exists);
-									$new_arr = array();
-									$new_arr['id'] = $account_array['User']['id'];
-									$new_arr['balance'] = $account_array['User']['balance']-1;
-									$this->User->save($new_arr);
-									$this->updateTicketConsumeCount(); // 5 ticket consume in a day
-
-									/*************** PUSH NOTICATION CODE**************************/
-									$pushData =array();
-									$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
-									$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['owner_user_id'],array('fb_image','full_name','full_name','image'));
-									$pushdata['group_info']		= $this->getGroupInfoById($this->request->data['group_id']);
-									$pushData['push_type'] 		= 'DrinkedGroup'; 
-									$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['owner_user_id']);
-									$push_notification_message  = $pushData['sender_info']['User']['full_name'].' interst in your group.';
-									$notification_count = 0;
-									foreach ($pushNotificationTokens as $token) {
-										//print_r($token['ApiSession']); exit;
-										if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
-											$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
-											$notification_count++;
-										}
-									}
-									/*************** END: PUSH NOTICATION CODE **********************/
-
-									$resultArray = array();
-									$resultArray['status'] = true;
-									$resultArray['drinked_status'] = "drinked"; // direct interest confirmed - removed "waiting"
-									$resultArray['message'] = "group drinked successfully";	
-									$resultArray['jap_message'] = "グループは正常に飲んだ";
-								}else{
-									$resultArray = array();
-									$resultArray['status'] = false;
-									$resultArray['drinked_status'] = "undrinked";
-									$resultArray['message'] = "something went wrong. please try again.";
-									$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
-								}	
-							}else{
+						// offer is in waiting or confirmed and we are undrinked
+						if($this->request->data['drinked_status'] == "undrinked"){
+							if($this->DrinkedGroup->delete($exists['DrinkedGroup']['id'])){
+								//Delete Thread on undrinked
+								$this->deleteThreadIfHave($exists);
 								$resultArray = array();
 								$resultArray['status'] = true;
 								$resultArray['drinked_status'] = "undrinked";
-								$resultArray['message'] = "insufficient balance";
-								$resultArray['jap_message'] = "残高不足";
+								$resultArray['message'] = "group undrinked successfully";
+								$resultArray['jap_message'] = "グループはうまく飲まれた";
+							}else{
+								$resultArray = array();
+								$resultArray['status'] = false;
+								$resultArray['drinked_status'] = "undrinked";
+								$resultArray['message'] = "something went wrong. please try again.";
+								$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
 							}
-					   	}else{
+						}
+						// offer is in waiting list and we confirmed
+						if($this->request->data['drinked_status'] == "confirmed"){
+							$exists['DrinkedGroup']['drinked_status'] = "confirmed";
+							$exists['DrinkedGroup']['is_deleted'] = false;
+							if($this->DrinkedGroup->save($exists)){
+							    //Create Thread on accepted
+							    $this->createThread($exists);
 
-					   		$resultArray = array();
-							$resultArray['status'] = false;
-							$resultArray['drinked_status'] = "undrinked";
-							$resultArray['message'] = "You have already been offered interest by this group";
-							$resultArray['jap_message'] = "あなたはすでにこのグループの関心を得ています";
+							    /*************** PUSH NOTICATION CODE**************************/
+								$pushData =array();
+								$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
+								$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['user_id'],array('fb_image','full_name','full_name','image'));
+								$pushdata['group_info']		= $this->getGroupInfoById($this->request->data['group_id']);
+								$pushData['push_type'] 		= 'DrinkedGroupAccepted'; 
+								$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['user_id']);
+								$push_notification_message  = $pushData['sender_info']['User']['full_name'].'  accepted your offer.';
+								$notification_count = 0;
+								foreach ($pushNotificationTokens as $token) {
+									//print_r($token['ApiSession']); exit;
+									if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
+										$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
+										$notification_count++;
+									}
+								}
+								/*************** END: PUSH NOTICATION CODE **********************/
+								$resultArray = array();
+								$resultArray['status'] = true;
+								$resultArray['drinked_status'] = "confirmed";
+								$resultArray['message'] = "offer accepted successfully";	
+								$resultArray['jap_message'] = "オファーが正常に受け入れられ";
+							}else{
+								$resultArray = array();
+								$resultArray['status'] = false;
+								$resultArray['drinked_status'] = "undrinked";
+								$resultArray['message'] = "something went wrong. please try again.";
+								$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
+							}	
+						}
 
-					   	}
-						
 					}else{
-						$resultArray = array();
-						$resultArray['status'] = true;
-						$resultArray['drinked_status'] = "undrinked";
-						$resultArray['message'] = "group already undrinked";
-						$resultArray['jap_message'] = "既に飲まれていないグループ";
-						
+						if($this->request->data['drinked_status'] == "drinked"){
+							
+							if(!$this->checkIfDrinked($this->userId,$this->request->data['owner_user_id'])){
+								$this->DrinkedGroup->create();
+								$this->request->data['drinked_status'] = "drinked"; // direct interest confirrmed - removed "waiting"
+								$this->request->data['is_deleted'] = false; // direct interest confirrmed - removed "waiting"
+								
+								$account_array = $this->User->find('first',array('conditions'=>array('id' => $this->request->data['user_id'])));
+								
+								if($account_array['User']['balance'] > 0){
+									if($this->DrinkedGroup->save($this->request->data)){
+										//$exists = $this->DrinkedGroup->find('first',array('conditions'=>array('user_id' => $this->userId,'group_id' => $this->request->data['group_id'])));
+										//$this->createThread($exists);
+										$new_arr = array();
+										$new_arr['id'] = $account_array['User']['id'];
+										$new_arr['balance'] = $account_array['User']['balance']-1;
+										$this->User->save($new_arr);
+										$this->updateTicketConsumeCount(); // 5 ticket consume in a day
+
+										/*************** PUSH NOTICATION CODE**************************/
+										$pushData =array();
+										$pushData['sender_info'] 	= $this->getUserInfoById($this->userId,array('fb_image','full_name','full_name','image'));
+										$pushData['receiver_info']  = $this->getUserInfoById($this->request->data['owner_user_id'],array('fb_image','full_name','full_name','image'));
+										$pushdata['group_info']		= $this->getGroupInfoById($this->request->data['group_id']);
+										$pushData['push_type'] 		= 'DrinkedGroup'; 
+										$pushNotificationTokens 	= $this->getSessionInfoById($this->request->data['owner_user_id']);
+										$push_notification_message  = $pushData['sender_info']['User']['full_name'].' interst in your group.';
+										$notification_count = 0;
+										foreach ($pushNotificationTokens as $token) {
+											//print_r($token['ApiSession']); exit;
+											if(isset($token['ApiSession']['token'])  && !empty($token['ApiSession']['token'])){
+												$this->sendPushNotificationOnIOS($token['ApiSession']['token'],$push_notification_message,'@drinks',json_encode($pushData));	
+												$notification_count++;
+											}
+										}
+										/*************** END: PUSH NOTICATION CODE **********************/
+
+										$resultArray = array();
+										$resultArray['status'] = true;
+										$resultArray['drinked_status'] = "drinked"; // direct interest confirmed - removed "waiting"
+										$resultArray['message'] = "group drinked successfully";	
+										$resultArray['jap_message'] = "グループは正常に飲んだ";
+									}else{
+										$resultArray = array();
+										$resultArray['status'] = false;
+										$resultArray['drinked_status'] = "undrinked";
+										$resultArray['message'] = "something went wrong. please try again.";
+										$resultArray['jap_message'] = "何かが間違っていた。もう一度お試しください。";
+									}	
+								}else{
+									$resultArray = array();
+									$resultArray['status'] = true;
+									$resultArray['drinked_status'] = "undrinked";
+									$resultArray['message'] = "insufficient balance";
+									$resultArray['jap_message'] = "残高不足";
+								}
+						   	}else{
+
+						   		$resultArray = array();
+								$resultArray['status'] = false;
+								$resultArray['drinked_status'] = "undrinked";
+								$resultArray['message'] = "You have already been offered interest by this group";
+								$resultArray['jap_message'] = "あなたはすでにこのグループの関心を得ています";
+
+						   	}
+							
+						}else{
+							$resultArray = array();
+							$resultArray['status'] = true;
+							$resultArray['drinked_status'] = "undrinked";
+							$resultArray['message'] = "group already undrinked";
+							$resultArray['jap_message'] = "既に飲まれていないグループ";
+							
+						}
 					}
+				}else{
+					$resultArray = array();
+					$resultArray['status'] = false;
+					$resultArray['message'] = "Group not exist";
+					$resultArray['jap_message'] = "グループが存在しない";
 				}
 
 
@@ -2663,7 +2684,7 @@ var $components = array('Common','Stripe.Stripe');
 		$this->loadModel('Option');
 
 		$tickets = $this->Option->find('all',array(
-											'fields'=>array("eng_name","jap_name","ticket","amount","type"),
+											'fields'=>array("eng_name","jap_name","ticket","amount","type","discount"),
 											'conditions' => array('Option.type' => 'ticket'),
 											'order'=>array('Option.ticket'=>'DESC')
 											));
@@ -2826,7 +2847,7 @@ var $components = array('Common','Stripe.Stripe');
 		$user_detail = $this->User->find('first', $params);
 
 		$user_detail['User']['status'] = true;
-		if(!empty($_FILES['age_document'])){
+		if(isset($_FILES['age_document']) && !empty($_FILES['age_document'])){
 			unlink(WWW_ROOT.'uploads/users/age_document/original/'.$user_detail['User']['age_document']);
 			unlink(WWW_ROOT.'uploads/users/age_document/resized/'.$user_detail['User']['age_document']);	
 			$user_detail['User']['age_document'] = BASE_URL."uploads/users/age_document/original/".$this->Common->upload("age_document",$_FILES['age_document']);	
@@ -2872,14 +2893,14 @@ var $components = array('Common','Stripe.Stripe');
 						);
 		$user_detail = $this->User->find('first', $params);
 		if($user_detail['User']['premium_plan_last_date'] >= date('Y-m-d')){
-			$user_detail['User']['membership_status'] = 'Premium';
+			$user_detail['User']['membership_status'] = 'Paid member';
 		}else{
 			$user_detail['User']['membership_status'] = 'Regular';					
 		}
 		if($user_detail['User']['membership_status'] == 'Regular'){
 			if(isset($user_detail['User']['consume_date']) && $user_detail['User']['consume_date'] == date('Y-m-d')){
 				if(isset($user_detail['User']['consume_total']) && $user_detail['User']['consume_total'] >= 5){
-					$user_detail['User']['membership_status'] = 'Premium';
+					$user_detail['User']['membership_status'] = 'Paid member';
 				}
 			}
 		}
@@ -2985,7 +3006,7 @@ var $components = array('Common','Stripe.Stripe');
 						$resultArray = array();
 						$resultArray['status'] = false;
 						$resultArray['data'] = new stdClass();
-						$resultArray['message'] = 'You are already premium user.';
+						$resultArray['message'] = 'You are already paid member.';
 						$resultArray['jap_message'] = "あなたはすでにプレミアムユーザーです。";
 						header("Content-type:application/json");
 				    	echo json_encode($resultArray); 
@@ -3145,6 +3166,13 @@ var $components = array('Common','Stripe.Stripe');
 				    $new_balance = $user_detail['User']['balance'] + 10;
 				    $user_detail['User']['balance'] = $new_balance;
 				    $this->User->save($user_detail);
+				    if(isset($coupon_code_detail['User']['id'])){
+					    $owner_user_detail = $this->User->find('first',array('conditions' => array('User._id' => $coupon_code_detail['User']['id'])));
+					    $owner_new_balance = $owner_user_detail['User']['balance'] + 10;
+					    $owner_user_detail['User']['balance'] = $owner_new_balance;
+					    $this->User->save($owner_user_detail);
+				    	
+				    }
 
 			    	$resultArray = array();
 					$resultArray['status'] = true;

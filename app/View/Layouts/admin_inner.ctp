@@ -40,6 +40,7 @@
     <?= $this->fetch('meta'); ?>
     <?= $this->fetch('css'); ?>
     <?= $this->fetch('script'); ?>
+    <script src="//cdn.ckeditor.com/4.8.0/standard/ckeditor.js"></script>
   </head>
 
   <body>
