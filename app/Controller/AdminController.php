@@ -476,4 +476,13 @@
                 die;
             }
         }
+
+
+        public function webadmin_send_notification(){
+            $this->set('title_for_layout', 'Send notification');
+            $this->layout = 'admin_inner';
+            $this->set('page','notification');
+            $this->set('sub_page','send_notification');
+            $this->set(compact('page','sub_page'));
+        }
     }

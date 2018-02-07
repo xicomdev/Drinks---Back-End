@@ -40,6 +40,16 @@
                     <li class="<?php echo (isset($sub_page) && $sub_page == 'pages') ? 'active' : ''; ?>"><a  href="<?= $this->webroot; ?>webadmin/page/pages">View Pages</a></li>                   
                 </ul>
             </li>
+           <!--  <li class="sub-menu">
+                <a href="javascript:;" class="">
+                    <i class="icon_document_alt"></i>
+                    <span>Notification</span>
+                    <span class="menu-arrow arrow_carrot-<?php //echo (isset($page) && $page == 'notification') ? 'down' : 'right'; ?>"></span>
+                </a>
+                <ul class="sub" style='display:<?php // echo (isset($page) && $page == 'notification') ? 'block' : 'none'; ?>'>
+                    <li class="<?php //echo (isset($sub_page) && $sub_page == 'send_notification') ? 'active' : ''; ?>"><a  href="<?= $this->webroot; ?>webadmin/admin/send_notification">Send Notification</a></li>                   
+                </ul>
+            </li> -->
             <li class="sub-menu">
                 <a href="javascript:;" class="">
                     <i class="icon_document_alt"></i>
